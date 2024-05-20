@@ -9,7 +9,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int HotelID { get; set; }
-        public byte[] MainImage { get; set; }
+        public byte[]? MainImage { get; set; }
         [MaxLength(255)]
         public String Name { get; set; }
         public int OpenedIn { get; set; }
@@ -24,6 +24,11 @@ namespace GraduationAPI_EPOSHBOOKING.Model
 
         [ForeignKey("AddressID")]
         public HotelAddress HotelAddress { get; set; }
+
+        public ICollection<HotelImage> HotelImages { get; set; }
+        public ICollection<HotelAmenities> HotelAmenities { get; set; }
+        public ICollection<HotelService> HotelServices { get; set; }
+
 
 
     }
