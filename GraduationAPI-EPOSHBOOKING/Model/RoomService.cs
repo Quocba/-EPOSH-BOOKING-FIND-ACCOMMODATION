@@ -11,5 +11,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public int RoomServiceID { get; set; }
         [MaxLength(255)]
         public String Type { get; set; }
+
+        public ICollection<RoomSubService> RoomSubServices { get; set; }
     }
 }   

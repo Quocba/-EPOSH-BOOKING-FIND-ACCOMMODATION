@@ -22,7 +22,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public String Address { get; set;}
 
         [AllowNull]
-        public byte[] Avatar { get; set; }
+        public byte[]? Avatar { get; set; }
 
     }
 }

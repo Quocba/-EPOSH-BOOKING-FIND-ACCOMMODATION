@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace GraduationAPI_EPOSHBOOKING.Model
 {
@@ -13,5 +14,6 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [Key]
         public int ServiceID { get; set; }
         public HotelService hotelService { get; set; }
+
     }
 }

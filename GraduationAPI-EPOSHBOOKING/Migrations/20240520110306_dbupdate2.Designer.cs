@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduationAPI_EPOSHBOOKING.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20240520082807_FixTableNameBlog")]
-    partial class FixTableNameBlog
+    [Migration("20240520110306_dbupdate2")]
+    partial class dbupdate2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -268,7 +268,6 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("int");
 
                     b.Property<byte[]>("MainImage")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Name")
@@ -347,7 +346,6 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("int");
 
                     b.Property<byte[]>("ImageData")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.HasKey("ImageID");
@@ -365,12 +363,17 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ServiceID"));
 
+                    b.Property<int?>("HotelID")
+                        .HasColumnType("int");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
                     b.HasKey("ServiceID");
+
+                    b.HasIndex("HotelID");
 
                     b.ToTable("HotelService");
                 });
@@ -430,7 +433,6 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<byte[]>("Avatar")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<DateTime>("BirthDay")
@@ -781,7 +783,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.HotelAmenities", b =>
                 {
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Hotel", "hotel")
-                        .WithMany()
+                        .WithMany("HotelAmenities")
                         .HasForeignKey("HotelID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -800,7 +802,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.HotelImage", b =>
                 {
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Hotel", "Hotel")
-                        .WithMany()
+                        .WithMany("HotelImages")
                         .HasForeignKey("HotelID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -808,10 +810,17 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Navigation("Hotel");
                 });
 
+            modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.HotelService", b =>
+                {
+                    b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Hotel", null)
+                        .WithMany("HotelServices")
+                        .HasForeignKey("HotelID");
+                });
+
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.HotelSubService", b =>
                 {
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.HotelService", "HotelService")
-                        .WithMany()
+                        .WithMany("HotelSubServices")
                         .HasForeignKey("ServiceID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -899,6 +908,20 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .IsRequired();
 
                     b.Navigation("RoomService");
+                });
+
+            modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.Hotel", b =>
+                {
+                    b.Navigation("HotelAmenities");
+
+                    b.Navigation("HotelImages");
+
+                    b.Navigation("HotelServices");
+                });
+
+            modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.HotelService", b =>
+                {
+                    b.Navigation("HotelSubServices");
                 });
 #pragma warning restore 612, 618
         }

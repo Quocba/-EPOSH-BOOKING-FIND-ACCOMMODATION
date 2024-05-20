@@ -20,5 +20,9 @@ namespace GraduationAPI_EPOSHBOOKING.Model
 
         [ForeignKey("HotelID")]
         public Hotel Hotel { get; set; }
+
+        public ICollection<RoomImage> RoomImages { get; set; }
+        public ICollection<RoomAmenities> RoomAmenities { get; set; }
+        public ICollection<RoomService> RoomService { get; set; }
     }
 }

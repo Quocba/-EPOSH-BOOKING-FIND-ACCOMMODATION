@@ -14,5 +14,6 @@ namespace GraduationAPI_EPOSHBOOKING.Model
 
         [ForeignKey("ServiceID")]
         public HotelService HotelService { get; set; }
+
     }
 }
