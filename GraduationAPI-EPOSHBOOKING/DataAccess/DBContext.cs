@@ -1,8 +1,44 @@
-﻿namespace GraduationAPI_EPOSHBOOKING.DataAccess
+﻿using GraduationAPI_EPOSHBOOKING.Model;
+using Microsoft.EntityFrameworkCore;
+
+namespace GraduationAPI_EPOSHBOOKING.DataAccess
 {
-    public class DBContext
+    public class DBContext : DbContext
     {
-        public DBContext() { }
-        
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer("Data Source=LAPTOP-3P8D5MG5;Initial Catalog=EposhBookingGraduation;Integrated Security=True;Trust Server Certificate=True");
+        }
+        public DbSet<Account> accounts { get; set; }
+        public DbSet<Role> roles { get; set; }
+        public DbSet<Profile> profiles { get; set; }
+        public DbSet<Blog> blog { get; set; }
+        public DbSet<BlogImage> blogImage { get; set; }
+        public DbSet<CommentBlog> blogComment { get; set; }
+        public DbSet<Hotel> hotel { get; set; }
+        public DbSet<HotelAddress> hotelAddress { get; set; }
+        public DbSet<HotelImage> hotelImage { get; set; }
+        public DbSet<HotelAmenities> hotelAmenities { get; set; }
+        public DbSet<HotelService> hotelService { get; set; }
+        public DbSet<HotelSubService> hotelSubService { get; set;}
+        public DbSet<Room> room { get; set; }
+        public DbSet<RoomImage> roomImage { get; set; }
+        public DbSet<RoomService> roomService { get; set; }
+        public DbSet<RoomSubService> roomSubService { get; set; }
+        public DbSet<RoomAmenities> roomAmenities { get; set;}
+        public DbSet<Booking> booking { get; set; }
+        public DbSet<BookingDetail> bookingDetail { get; set; }
+        public DbSet<FeedBack> feedback { get; set; }
+        public DbSet<ReportFeedBack> reportFeedBack { get; set; }
+        public DbSet<Voucher> voucher { get; set; }
+        public DbSet<MyVoucher> myVoucher { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MyVoucher>().HasKey(o => new { o.VoucherID, o.AccountID });
+            modelBuilder.Entity<HotelAmenities>().HasKey(o => new { o.ServiceID, o.HotelID });
+            modelBuilder.Entity<RoomAmenities>().HasKey(o => new { o.RoomServiceID, o.RoomId });
+        }
+
     }
 }
