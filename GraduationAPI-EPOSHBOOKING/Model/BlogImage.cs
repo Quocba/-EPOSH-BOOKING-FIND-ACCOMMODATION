@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GraduationAPI_EPOSHBOOKING.Model
 {
-    [Table("BlogIamge")]
+    [Table("BlogImage")]
     public class BlogImage
     {
         [Key]
