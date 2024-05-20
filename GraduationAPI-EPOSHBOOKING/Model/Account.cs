@@ -13,6 +13,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public int AccountID { get; set; }
         [MaxLength(255)]
         [AllowNull]
+        
         public String Email { get; set; }
         [MaxLength (16)]
         [AllowNull]
