@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GraduationAPI_EPOSHBOOKING.Model
@@ -10,10 +11,8 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int HotelID { get; set; }
         public byte[]? MainImage { get; set; }
-        [MaxLength(255)]
         public String Name { get; set; }
         public int OpenedIn { get; set; }
-        [MaxLength(255)]
         public String Description { get; set; }
 
         public int HotelStandar { get; set; }
@@ -26,8 +25,8 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public HotelAddress HotelAddress { get; set; }
 
         public ICollection<HotelImage> HotelImages { get; set; }
-        public ICollection<HotelAmenities> HotelAmenities { get; set; }
         public ICollection<HotelService> HotelServices { get; set; }
+        public ICollection<FeedBack>? feedBacks { get; set; }
 
 
 

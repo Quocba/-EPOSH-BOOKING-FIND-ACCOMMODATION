@@ -15,9 +15,12 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetAllHotel()
         {
-            var listHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.HotelImages).Include(x => x.HotelAmenities).ThenInclude(x => x.hotelService).ThenInclude(x => x.HotelSubServices)
-                .Include(x => x.Account).Include(x => x.Account.Profile).ToList();
-           if(listHotel.Any()) {
+            var listHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.HotelImages).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices)
+               .Include(x => x.feedBacks).FirstOrDefault(x => x.HotelID == 1);
+            //var listHotel = db.hotel.Include(x => x.feedBacks).FirstOrDefault(x => x.HotelID == 3);
+
+            if (listHotel != null)
+            {
                 return new ResponseMessage { Success = true, Message = "Successfully", Data = listHotel, StatusCode = (int)HttpStatusCode.OK };
             }
             else

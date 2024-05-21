@@ -10,10 +10,8 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ReportID { get; set; }
 
-        [MaxLength(255)]
         public String ReporterEmail { get; set; }
 
-        [MaxLength(255)]
         public String ReasonReport { get;set; }
 
         [ForeignKey("FeedBackID")]
