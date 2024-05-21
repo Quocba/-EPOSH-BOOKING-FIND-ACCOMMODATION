@@ -6,7 +6,7 @@ using System;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/voucher")]
     [ApiController]
     public class VoucherController : ControllerBase
     {
@@ -17,24 +17,13 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             _voucherRepository = voucherRepository ?? throw new ArgumentNullException(nameof(voucherRepository));
         }
 
-        [HttpGet]
+        [HttpGet("get-all-voucher")]
         public IActionResult GetAllVouchers()
         {
-            try
-            {
-                var response = _voucherRepository.GetAllVouchers();
-                return StatusCode(response.StatusCode, response);
-            }
-            catch (Exception ex)
-            {
-                // Xử lý lỗi và trả về phản hồi lỗi nếu cần
-                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseMessage
-                {
-                    Success = false,
-                    Message = "Internal Server Error",
-                    StatusCode = StatusCodes.Status500InternalServerError
-                });
-            }
+               
+               var response = _voucherRepository.GetAllVouchers();
+               return StatusCode(response.StatusCode, response);
+            
         }
     }
 }

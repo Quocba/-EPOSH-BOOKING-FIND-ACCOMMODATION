@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/blog")]
     [ApiController]
     public class BlogController : ControllerBase
     {
@@ -15,18 +15,11 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             _blogRepository = blogRepository;
         }
 
-        [HttpGet("GetAllBlogs")]
+        [HttpGet("get-all-blog")]
         public IActionResult GetAllBlogs()
         {
-            var response = _blogRepository.GetAllBlogs();
-            if (response.Success)
-            {
-                return Ok(response);
-            }
-            else
-            {
-                return StatusCode(response.StatusCode, response);
-            }
+           var response = _blogRepository.GetAllBlogs();
+           return StatusCode(response.StatusCode,response);
         }
     }
 }
