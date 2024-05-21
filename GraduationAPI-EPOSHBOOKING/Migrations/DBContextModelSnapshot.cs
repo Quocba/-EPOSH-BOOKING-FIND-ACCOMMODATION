@@ -101,7 +101,6 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("int");
 
                     b.Property<byte[]>("ImageData")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.HasKey("ImageID");
@@ -231,7 +230,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<int>("AccountID")
                         .HasColumnType("int");
 
-                    b.Property<int>("AddressID")
+                    b.Property<int?>("AddressID")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -647,7 +646,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.BlogImage", b =>
                 {
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Blog", "Blog")
-                        .WithMany()
+                        .WithMany("BlogImage")
                         .HasForeignKey("BlogID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -736,9 +735,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.HotelAddress", "HotelAddress")
                         .WithMany()
-                        .HasForeignKey("AddressID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AddressID");
 
                     b.Navigation("Account");
 
@@ -811,7 +808,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.Room", b =>
                 {
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Hotel", "Hotel")
-                        .WithMany()
+                        .WithMany("rooms")
                         .HasForeignKey("HotelID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -865,6 +862,8 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.Blog", b =>
                 {
+                    b.Navigation("BlogImage");
+
                     b.Navigation("Comment");
                 });
 
@@ -875,6 +874,8 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Navigation("HotelServices");
 
                     b.Navigation("feedBacks");
+
+                    b.Navigation("rooms");
                 });
 
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.HotelService", b =>

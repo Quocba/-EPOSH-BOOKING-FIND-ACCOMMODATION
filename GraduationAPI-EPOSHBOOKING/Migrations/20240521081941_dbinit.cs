@@ -12,27 +12,13 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "CommentBlog",
-                columns: table => new
-                {
-                    AccountID = table.Column<int>(type: "int", nullable: false),
-                    BlogID = table.Column<int>(type: "int", nullable: false),
-                    Desciption = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateComment = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CommentBlog", x => new { x.AccountID, x.BlogID });
-                });
-
-            migrationBuilder.CreateTable(
                 name: "HotelAddress",
                 columns: table => new
                 {
                     AddressID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    City = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     latitude = table.Column<double>(type: "float", nullable: false),
                     longitude = table.Column<double>(type: "float", nullable: false)
                 },
@@ -47,10 +33,10 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     ProfileID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    fullName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    BirthDay = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Gender = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    fullName = table.Column<string>(type: "nvarchar(32)", maxLength: 32, nullable: false),
+                    BirthDay = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Gender = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Avatar = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
                 },
                 constraints: table =>
@@ -78,11 +64,11 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     VoucherID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     VoucherImage = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    VoucherName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    VoucherName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Code = table.Column<string>(type: "nvarchar(6)", maxLength: 6, nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    QuantityUseed = table.Column<int>(type: "int", nullable: false),
                     Discount = table.Column<double>(type: "float", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -95,9 +81,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     AccountID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: true),
+                    Phone = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     RoleID = table.Column<int>(type: "int", nullable: false),
                     ProfileID = table.Column<int>(type: "int", nullable: false)
@@ -125,9 +111,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     BlogID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AccountID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -148,9 +134,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     HotelID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MainImage = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     OpenedIn = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     HotelStandar = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<bool>(type: "bit", nullable: false),
                     AccountID = table.Column<int>(type: "int", nullable: false),
@@ -204,7 +190,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     ImageID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ImageData = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    ImageData = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     BlogID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -216,6 +202,32 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         principalTable: "Blogs",
                         principalColumn: "BlogID",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CommentBlog",
+                columns: table => new
+                {
+                    AccountID = table.Column<int>(type: "int", nullable: false),
+                    BlogID = table.Column<int>(type: "int", nullable: false),
+                    Desciption = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateComment = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CommentBlog", x => new { x.AccountID, x.BlogID });
+                    table.ForeignKey(
+                        name: "FK_CommentBlog_Account_AccountID",
+                        column: x => x.AccountID,
+                        principalTable: "Account",
+                        principalColumn: "AccountID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CommentBlog_Blogs_BlogID",
+                        column: x => x.BlogID,
+                        principalTable: "Blogs",
+                        principalColumn: "BlogID",
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -244,7 +256,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     ServiceID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     HotelID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -264,12 +276,12 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     RoomID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TypeOfRoom = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    TypeOfRoom = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NumberCapacity = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     SizeOfRoom = table.Column<int>(type: "int", nullable: false),
-                    TypeOfBed = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    TypeOfBed = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     HotelID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -289,7 +301,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     SubServiceID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SubServiceName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    SubServiceName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ServiceID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -317,7 +329,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     NumberOfRoom = table.Column<int>(type: "int", nullable: false),
                     AccountID = table.Column<int>(type: "int", nullable: false),
                     RoomID = table.Column<int>(type: "int", nullable: false),
-                    VoucherID = table.Column<int>(type: "int", nullable: false)
+                    VoucherID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -338,8 +350,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         name: "FK_Booking_Voucher_VoucherID",
                         column: x => x.VoucherID,
                         principalTable: "Voucher",
-                        principalColumn: "VoucherID",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "VoucherID");
                 });
 
             migrationBuilder.CreateTable(
@@ -368,7 +379,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     RoomServiceID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RoomID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -376,6 +387,28 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     table.PrimaryKey("PK_RoomService", x => x.RoomServiceID);
                     table.ForeignKey(
                         name: "FK_RoomService_Room_RoomID",
+                        column: x => x.RoomID,
+                        principalTable: "Room",
+                        principalColumn: "RoomID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SpecialPrice",
+                columns: table => new
+                {
+                    SpecialPriceID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Price = table.Column<double>(type: "float", nullable: false),
+                    RoomID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpecialPrice", x => x.SpecialPriceID);
+                    table.ForeignKey(
+                        name: "FK_SpecialPrice_Room_RoomID",
                         column: x => x.RoomID,
                         principalTable: "Room",
                         principalColumn: "RoomID",
@@ -425,7 +458,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     SubServiceID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SubName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    SubName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RoomServiceID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -445,8 +478,8 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     ReportID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ReporterEmail = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    ReasonReport = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    ReporterEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReasonReport = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FeedBackID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -494,6 +527,11 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 name: "IX_Booking_VoucherID",
                 table: "Booking",
                 column: "VoucherID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CommentBlog_BlogID",
+                table: "CommentBlog",
+                column: "BlogID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FeedBack_AccountID",
@@ -564,6 +602,11 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 name: "IX_RoomSubService_RoomServiceID",
                 table: "RoomSubService",
                 column: "RoomServiceID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpecialPrice_RoomID",
+                table: "SpecialPrice",
+                column: "RoomID");
         }
 
         /// <inheritdoc />
@@ -592,6 +635,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
             migrationBuilder.DropTable(
                 name: "RoomSubService");
+
+            migrationBuilder.DropTable(
+                name: "SpecialPrice");
 
             migrationBuilder.DropTable(
                 name: "Blogs");

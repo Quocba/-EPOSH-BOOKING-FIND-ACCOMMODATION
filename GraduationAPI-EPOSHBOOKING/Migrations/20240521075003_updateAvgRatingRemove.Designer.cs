@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduationAPI_EPOSHBOOKING.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20240521041501_updateNullField")]
-    partial class updateNullField
+    [Migration("20240521075003_updateAvgRatingRemove")]
+    partial class updateAvgRatingRemove
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -234,7 +234,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<int>("AccountID")
                         .HasColumnType("int");
 
-                    b.Property<int>("AddressID")
+                    b.Property<int?>("AddressID")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -739,9 +739,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.HotelAddress", "HotelAddress")
                         .WithMany()
-                        .HasForeignKey("AddressID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AddressID");
 
                     b.Navigation("Account");
 
@@ -814,7 +812,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.Room", b =>
                 {
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Hotel", "Hotel")
-                        .WithMany()
+                        .WithMany("rooms")
                         .HasForeignKey("HotelID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -878,6 +876,8 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Navigation("HotelServices");
 
                     b.Navigation("feedBacks");
+
+                    b.Navigation("rooms");
                 });
 
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.HotelService", b =>

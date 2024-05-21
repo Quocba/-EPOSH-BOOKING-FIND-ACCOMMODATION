@@ -17,16 +17,16 @@ namespace GraduationAPI_EPOSHBOOKING.Model
 
         public int HotelStandar { get; set; }
         public bool Status { get; set;}
-
         [ForeignKey("AccountID")]
         public Account Account { get; set; }
 
         [ForeignKey("AddressID")]
-        public HotelAddress HotelAddress { get; set; }
+        public HotelAddress? HotelAddress { get; set; }
 
-        public ICollection<HotelImage> HotelImages { get; set; }
-        public ICollection<HotelService> HotelServices { get; set; }
+        public ICollection<HotelImage>? HotelImages { get; set; }
+        public ICollection<HotelService>? HotelServices { get; set; }
         public ICollection<FeedBack>? feedBacks { get; set; }
+        public ICollection<Room>? rooms { get; set; }
 
 
 
