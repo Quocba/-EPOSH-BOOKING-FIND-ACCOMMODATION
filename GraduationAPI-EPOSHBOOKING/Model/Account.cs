@@ -11,16 +11,11 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int AccountID { get; set; }
-        [MaxLength(255)]
-        [AllowNull]
-        
-        public String Email { get; set; }
+        public String? Email { get; set; }
         [MaxLength (16)]
-        [AllowNull]
-        public String Password { get; set; }
-        [MaxLength(255)]
-        [AllowNull]
-        public String Phone {  get; set; }
+        public String? Password { get; set; }
+        [MaxLength(10)]
+        public String? Phone {  get; set; }
         public bool IsActive { get; set; }
 
         [ForeignKey("RoleID")]
@@ -28,6 +23,8 @@ namespace GraduationAPI_EPOSHBOOKING.Model
 
         [ForeignKey("ProfileID")]
         public Profile Profile { get; set; }
+
+        
 
     }
 }

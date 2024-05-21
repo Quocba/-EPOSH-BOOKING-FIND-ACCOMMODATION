@@ -9,10 +9,10 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int SubServiceID { get; set; }
-        [MaxLength(255)]
         public String SubServiceName { get; set; }
 
         [ForeignKey("ServiceID")]
         public HotelService HotelService { get; set; }
+
     }
 }

@@ -18,26 +18,23 @@ namespace GraduationAPI_EPOSHBOOKING.DataAccess
         public DbSet<Hotel> hotel { get; set; }
         public DbSet<HotelAddress> hotelAddress { get; set; }
         public DbSet<HotelImage> hotelImage { get; set; }
-        public DbSet<HotelAmenities> hotelAmenities { get; set; }
         public DbSet<HotelService> hotelService { get; set; }
         public DbSet<HotelSubService> hotelSubService { get; set;}
         public DbSet<Room> room { get; set; }
         public DbSet<RoomImage> roomImage { get; set; }
         public DbSet<RoomService> roomService { get; set; }
         public DbSet<RoomSubService> roomSubService { get; set; }
-        public DbSet<RoomAmenities> roomAmenities { get; set;}
         public DbSet<Booking> booking { get; set; }
-        public DbSet<BookingDetail> bookingDetail { get; set; }
         public DbSet<FeedBack> feedback { get; set; }
         public DbSet<ReportFeedBack> reportFeedBack { get; set; }
         public DbSet<Voucher> voucher { get; set; }
         public DbSet<MyVoucher> myVoucher { get; set; }
-
+        public DbSet<SpecialPrice> specialPrice { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<MyVoucher>().HasKey(o => new { o.VoucherID, o.AccountID });
-            modelBuilder.Entity<HotelAmenities>().HasKey(o => new { o.ServiceID, o.HotelID });
-            modelBuilder.Entity<RoomAmenities>().HasKey(o => new { o.RoomServiceID, o.RoomId });
+            modelBuilder.Entity<CommentBlog>().HasKey(o => new {o.AccountID, o.BlogID});
+
         }
 
     }

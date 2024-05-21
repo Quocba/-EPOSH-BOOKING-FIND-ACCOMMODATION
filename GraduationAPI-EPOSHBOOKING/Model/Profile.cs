@@ -10,19 +10,13 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ProfileID { get; set; }
-        [MaxLength(255)]
+        [MaxLength(32)]
         public String fullName { get; set; }
-        [AllowNull]
-        public DateTime BirthDay { get; set; }
-        [AllowNull]
+        public DateTime? BirthDay { get; set; }
         [MaxLength(10)]
-        public String Gender { get; set; }
-        [AllowNull]
-        [MaxLength(255)]
-        public String Address { get; set;}
-
-        [AllowNull]
-        public byte[] Avatar { get; set; }
+        public String? Gender { get; set; }
+        public String? Address { get; set;}
+        public byte[]? Avatar { get; set; }
 
     }
 }
