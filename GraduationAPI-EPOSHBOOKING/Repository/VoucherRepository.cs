@@ -44,17 +44,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     };
                 }
             }
-            catch (Exception ex)
-            {
-                // Xử lý lỗi và trả về phản hồi lỗi nếu cần
-                return new ResponseMessage
-                {
-                    Success = false,
-                    Message = "Error occurred",
-                    Data = null,
-                    StatusCode = (int)HttpStatusCode.InternalServerError
-                };
-            }
+          
         }
     }
 }
