@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GraduationAPI-EPOSHBOOKING")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e83a7297fc4bc75b07bc2bc346a32ea595f8298c")]
 [assembly: System.Reflection.AssemblyProductAttribute("GraduationAPI-EPOSHBOOKING")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GraduationAPI-EPOSHBOOKING")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
