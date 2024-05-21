@@ -4,6 +4,7 @@ using GraduationAPI_EPOSHBOOKING.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduationAPI_EPOSHBOOKING.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20240520154821_dbinit")]
+    partial class dbinit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,18 +34,22 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountID"));
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<string>("Password")
+                        .IsRequired()
                         .HasMaxLength(16)
                         .HasColumnType("nvarchar(16)");
 
                     b.Property<string>("Phone")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("ProfileID")
                         .HasColumnType("int");
@@ -72,15 +79,18 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("BlogID");
 
@@ -143,7 +153,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<double>("UnitPrice")
                         .HasColumnType("float");
 
-                    b.Property<int?>("VoucherID")
+                    b.Property<int>("VoucherID")
                         .HasColumnType("int");
 
                     b.HasKey("BookingID");
@@ -173,8 +183,6 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("AccountID", "BlogID");
-
-                    b.HasIndex("BlogID");
 
                     b.ToTable("CommentBlog");
                 });
@@ -236,7 +244,8 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("HotelStandar")
                         .HasColumnType("int");
@@ -246,7 +255,8 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("OpenedIn")
                         .HasColumnType("int");
@@ -273,11 +283,13 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<double>("latitude")
                         .HasColumnType("float");
@@ -324,7 +336,8 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("ServiceID");
 
@@ -346,7 +359,8 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.Property<string>("SubServiceName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("SubServiceID");
 
@@ -382,22 +396,25 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProfileID"));
 
                     b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<byte[]>("Avatar")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<DateTime?>("BirthDay")
+                    b.Property<DateTime>("BirthDay")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Gender")
+                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("fullName")
                         .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("nvarchar(32)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("ProfileID");
 
@@ -417,11 +434,13 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.Property<string>("ReasonReport")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("ReporterEmail")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("ReportID");
 
@@ -473,11 +492,13 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.Property<string>("TypeOfBed")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("TypeOfRoom")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("RoomID");
 
@@ -521,7 +542,8 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("RoomServiceID");
 
@@ -543,40 +565,14 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.Property<string>("SubName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("SubServiceID");
 
                     b.HasIndex("RoomServiceID");
 
                     b.ToTable("RoomSubService");
-                });
-
-            modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.SpecialPrice", b =>
-                {
-                    b.Property<int>("SpecialPriceID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SpecialPriceID"));
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
-                    b.Property<int>("RoomID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("SpecialPriceID");
-
-                    b.HasIndex("RoomID");
-
-                    b.ToTable("SpecialPrice");
                 });
 
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.Voucher", b =>
@@ -594,12 +590,13 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<double>("Discount")
                         .HasColumnType("float");
 
-                    b.Property<int>("QuantityUseed")
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<byte[]>("VoucherImage")
@@ -607,7 +604,8 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.Property<string>("VoucherName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("VoucherID");
 
@@ -671,32 +669,15 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Voucher", "Voucher")
                         .WithMany()
-                        .HasForeignKey("VoucherID");
+                        .HasForeignKey("VoucherID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Account");
 
                     b.Navigation("Room");
 
                     b.Navigation("Voucher");
-                });
-
-            modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.CommentBlog", b =>
-                {
-                    b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("AccountID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Blog", "Blog")
-                        .WithMany("Comment")
-                        .HasForeignKey("BlogID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-
-                    b.Navigation("Blog");
                 });
 
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.FeedBack", b =>
@@ -852,22 +833,6 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Navigation("RoomService");
                 });
 
-            modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.SpecialPrice", b =>
-                {
-                    b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Room", "Room")
-                        .WithMany("SpecialPrice")
-                        .HasForeignKey("RoomID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Room");
-                });
-
-            modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.Blog", b =>
-                {
-                    b.Navigation("Comment");
-                });
-
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.Hotel", b =>
                 {
                     b.Navigation("HotelImages");
@@ -887,8 +852,6 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Navigation("RoomImages");
 
                     b.Navigation("RoomService");
-
-                    b.Navigation("SpecialPrice");
                 });
 
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.RoomService", b =>

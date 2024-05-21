@@ -7,12 +7,14 @@ namespace GraduationAPI_EPOSHBOOKING.Model
     public class CommentBlog
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int CommentID { get; set; }
-        [MaxLength(255)]
-        public String Desciption { get; set; }
-
-        [ForeignKey("BlogID")]
+        public int AccountID { get; set; }  
+        public Account Account { get; set; }
+        [Key]
+        public int BlogID { get; set; }
         public Blog Blog { get; set; }
+        public String Desciption { get; set; }
+        public DateTime DateComment { get; set; }
+
+       
     }
 }

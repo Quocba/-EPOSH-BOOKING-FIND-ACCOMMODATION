@@ -9,11 +9,9 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int AddressID { get; set; }
-        [MaxLength(255)]
         public String Address { get; set; }
-        [MaxLength (255)]
         public String City { get; set; }
-        public double lat { get; set; }
-        public double lon { get;set; }
+        public double latitude { get; set; }
+        public double longitude { get;set; }
     }
 }

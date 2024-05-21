@@ -11,7 +11,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public int FeedBackID { get; set; }
 
         public int Rating { get; set; }
-        public byte[] Image { get; set; }
+        public byte[]? Image { get; set; }
         public String Description { get; set; }
         public bool IsBlocked { get; set; }
 
@@ -21,6 +21,10 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [ForeignKey("BookingID")]
         public Booking Booking { get; set; }
 
+        [ForeignKey("HotelID")]
+        public Hotel Hotel { get; set; }
+
+       
 
     }
 }

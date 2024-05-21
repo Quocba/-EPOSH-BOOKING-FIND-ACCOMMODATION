@@ -9,16 +9,13 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int BlogID { get; set; }
-        [MaxLength(255)]
         public String Title { get; set; }
-        [MaxLength(255)]
         public String Description { get; set; }
-        [MaxLength (255)]
         public String Location { get; set; }
 
         [ForeignKey("AccountID")]
         public Account Account { get; set; }
 
-
+        public ICollection<CommentBlog> Comment { get; set; }
     }
 }

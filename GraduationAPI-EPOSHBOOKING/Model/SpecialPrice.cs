@@ -3,15 +3,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GraduationAPI_EPOSHBOOKING.Model
 {
-    [Table("RoomService")]
-    public class RoomService
+    [Table("SpecialPrice")]
+    public class SpecialPrice
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int RoomServiceID { get; set; }
-        public String Type { get; set; }
+        public int SpecialPriceID { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public Double Price { get; set; }
         [ForeignKey("RoomID")]
         public Room Room { get; set; }
-        public ICollection<RoomSubService> RoomSubServices { get; set; }
+
     }
-}   
+}
