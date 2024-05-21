@@ -17,5 +17,6 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public Account Account { get; set; }
 
         public ICollection<CommentBlog> Comment { get; set; }
+        public ICollection<BlogImage> BlogImage { get; set; }
     }
 }

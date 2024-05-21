@@ -23,5 +23,6 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         
         public ICollection<RoomService> RoomService { get; set; }
         public ICollection<SpecialPrice> SpecialPrice { get; set; }
+ 
     }
 }
