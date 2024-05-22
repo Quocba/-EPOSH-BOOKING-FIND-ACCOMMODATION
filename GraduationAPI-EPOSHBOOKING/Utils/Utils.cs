@@ -3,7 +3,7 @@ using System.Text;
 
 namespace GraduationAPI_EPOSHBOOKING.Ultils
 {
-    public class Ultils
+    public class Utils
     {
         public static string HashPassword(string password)
         {
@@ -21,20 +21,6 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
                 return sb.ToString();
             }
         }
-
-        public static byte[] ConvertIFormFileToByteArray(IFormFile file)
-        {
-            if (file != null && file.Length > 0)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    file.CopyTo(memoryStream);
-                    return memoryStream.ToArray();
-                }
-            }
-            return null;
-        }
-
-
     }
+
 }

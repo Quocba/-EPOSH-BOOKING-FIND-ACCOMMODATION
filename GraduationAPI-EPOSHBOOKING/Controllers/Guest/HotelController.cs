@@ -40,6 +40,33 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             return StatusCode(response.StatusCode, response);
         }
 
+        [HttpGet("get-by-rating")]
+        public IActionResult getHotelByRating([FromQuery]int rating)
+        {
+            var response = repository.GetByRating(rating);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("get-by-service")]
+        public IActionResult GetHotelByService([FromForm]List<string> service)
+        {
+            var response = repository.GetByService(service);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("get-service-by-hotelID")]
+        public IActionResult GetServiceByHotel([FromQuery]int hotelID)
+        {
+            var response = repository.GetServiceByHotelID(hotelID);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("get-galleries-by-hotelID")]
+        public IActionResult GetGalleriesByHotel([FromQuery]int hotelID)
+        {
+            var response = repository.GetGalleriesByHotelID(hotelID);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
  
