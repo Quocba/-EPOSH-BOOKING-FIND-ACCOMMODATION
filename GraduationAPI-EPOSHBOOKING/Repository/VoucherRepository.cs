@@ -43,6 +43,15 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         StatusCode = (int)HttpStatusCode.NotFound
                     };
                 }
+            }catch (Exception ex)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Internal Server Error",
+                    Data = null,
+                    StatusCode = (int)HttpStatusCode.InternalServerError
+                };
             }
           
         }

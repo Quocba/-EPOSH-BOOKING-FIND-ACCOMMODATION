@@ -3,18 +3,23 @@ using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client.Utils.Windows;
 using System.Net;
+using GraduationAPI_EPOSHBOOKING.Ultils;
+
 #pragma warning disable // tắt cảnh báo để code sạch hơn
 namespace GraduationAPI_EPOSHBOOKING.Repository
 {
     public class HotelRepository : IHotelRepository
     {
         private readonly DBContext db;
-        public HotelRepository(DBContext _db)
+        private readonly Utils ultils;
+        public HotelRepository(DBContext _db, Utils _ultils)
         {
             this.db = _db;
+            this.ultils = _ultils;
         }
-
+      
         public ResponseMessage GetAllHotel()
         {
             var listHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.HotelImages).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices).Include(x => x.feedBacks)
@@ -26,7 +31,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Hotel = hotel,
                     AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0
                 }).ToList();
-
+                
 
                 return new ResponseMessage { Success = true, Data = listHotelWithAvgRating, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
