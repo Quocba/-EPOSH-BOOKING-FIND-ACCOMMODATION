@@ -147,7 +147,35 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = false, Data = null, Message = "Service cannot be empty", StatusCode = (int)HttpStatusCode.BadRequest };
         }
 
-        
+
+        public ResponseMessage GetServiceByHotelID(int hotelID)
+        {
+            var hotelService = db.hotel.Include(hotelService => hotelService.HotelServices).ThenInclude(subService => subService.HotelSubServices).Where(x => x.HotelID == hotelID).ToList();
+            if (hotelService.Any())
+            {
+                return new ResponseMessage { Success = true, Data = hotelService, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+            else
+            {
+                return new ResponseMessage { Success = false, Data = hotelService, Message = "No Data", StatusCode = (int)HttpStatusCode.NotFound };
+            }
+        }
+
+
+        public ResponseMessage GetGalleriesByHotelID(int hotelID)
+        {
+            var getGalleries = db.hotel.Include(x => x.HotelImages).Where(hotel => hotel.HotelID == hotelID).ToList();
+            if (getGalleries.Any())
+            {
+                return new ResponseMessage { Success = true, Data = getGalleries, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+            else
+            {
+                return new ResponseMessage { Success = false, Data = getGalleries, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+            }
+        }
+
+
 
     }
 }
