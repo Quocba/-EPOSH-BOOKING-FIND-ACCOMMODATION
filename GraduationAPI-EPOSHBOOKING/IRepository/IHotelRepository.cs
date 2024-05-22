@@ -8,5 +8,9 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage GetHotelByCity(String city);
         public ResponseMessage GetHotelByID (int hotelID);
         public ResponseMessage GetHotelByPrice(double minPrice, double maxPrice);
+        public ResponseMessage GetByRating(int rating);
+        public ResponseMessage GetByService(List<String> services);
+        public ResponseMessage GetServiceByHotelID(int hotelID);
+        public ResponseMessage GetGalleriesByHotelID(int hotelID);
     }
 }

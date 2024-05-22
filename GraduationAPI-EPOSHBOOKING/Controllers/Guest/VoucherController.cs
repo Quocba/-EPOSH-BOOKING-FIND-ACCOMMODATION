@@ -20,10 +20,10 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         [HttpGet("get-all-voucher")]
         public IActionResult GetAllVouchers()
         {
-               
-               var response = _voucherRepository.GetAllVouchers();
-               return StatusCode(response.StatusCode, response);
-            
+
+            var response = _voucherRepository.GetAllVouchers();
+            return StatusCode(response.StatusCode, response);
+
         }
     }
 }
