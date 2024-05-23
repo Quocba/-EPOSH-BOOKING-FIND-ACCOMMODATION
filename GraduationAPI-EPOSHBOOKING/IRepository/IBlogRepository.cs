@@ -5,5 +5,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
     public interface IBlogRepository
     {
         public ResponseMessage GetAllBlogs();
+        public ResponseMessage GetBlogDetailById(int blogId);
     }
 }
