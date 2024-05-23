@@ -43,6 +43,9 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         StatusCode = (int)HttpStatusCode.NotFound
                     };
                 }
+            } catch (Exception ex)
+            {
+                return null;
             }
           
         }
