@@ -37,17 +37,16 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Password")
-                        .HasMaxLength(16)
-                        .HasColumnType("nvarchar(16)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.Property<int>("ProfileID")
+                    b.Property<int?>("ProfileID")
                         .HasColumnType("int");
 
-                    b.Property<int>("RoleID")
+                    b.Property<int?>("RoleID")
                         .HasColumnType("int");
 
                     b.HasKey("AccountID");
@@ -617,15 +616,11 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Profile", "Profile")
                         .WithMany()
-                        .HasForeignKey("ProfileID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProfileID");
 
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Role", "Role")
                         .WithMany()
-                        .HasForeignKey("RoleID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RoleID");
 
                     b.Navigation("Profile");
 

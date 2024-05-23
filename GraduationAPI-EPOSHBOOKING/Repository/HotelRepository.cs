@@ -63,8 +63,9 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetHotelByID(int id)
         {
-            var getHotel = db.hotel.Include(x => x.HotelImages).Include(x => x.HotelAddress).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices).Include(x => x.feedBacks).
-                FirstOrDefault(x => x.HotelID == id);
+            var getHotel = db.hotel.Include(x => x.HotelImages).Include(x => x.HotelAddress).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices).Include(x => x.feedBacks)
+                .ThenInclude(booking => booking.Booking).ThenInclude(account => account.Account).ThenInclude(profile => profile.Profile)
+                .FirstOrDefault(x => x.HotelID == id);
             if (getHotel != null)
             {
                 double avgRating = Math.Round(getHotel.feedBacks.Average(feedback => feedback.Rating), 2);
@@ -176,6 +177,14 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         }
 
 
+        //Chức năng chưa hoàn thiện
+        public ResponseMessage SearchHotel(String city, DateTime? checkInDate, DateTime? checkOutDate, int? adults)
+        {
+            var listHotel = db.hotel.Include(address => address.HotelAddress).Include(images => images.HotelImages).Include(service => service.HotelServices)
+                .ThenInclude(subService => subService.HotelSubServices).Include(feedback => feedback.feedBacks)
+                .Include(room => room.rooms).ThenInclude(specialPrice => specialPrice.SpecialPrice).ToList();
+                return new ResponseMessage { Success = true, Data = listHotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK};
+        }
 
-    }
+    }   
 }
