@@ -1,0 +1,79 @@
+﻿using GraduationAPI_EPOSHBOOKING.DataAccess;
+using GraduationAPI_EPOSHBOOKING.IRepository;
+using GraduationAPI_EPOSHBOOKING.Model;
+using Microsoft.Identity.Client;
+using Microsoft.IdentityModel.Tokens;
+using System.Net;
+using System.Reflection.Metadata.Ecma335;
+using System.Text.RegularExpressions;
+#pragma warning disable // tắt cảnh báo để code sạch hơn
+namespace GraduationAPI_EPOSHBOOKING.Repository
+{
+    public class AccountRepository : IAccountRepository
+    {
+        private readonly DBContext db;
+        public AccountRepository(DBContext _db)
+        {
+            this.db = _db;
+        }
+
+        public ResponseMessage RegisterPartnerAccount(Account account, String fullName)
+        {
+            String role = "Partner";
+            var addRole = db.roles.FirstOrDefault(x => x.Name.Equals(role));
+            var checkEmailAlready = db.accounts.FirstOrDefault(email => email.Email.Equals(account.Email));
+            if (checkEmailAlready != null)
+            {
+                return new ResponseMessage { Success = false, Data = checkEmailAlready.Email, Message = "Email Already Exist", StatusCode = (int)HttpStatusCode.AlreadyReported };
+            }
+            else
+            {
+                if (account != null && !fullName.IsNullOrEmpty())
+                {
+                    Profile addProfile = new Profile
+                    {
+                        fullName = fullName,
+                    };
+                    db.profiles.Add(addProfile);
+                    Account addAccount = new Account
+                    {
+                        Email = account.Email,
+                        Password = Ultils.Utils.HashPassword(account.Password),
+                        Phone = account.Phone,
+                        Role = addRole,
+                        Profile = addProfile,
+                        IsActive = false
+                    };
+                    db.accounts.Add(addAccount);
+                    db.SaveChanges();
+                    Ultils.Utils.sendMail(account.Email);
+                    return new ResponseMessage { Success = true, Data = addAccount, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                }
+                return new ResponseMessage { Success = false, Data = account, Message = "Register Fail", StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+
+        }
+
+        public ResponseMessage ActiveAccount(String email)
+        {
+            String emailParten = @"^[^\s@]+@[^\s@]+\.[^\s@]+$";
+            Regex regex = new Regex(emailParten);
+            if (regex.IsMatch(email))
+            {
+                var checkEmail = db.accounts.FirstOrDefault(x => x.Email.Equals(email));
+                if (checkEmail != null)
+                {   
+                    checkEmail.IsActive = true;
+                    db.accounts.Update(checkEmail);
+                    db.SaveChanges();
+                    return new ResponseMessage { Success = true, Data = checkEmail, Message = "Your account has been activated", StatusCode = (int)HttpStatusCode.OK };
+                }
+                else
+                {
+                    return new ResponseMessage { Success = false, Data = checkEmail, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+                }
+            }
+                    return new ResponseMessage { Success = false, Data = email, Message = "Email is not in correct format. Please re-enter for example: Eposh@eposh.com" };
+        }
+    }
+}
