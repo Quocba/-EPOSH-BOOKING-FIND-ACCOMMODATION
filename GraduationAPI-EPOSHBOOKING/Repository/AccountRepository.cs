@@ -1,12 +1,15 @@
 ﻿using GraduationAPI_EPOSHBOOKING.DataAccess;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
+using GraduationAPI_EPOSHBOOKING.Ultils;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using System.Net;
 using System.Reflection.Metadata.Ecma335;
 using System.Text.RegularExpressions;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
+
 namespace GraduationAPI_EPOSHBOOKING.Repository
 {
     public class AccountRepository : IAccountRepository
@@ -62,7 +65,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 var checkEmail = db.accounts.FirstOrDefault(x => x.Email.Equals(email));
                 if (checkEmail != null)
-                {   
+                {
                     checkEmail.IsActive = true;
                     db.accounts.Update(checkEmail);
                     db.SaveChanges();
@@ -73,7 +76,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     return new ResponseMessage { Success = false, Data = checkEmail, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
                 }
             }
-                    return new ResponseMessage { Success = false, Data = email, Message = "Email is not in correct format. Please re-enter for example: Eposh@eposh.com" };
+            return new ResponseMessage { Success = false, Data = email, Message = "Email is not in correct format. Please re-enter for example: Eposh@eposh.com" };
         }
 
         public ResponseMessage LoginWithNumberPhone(String phone)
@@ -85,7 +88,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 var checkPhone = db.accounts.FirstOrDefault(x => x.Phone.Equals(phone));
                 if (checkPhone != null)
                 {
-                    return new ResponseMessage { Success = true, Data = phone, Message ="Successfully", StatusCode= (int)HttpStatusCode.AlreadyReported};
+                    return new ResponseMessage { Success = true, Data = phone, Message = "Successfully", StatusCode = (int)HttpStatusCode.AlreadyReported };
                 }
                 else
                 {
@@ -93,20 +96,57 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     {
                         fullName = Ultils.Utils.GenerateRandomString()
                     };
-                     db.profiles.Add(addProfile);
+                    db.profiles.Add(addProfile);
                     Account addAccount = new Account
                     {
-                          Phone = phone,
-                          Profile = addProfile
+                        Phone = phone,
+                        Profile = addProfile
                     };
                     db.accounts.Add(addAccount);
                     db.SaveChanges();
                     return new ResponseMessage { Success = true, Data = addAccount, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                 }
             }
-                    return new ResponseMessage { Success = false, Data = phone, Message = "Phone is not in correct format. Please re-enter for example: 0123456789", StatusCode = (int)HttpStatusCode.BadRequest };
+            return new ResponseMessage { Success = false, Data = phone, Message = "Phone is not in correct format. Please re-enter for example: 0123456789", StatusCode = (int)HttpStatusCode.BadRequest };
         }
+        public ResponseMessage Register(string email, string password, string fullName, string phone)
+        {
+            if (db.accounts.Any(a => a.Email == email))
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Email is already registered",
+                    StatusCode = 400
+                };
+            }
 
+            string hashedPassword = Utils.HashPassword(password);
+            var account = new Account
+            {
+                Email = email,
+                Password = hashedPassword,
+                IsActive = true,
+                Phone = phone,
+                Role = db.roles.FirstOrDefault(r => r.Name == "Customer")
+            };
+            var profile = new Profile
+            {
+                fullName = fullName
+            };
+
+            account.Profile = profile;
+            db.accounts.Add(account);
+            db.SaveChanges();
+
+            return new ResponseMessage
+            {
+                Success = true,
+                Message = "Registration Successfully",
+                StatusCode = 201,
+                Data = new { account.AccountID, account.Email, profile.fullName }
+            };
+        }
 
 
     }
