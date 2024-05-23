@@ -62,6 +62,23 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
             }
             return otp;
         }
+
+        public static string GenerateRandomString()
+        {
+            int length = 32;
+            const string prefix = "EPOSH";
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            Random random = new Random();
+            char[] stringChars = new char[length - prefix.Length]; // Đặt độ dài chuỗi ngẫu nhiên để giảm đi độ dài của prefix
+
+            for (int i = 0; i < length - prefix.Length; i++)
+            {
+                stringChars[i] = chars[random.Next(chars.Length)];
+            }
+
+            return prefix + new string(stringChars);
+        }
+
     }
 
 }

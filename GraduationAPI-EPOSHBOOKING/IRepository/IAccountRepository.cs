@@ -6,5 +6,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
     {
         ResponseMessage RegisterPartnerAccount(Account account,String fullName);
         ResponseMessage ActiveAccount(String email);
+        ResponseMessage LoginWithNumberPhone(String phone);
     }
 }

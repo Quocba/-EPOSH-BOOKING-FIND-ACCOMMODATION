@@ -14,10 +14,17 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
             this.repository = repository;
         }
 
-        [HttpPut("partner-register")]
+        [HttpPost("partner-register")]
         public IActionResult PartnerRegister([FromForm]Account account, [FromForm]String fullName)
         {
             var response = repository.RegisterPartnerAccount(account, fullName);
+            return StatusCode(response.StatusCode,response);    
+        }
+
+        [HttpPost("login-phone")]
+        public IActionResult LoginPhone([FromBody]String phone)
+        {
+            var response = repository.LoginWithNumberPhone(phone);
             return StatusCode(response.StatusCode,response);
         }
 
