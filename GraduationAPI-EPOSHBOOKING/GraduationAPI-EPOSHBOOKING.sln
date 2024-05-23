@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraduationAPI-EPOSHBOOKING", "GraduationAPI-EPOSHBOOKING.csproj", "{7E4FE785-2B21-4B96-8A7F-E00813FC289D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraduationAPI-EPOSHBOOKING", "GraduationAPI-EPOSHBOOKING.csproj", "{7E4FE785-2B21-4B96-8A7F-E00813FC289D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestingAPI", "..\UnitTestingAPI\UnitTestingAPI.csproj", "{ABDFF695-C623-470E-8CAF-956B3C22DAAA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{7E4FE785-2B21-4B96-8A7F-E00813FC289D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E4FE785-2B21-4B96-8A7F-E00813FC289D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E4FE785-2B21-4B96-8A7F-E00813FC289D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABDFF695-C623-470E-8CAF-956B3C22DAAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABDFF695-C623-470E-8CAF-956B3C22DAAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABDFF695-C623-470E-8CAF-956B3C22DAAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABDFF695-C623-470E-8CAF-956B3C22DAAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

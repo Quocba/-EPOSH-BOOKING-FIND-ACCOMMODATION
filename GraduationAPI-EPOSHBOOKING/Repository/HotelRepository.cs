@@ -3,18 +3,23 @@ using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client.Utils.Windows;
 using System.Net;
+using GraduationAPI_EPOSHBOOKING.Ultils;
+
 #pragma warning disable // tắt cảnh báo để code sạch hơn
 namespace GraduationAPI_EPOSHBOOKING.Repository
 {
     public class HotelRepository : IHotelRepository
     {
         private readonly DBContext db;
-        public HotelRepository(DBContext _db)
+        private readonly Utils ultils;
+        public HotelRepository(DBContext _db, Utils _ultils)
         {
             this.db = _db;
+            this.ultils = _ultils;
         }
-
+      
         public ResponseMessage GetAllHotel()
         {
             var listHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.HotelImages).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices).Include(x => x.feedBacks)
@@ -26,7 +31,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Hotel = hotel,
                     AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0
                 }).ToList();
-
+                
 
                 return new ResponseMessage { Success = true, Data = listHotelWithAvgRating, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
@@ -58,8 +63,9 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetHotelByID(int id)
         {
-            var getHotel = db.hotel.Include(x => x.HotelImages).Include(x => x.HotelAddress).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices).Include(x => x.feedBacks).
-                FirstOrDefault(x => x.HotelID == id);
+            var getHotel = db.hotel.Include(x => x.HotelImages).Include(x => x.HotelAddress).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices).Include(x => x.feedBacks)
+                .ThenInclude(booking => booking.Booking).ThenInclude(account => account.Account).ThenInclude(profile => profile.Profile)
+                .FirstOrDefault(x => x.HotelID == id);
             if (getHotel != null)
             {
                 double avgRating = Math.Round(getHotel.feedBacks.Average(feedback => feedback.Rating), 2);
@@ -142,7 +148,43 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = false, Data = null, Message = "Service cannot be empty", StatusCode = (int)HttpStatusCode.BadRequest };
         }
 
-        
 
-    }
+        public ResponseMessage GetServiceByHotelID(int hotelID)
+        {
+            var hotelService = db.hotel.Include(hotelService => hotelService.HotelServices).ThenInclude(subService => subService.HotelSubServices).Where(x => x.HotelID == hotelID).ToList();
+            if (hotelService.Any())
+            {
+                return new ResponseMessage { Success = true, Data = hotelService, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+            else
+            {
+                return new ResponseMessage { Success = false, Data = hotelService, Message = "No Data", StatusCode = (int)HttpStatusCode.NotFound };
+            }
+        }
+
+
+        public ResponseMessage GetGalleriesByHotelID(int hotelID)
+        {
+            var getGalleries = db.hotel.Include(x => x.HotelImages).Where(hotel => hotel.HotelID == hotelID).ToList();
+            if (getGalleries.Any())
+            {
+                return new ResponseMessage { Success = true, Data = getGalleries, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+            else
+            {
+                return new ResponseMessage { Success = false, Data = getGalleries, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+            }
+        }
+
+
+        //Chức năng chưa hoàn thiện
+        public ResponseMessage SearchHotel(String city, DateTime? checkInDate, DateTime? checkOutDate, int? adults)
+        {
+            var listHotel = db.hotel.Include(address => address.HotelAddress).Include(images => images.HotelImages).Include(service => service.HotelServices)
+                .ThenInclude(subService => subService.HotelSubServices).Include(feedback => feedback.feedBacks)
+                .Include(room => room.rooms).ThenInclude(specialPrice => specialPrice.SpecialPrice).ToList();
+                return new ResponseMessage { Success = true, Data = listHotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK};
+        }
+
+    }   
 }

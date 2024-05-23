@@ -21,5 +21,11 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
            var response = _blogRepository.GetAllBlogs();
            return StatusCode(response.StatusCode,response);
         }
+        [HttpGet("Get-Blog-Detail-By-Id/{blogId}")]
+        public IActionResult GetBlogDetailById(int blogId)
+        {
+            var response = _blogRepository.GetBlogDetailById(blogId);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
