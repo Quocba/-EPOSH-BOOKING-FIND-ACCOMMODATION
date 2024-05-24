@@ -11,7 +11,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public int RoomID { get; set; }
         public String TypeOfRoom { get;set; }
         public int NumberCapacity { get; set; }
-        public double Price { get; set; }
+        public Double Price { get; set; }
         public int Quantity { get; set; }
         public int SizeOfRoom { get; set; }
         public String TypeOfBed { get; set; }

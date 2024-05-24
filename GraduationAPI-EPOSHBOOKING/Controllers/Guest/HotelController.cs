@@ -19,7 +19,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             return StatusCode(respone.StatusCode, respone);
         }
       [HttpGet("get-by-city")]
-      public IActionResult GetHotel([FromQuery]String city) { 
+      public IActionResult GetHotelByCity([FromQuery]String city) { 
         
             var reponse = repository.GetHotelByCity(city);
             return StatusCode(reponse.StatusCode, reponse);
@@ -69,9 +69,9 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpGet("search")]
-        public IActionResult SearchHotel([FromQuery]String city, [FromQuery] DateTime? checkInDate, [FromQuery] DateTime? checkOuDate, [FromQuery] int? adults)
+        public IActionResult SearchHotel([FromQuery]String city, [FromQuery] DateTime? checkInDate, [FromQuery] DateTime? checkOuDate, [FromQuery] int? numberCapacity, int? Quantity)
         {
-            var resposne = repository.SearchHotel(city, checkInDate, checkOuDate, adults);
+            var resposne = repository.SearchHotel(city, checkInDate, checkOuDate, numberCapacity,Quantity);
             return StatusCode(resposne.StatusCode, resposne);
         }
     }

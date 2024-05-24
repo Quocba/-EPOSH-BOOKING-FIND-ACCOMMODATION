@@ -12,7 +12,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public String Title { get; set; }
         public String Description { get; set; }
         public String Location { get; set; }
-
+        public String? ReasonReject { get; set; }
         [ForeignKey("AccountID")]
         public Account Account { get; set; }
 

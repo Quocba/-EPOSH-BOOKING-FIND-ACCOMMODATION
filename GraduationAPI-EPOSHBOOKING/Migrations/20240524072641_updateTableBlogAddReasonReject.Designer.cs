@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduationAPI_EPOSHBOOKING.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20240523025923_updateAnotationAccount")]
-    partial class updateAnotationAccount
+    [Migration("20240524072641_updateTableBlogAddReasonReject")]
+    partial class updateTableBlogAddReasonReject
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,10 +46,10 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.Property<int>("ProfileID")
+                    b.Property<int?>("ProfileID")
                         .HasColumnType("int");
 
-                    b.Property<int>("RoleID")
+                    b.Property<int?>("RoleID")
                         .HasColumnType("int");
 
                     b.HasKey("AccountID");
@@ -78,6 +78,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.Property<string>("Location")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReasonReject")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
@@ -619,15 +622,11 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Profile", "Profile")
                         .WithMany()
-                        .HasForeignKey("ProfileID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProfileID");
 
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Role", "Role")
                         .WithMany()
-                        .HasForeignKey("RoleID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RoleID");
 
                     b.Navigation("Profile");
 
