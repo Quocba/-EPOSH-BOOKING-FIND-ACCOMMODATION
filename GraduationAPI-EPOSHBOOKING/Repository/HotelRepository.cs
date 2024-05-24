@@ -190,8 +190,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         //Chức năng chưa hoàn thiện
         public ResponseMessage SearchHotel(String city, DateTime? checkInDate, DateTime? checkOutDate, int? numberCapacity,int? quantity)
         {
-            var listHotel = db.hotel.Include(address => address.HotelAddress).Include(images => images.HotelImages).Include(service => service.HotelServices)
-                .ThenInclude(subService => subService.HotelSubServices).Include(feedback => feedback.feedBacks)
+            var listHotel = db.hotel.Include(address => address.HotelAddress)
+                .Include(feedback => feedback.feedBacks)
                 .Include(room => room.rooms).ThenInclude(specialPrice => specialPrice.SpecialPrice).ToList();
 
             if (!city.IsNullOrEmpty() && checkInDate == null && checkOutDate == null && numberCapacity == null && quantity == null)
@@ -206,7 +206,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = true, Data = searchCity, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
 
-            if (checkInDate != null && checkOutDate != null && city != null)
+            if (checkInDate != null && checkOutDate != null && city != null && quantity == null && numberCapacity == null)
             {
                 var filterHotelCity = listHotel.Where(hotel => hotel.HotelAddress.City.Equals(city, StringComparison.OrdinalIgnoreCase))
                                             .ToList();
@@ -214,25 +214,19 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 var hotel = filterHotelCity.Select(hotel => new
                 {
                     Hotel = hotel,
+                    RoomSpecialPrice = hotel.rooms
+                    .Where(room => room.SpecialPrice.Any(sp => sp.StartDate <= checkInDate && sp.EndDate >= checkOutDate))
+                    .Select(room => new
+                    {
+                         room.RoomID,
+                         Price = room.SpecialPrice
+                        .Where(sp => sp.StartDate <= checkInDate && sp.EndDate >= checkOutDate)
+                        .Select(sp => sp.Price)
+                        .FirstOrDefault()
+
+                }).ToList(),
                     AvgRating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(rating => rating.Rating) : 0,
                     CountReview = hotel.feedBacks.Any() ? hotel.feedBacks.Count() : 0,
-                    RoomSpecialPrice = hotel.rooms.Select(room => new
-                    {
-                        room.RoomID,
-                        room.TypeOfRoom,
-                        room.TypeOfBed,
-                        room.NumberCapacity,
-                        room.SizeOfRoom,
-                        room.Quantity,
-                        room.RoomImages,
-                        Price = room.SpecialPrice
-                            .Where(sp => sp.StartDate <= checkInDate && sp.EndDate >= checkOutDate)
-                            .Any() ? room.SpecialPrice
-                                        .Where(sp => sp.StartDate <= checkInDate && sp.EndDate >= checkOutDate)
-                                        .Select(sp => sp.Price)
-                                        .FirstOrDefault() : room.Price
-
-                    }).ToList()
                 });
                
                 return new ResponseMessage { Success = true, Data = hotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };    
@@ -255,10 +249,38 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 
                 return new ResponseMessage { Success = true, Data = searchResult, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK};
             }
+           else
+            {
+                var filterHotelCity = listHotel
+                     .Where(hotel => hotel.HotelAddress.City.Equals(city, StringComparison.OrdinalIgnoreCase))
+                     .ToList();
+    
+                var filterWithRoom = filterHotelCity
+                    .Where(hotel => hotel.rooms.Any(room => room.Quantity >= quantity && room.NumberCapacity >= numberCapacity))
+                    .ToList();
 
+                var hotel = filterWithRoom.Select(hotel => new
+                {
+                    Hotel = hotel,
+                    AvgRating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(rating => rating.Rating) : 0,
+                    CountReview = hotel.feedBacks.Any() ? hotel.feedBacks.Count() : 0,
+                    RoomSpecialPrice = hotel.rooms
+                    .Where(room => room.SpecialPrice.Any(sp => sp.StartDate <= checkInDate && sp.EndDate >= checkOutDate))
+                    .Select(room => new
+                    {
+                        room.RoomID,
+                        Price = room.SpecialPrice
+                        .Where(sp => sp.StartDate <= checkInDate && sp.EndDate >= checkOutDate)
+                        .Select(sp => sp.Price)
+                        .FirstOrDefault()
 
-            return new ResponseMessage { Success = true, Data = listHotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK};
+                    }).ToList()
+                }).ToList();
+                return new ResponseMessage { Success = true, Data = hotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
         }
 
+    }
+
     }   
-}
+
