@@ -12,6 +12,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage GetByService(List<String> services);
         public ResponseMessage GetServiceByHotelID(int hotelID);
         public ResponseMessage GetGalleriesByHotelID(int hotelID);
-        public ResponseMessage SearchHotel(String? city,DateTime? checkInDate, DateTime? checkOutDate,int? audults);
+        public ResponseMessage SearchHotel(String? city,DateTime? checkInDate, DateTime? checkOutDate,int? numberCapacity,int? quantity);    
     }
 }
