@@ -13,14 +13,14 @@ namespace UnitTestingAPI
     [TestFixture]
     public class BlogTesting
     {
-        private BlogController voucherController;
+        private BlogController BlogController;
         private Mock<IBlogRepository> _mockRepository;
 
         [SetUp]
         public void Setup()
         {
             _mockRepository = new Mock<IBlogRepository>();
-            voucherController = new BlogController(_mockRepository.Object);
+            BlogController = new BlogController(_mockRepository.Object);
         }
         [Test]
         public void GetAllBlogs()
@@ -36,10 +36,11 @@ namespace UnitTestingAPI
                 .Returns(new ResponseMessage { Success = true, Data = blogsList, StatusCode = (int)HttpStatusCode.OK });
 
             // Act
-            var result = voucherController.GetAllBlogs() as ObjectResult;
+            var result = BlogController.GetAllBlogs() as ObjectResult;
             // Assert
             Assert.AreEqual(200, result.StatusCode);
         }
+
         [Test]
         public void GetBlogbyID()
         {
@@ -50,7 +51,7 @@ namespace UnitTestingAPI
                 .Returns(new ResponseMessage { Success = true, Data = blog, StatusCode = (int)HttpStatusCode.OK });
 
             // Act
-            var result = voucherController.GetBlogDetailById(9) as ObjectResult;
+            var result = BlogController.GetBlogDetailById(9) as ObjectResult;
             // Assert
             Assert.AreEqual(200, result.StatusCode);
         }
@@ -64,7 +65,7 @@ namespace UnitTestingAPI
                 .Returns(new ResponseMessage { Success = false, Data = blog, StatusCode = (int)HttpStatusCode.NotFound });
 
             // Act
-            var result = voucherController.GetBlogDetailById(9) as ObjectResult;
+            var result = BlogController.GetBlogDetailById(9) as ObjectResult;
             // Assert
             Assert.AreEqual(404, result.StatusCode);
         }
@@ -78,7 +79,7 @@ namespace UnitTestingAPI
                 .Returns(new ResponseMessage { Success = false, Data = blogsList, StatusCode = (int)HttpStatusCode.NotFound });
 
             // Act
-            var result = voucherController.GetAllBlogs() as ObjectResult;
+            var result = BlogController.GetAllBlogs() as ObjectResult;
             // Assert
             Assert.AreEqual(404, result.StatusCode);
         }
@@ -96,7 +97,7 @@ namespace UnitTestingAPI
                 .Returns(new ResponseMessage { Success = false, Data = blogsList, StatusCode = (int)HttpStatusCode.InternalServerError });
 
             // Act
-            var result = voucherController.GetAllBlogs() as ObjectResult;
+            var result = BlogController.GetAllBlogs() as ObjectResult;
             // Assert
             Assert.AreEqual(500, result.StatusCode);
         }
