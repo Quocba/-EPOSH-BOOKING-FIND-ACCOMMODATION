@@ -7,6 +7,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Net;
 using static GraduationAPI_EPOSHBOOKING.Controllers.Auth.AuthController;
+#pragma warning disable // tắt cảnh báo để code sạch hơn
 
 namespace UnitTestingAPI
 {
