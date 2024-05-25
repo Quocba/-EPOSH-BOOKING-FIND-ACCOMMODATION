@@ -26,15 +26,15 @@ namespace UnitTestingAPI
         [Test]
         public void LoginwithNumberPhone()
         {
-            // Arrange
+            
             String phone = "0923343536";
             _mockRepository.Setup(repo => repo.LoginWithNumberPhone(phone))
                 .Returns(new ResponseMessage { Success = true, Data = phone, StatusCode = (int)HttpStatusCode.OK });
 
-            // Act
+            
             var result = authController.LoginPhone(phone) as ObjectResult;
 
-            // Assert
+            
             Assert.AreEqual(200, result.StatusCode);
 
         }
@@ -42,7 +42,7 @@ namespace UnitTestingAPI
         [Test]
         public void LoginwithNumberPhoneFailed()
         {
-            // Arrange
+            
             String phone = "0923343536";
             String phone2 = "012345689";
             String phone3 = "anhyeuem";
@@ -58,13 +58,13 @@ namespace UnitTestingAPI
                 .Returns(new ResponseMessage { Success = false, Data = phone4, StatusCode = (int)HttpStatusCode.BadRequest });
             _mockRepository.Setup(repo => repo.LoginWithNumberPhone(phone5))
                 .Returns(new ResponseMessage { Success = false, Data = phone5, StatusCode = (int)HttpStatusCode.BadRequest });
-            // Act
+            
             var result = authController.LoginPhone(phone) as ObjectResult;
             var result2 = authController.LoginPhone(phone2) as ObjectResult;
             var result3 = authController.LoginPhone(phone3) as ObjectResult;
             var result4 = authController.LoginPhone(phone4) as ObjectResult;
             var result5 = authController.LoginPhone(phone5) as ObjectResult;
-            // Assert
+            
             Assert.AreEqual(400, result.StatusCode);
             Assert.AreEqual(400, result2.StatusCode);
             Assert.AreEqual(400, result3.StatusCode);
@@ -75,29 +75,29 @@ namespace UnitTestingAPI
         [Test]
         public void LoginwithNumberPhoneNotFound()
         {
-            // Arrange
+            
             String phone = "0923343536";
             _mockRepository.Setup(repo => repo.LoginWithNumberPhone(phone))
                 .Returns(new ResponseMessage { Success = false, Data = phone, StatusCode = (int)HttpStatusCode.NotFound });
 
-            // Act
+            
             var result = authController.LoginPhone(phone) as ObjectResult;
 
-            // Assert
+            
             Assert.AreEqual(404, result.StatusCode);
         }
         [Test]
         public void LoginwithNumberPhoneExist()
         {
-            // Arrange
+            
             String phone = "0923343536";
             _mockRepository.Setup(repo => repo.LoginWithNumberPhone(phone))
                 .Returns(new ResponseMessage { Success = false, Data = phone, StatusCode = (int)HttpStatusCode.AlreadyReported });
 
-            // Act
+            
             var result = authController.LoginPhone(phone) as ObjectResult;
 
-            // Assert
+            
             Assert.AreEqual(208, result.StatusCode);
         }
 

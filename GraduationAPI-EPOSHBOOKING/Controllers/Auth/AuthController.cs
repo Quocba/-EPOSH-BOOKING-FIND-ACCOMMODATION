@@ -1,6 +1,9 @@
 ﻿using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
+using GraduationAPI_EPOSHBOOKING.Repository;
+using GraduationAPI_EPOSHBOOKING.Ultils;
 using Microsoft.AspNetCore.Mvc;
+#pragma warning disable // tắt cảnh báo để code sạch hơn
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
 {
@@ -15,6 +18,12 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
             public string Password { get; set; }
             public string FullName { get; set; }
             public string Phone { get; set; }
+        }
+        public class ChangePasswordRequest
+        {
+            public int AccountId { get; set; }
+            public string OldPassword { get; set; }
+            public string NewPassword { get; set; }
         }
         private readonly IAccountRepository repository;
         public AuthController(IAccountRepository repository)
@@ -48,6 +57,34 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         public IActionResult Register([FromBody] RegisterDTO register)
         {
             var response = repository.Register(register.Email, register.Password, register.FullName, register.Phone);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPut("change-password")]
+        public IActionResult ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            var response = repository.ChangePassword(request.AccountId, request.OldPassword, request.NewPassword);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPost("send-mail")]
+        public IActionResult SendOTPForgot([FromBody] String email)
+        {
+            var response = Utils.sendMail(email);
+            return Ok(response);
+        }
+
+        [HttpPut("update-new-password")]
+        public IActionResult UpdateNewPassword([FromForm] String newPassword, [FromForm] String email)
+        {
+            var response = repository.UpdateNewPassword(email, newPassword);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPut("update-profile")]
+        public IActionResult UpdateProfile([FromForm] int accountID, [FromForm] Profile profile, [FromForm] IFormFile Avatar)
+        {
+            var response = repository.UpdateProfileByAccount(accountID, profile, Avatar);
             return StatusCode(response.StatusCode, response);
         }
     }
