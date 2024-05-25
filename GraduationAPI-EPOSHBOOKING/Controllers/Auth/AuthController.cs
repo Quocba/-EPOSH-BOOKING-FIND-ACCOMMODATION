@@ -1,5 +1,6 @@
 ﻿using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
+using GraduationAPI_EPOSHBOOKING.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
@@ -15,6 +16,12 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
             public string Password { get; set; }
             public string FullName { get; set; }
             public string Phone { get; set; }
+        }
+        public class ChangePasswordRequest
+        {
+            public int AccountId { get; set; }
+            public string OldPassword { get; set; }
+            public string NewPassword { get; set; }
         }
         private readonly IAccountRepository repository;
         public AuthController(IAccountRepository repository)
@@ -48,6 +55,13 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         public IActionResult Register([FromBody] RegisterDTO register)
         {
             var response = repository.Register(register.Email, register.Password, register.FullName, register.Phone);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPost("change-password")]
+        public IActionResult ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            var response = repository.ChangePassword(request.AccountId, request.OldPassword, request.NewPassword);
             return StatusCode(response.StatusCode, response);
         }
     }

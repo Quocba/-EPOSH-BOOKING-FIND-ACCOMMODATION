@@ -9,6 +9,7 @@ using System.Net;
 namespace GraduationAPI_EPOSHBOOKING.Repository
 {
     public class VoucherRepository : IVoucherRepository
+
     {
         private readonly DBContext db;
 
@@ -43,18 +44,58 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         StatusCode = (int)HttpStatusCode.NotFound
                     };
                 }
-             }catch (Exception ex)
-                 {
+            }
+            catch (Exception ex)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Internal Server Error",
+                    Data = null,
+                    StatusCode = (int)HttpStatusCode.InternalServerError
+                };
+
+            }
+
+        }
+
+        public ResponseMessage GetVoucherById(int voucherId)
+        {
+            try
+            {
+                var voucher = db.voucher.FirstOrDefault(c => c.VoucherID == voucherId);
+                if (voucher != null)
+                {
+                    return new ResponseMessage
+                    {
+                        Success = true,
+                        Message = "Successfully",
+                        Data = voucher,
+                        StatusCode = (int)HttpStatusCode.OK
+                    };
+                }
+                else
+                {
                     return new ResponseMessage
                     {
                         Success = false,
-                        Message = "Internal Server Error",
+                        Message = "Not Found",
                         Data = null,
-                        StatusCode = (int)HttpStatusCode.InternalServerError
+                        StatusCode = (int)HttpStatusCode.NotFound
                     };
-
+                }
             }
-          
+            catch (Exception ex)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Internal Server Error",
+                    Data = null,
+                    StatusCode = (int)HttpStatusCode.InternalServerError
+                };
+            }
         }
     }
 }
+

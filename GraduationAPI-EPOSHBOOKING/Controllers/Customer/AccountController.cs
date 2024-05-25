@@ -20,6 +20,18 @@ namespace EPOSH_BOOKING.Controllers
             this.utils = utils;
             this.repository = _repository;
         }
+        [HttpGet("Get-Voucher-by-Account-Id/{accountId}")]
+        public IActionResult GetVouchersByAccountId(int accountId)
+        {
+            var response = repository.GetVouchersByAccountId(accountId);
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpGet("Get-Profile-by-Account-Id/{accountId}")]
+        public IActionResult GetProfileByAccountId(int accountId)
+        {
+            var response = repository.GetProfileByAccountId(accountId);
+            return StatusCode(response.StatusCode, response);
+        }
 
     }
 }

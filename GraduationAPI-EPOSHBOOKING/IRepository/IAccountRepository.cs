@@ -8,6 +8,10 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         ResponseMessage ActiveAccount(String email);
         ResponseMessage LoginWithNumberPhone(String phone);
         ResponseMessage Register(String email, String password, String fullName, String phone);
+        ResponseMessage GetVouchersByAccountId(int accountId);
+        ResponseMessage GetProfileByAccountId(int accountId);
+        ResponseMessage GetBlogsByAccountId(int accountId);
+        ResponseMessage ChangePassword(int accountId, string oldPassword, string newPassword);
     }
 }
         

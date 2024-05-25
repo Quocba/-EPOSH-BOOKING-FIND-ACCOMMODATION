@@ -16,5 +16,6 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public int QuantityUseed { get; set;}
         public double Discount { get; set;}
         public string Description { get; set;}
+        public ICollection<MyVoucher> MyVouchers { get; set; }
     }
 }

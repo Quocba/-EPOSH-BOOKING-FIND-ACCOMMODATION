@@ -1,5 +1,6 @@
 ﻿using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
+using GraduationAPI_EPOSHBOOKING.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
@@ -26,6 +27,12 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         {
             var response = _blogRepository.GetBlogDetailById(blogId);
             return StatusCode(response.StatusCode, response);
+        }
+        [HttpGet("Get-Blog-by-Account_Id/{accountId}")]
+        public IActionResult GetBlogsByAccountId(int accountId)
+        {
+        var response = _blogRepository.GetBlogDetailById(accountId);
+        return StatusCode(response.StatusCode, response);     
         }
     }
 }
