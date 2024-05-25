@@ -163,6 +163,44 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
            
         }
 
+        public ResponseMessage ChangePassword(int accountId, string oldPassword, string newPassword)
+        {
+            var account = db.accounts.FirstOrDefault(a => a.AccountID == accountId);
+
+            if (account == null)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Account not found",
+                    StatusCode = (int)HttpStatusCode.NotFound
+                };
+            }
+
+            string hashedOldPassword = Ultils.Utils.HashPassword(oldPassword);
+            if (account.Password != hashedOldPassword)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Old password is incorrect",
+                    StatusCode = (int)HttpStatusCode.BadRequest
+                };
+            }
+
+            string hashedNewPassword = Ultils.Utils.HashPassword(newPassword);
+            account.Password = hashedNewPassword;
+
+            db.SaveChanges();
+
+            return new ResponseMessage
+            {
+                Success = true,
+                Message = "Password changed successfully",
+                StatusCode = (int)HttpStatusCode.OK
+            };
+        }
+
         public ResponseMessage UpdateProfileByAccount(int accountID, Profile profile,IFormFile avatar)
         {
             try
@@ -189,6 +227,40 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         }
 
+        public ResponseMessage GetProfileByAccountId(int accountId)
+        {
+            var account = db.accounts
+                            .Include(a => a.Profile)
+                            .FirstOrDefault(a => a.AccountID == accountId);
 
+            if (account == null)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Account not found",
+                    StatusCode = (int)HttpStatusCode.NotFound
+                };
+            }
+
+            var profile = account.Profile;
+            if (profile == null)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Profile not found",
+                    StatusCode = (int)HttpStatusCode.NotFound
+                };
+            }
+
+            return new ResponseMessage
+            {
+                Success = true,
+                Data = profile,
+                Message = "Profile retrieved successfully",
+                StatusCode = (int)HttpStatusCode.OK
+            };
+        }
     }
 }

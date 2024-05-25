@@ -4,6 +4,7 @@ using System.Net;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Ultils;
 using GraduationAPI_EPOSHBOOKING.Model;
+#pragma warning disable // tắt cảnh báo để code sạch hơn
 
 namespace EPOSH_BOOKING.Controllers
 {
@@ -21,24 +22,12 @@ namespace EPOSH_BOOKING.Controllers
             this.utils = utils;
             this.repository = _repository;
         }
-        [HttpPost("send-mail")]
-        public IActionResult SendOTPForgot([FromBody]String email)
-        {
-             var response = Utils.sendMail(email);
-             return Ok(response);
-        }
 
-        [HttpPut("update-new-password")]
-        public IActionResult UpdateNewPassword([FromForm]String newPassword, [FromForm]String email)
+        [HttpGet("get-profile-by-account")]
+        public IActionResult GetProfileByAccountId([FromQuery]int accountId)
         {
-            var response = repository.UpdateNewPassword(email, newPassword);
-            return StatusCode(response.StatusCode, response);
-        }
+            var response = repository.GetProfileByAccountId(accountId);
 
-        [HttpPut("update-profile")]
-        public IActionResult UpdateProfile([FromForm]int accountID, [FromForm]Profile profile, [FromForm]IFormFile Avatar)
-        {
-            var response = repository.UpdateProfileByAccount(accountID, profile, Avatar);
             return StatusCode(response.StatusCode, response);
         }
 
