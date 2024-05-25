@@ -70,6 +70,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var getHotel = db.hotel.Include(x => x.HotelImages).Include(x => x.HotelAddress).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices).Include(x => x.feedBacks)
                 .ThenInclude(booking => booking.Booking).ThenInclude(account => account.Account).ThenInclude(profile => profile.Profile)
                 .FirstOrDefault(x => x.HotelID == id);
+            
             if (getHotel != null)
             {
                 double avgRating = Math.Round(getHotel.feedBacks.Average(feedback => feedback.Rating), 2);
@@ -86,7 +87,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetHotelByPrice(double minPrice, double maxPrice)
         {
             var currentDate = DateTime.Now;
-
             var getHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.feedBacks).Include(x => x.rooms)
                 .ThenInclude(x => x.SpecialPrice).OrderByDescending(hotel => hotel.HotelStandar).Select(hotel => new Hotel
                 {
@@ -101,17 +101,19 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     && sp.Price >= minPrice && sp.Price <= maxPrice)).ToList(),
                     feedBacks = hotel.feedBacks.ToList(),
                 }).ToList();
-            var listHotelWithRating = getHotel.Select(hotel => new  
+
+            var filterHotel = getHotel.Where(hotel => hotel.rooms.Any());
+            var listHotelWithRating = filterHotel.Select(hotel => new  
             {
-                Hotel = hotel,
+                Hotel = hotel,  
                 AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0
             });
 
-            if (getHotel.Any())
+            if (listHotelWithRating.Any())
             {
                 return new ResponseMessage { Success = true, Data = listHotelWithRating, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
-            return new ResponseMessage { Success = false, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+            return new ResponseMessage { Success = false, Data = listHotelWithRating, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
 
         public ResponseMessage GetByRating(int rating)
@@ -137,20 +139,35 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetByService(List<String> services)
         {
-
+            var currentDate = DateTime.Now;
             if (services.Any())
             {
                 var listHotel = db.hotel.Include(x => x.HotelImages).Include(x => x.HotelAddress).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices)
-                .Include(x => x.feedBacks).Include(x => x.rooms).ToList();
+                .Include(x => x.feedBacks).Include(x => x.rooms).ThenInclude(special => special.SpecialPrice).ToList();
 
                 var listHotelWithService = listHotel.Where(hotel => hotel.HotelServices.Any(service => services.Contains(service.Type))).OrderByDescending(hotel => hotel.HotelStandar).ToList();
-                if (listHotelWithService.Any())
+                var result = listHotelWithService.Select(hotel => new
                 {
-                    return new ResponseMessage { Success = true, Data = listHotelWithService, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                    HotelId = hotel,
+                    RoomSpecialPrice = hotel.rooms
+                    .Where(room => room.SpecialPrice.Any(sp => sp.StartDate <= currentDate && sp.EndDate >= currentDate))
+                    .Select(room => new
+                    {
+                        room.RoomID,
+                        Price = room.SpecialPrice
+                        .Where(sp => currentDate >= sp.StartDate  && currentDate <= sp.EndDate)
+                        .Select(sp => sp.Price)
+                        .FirstOrDefault()
+
+                    }).ToList(),
+                }).ToList();
+                if (result.Any())
+                {
+                    return new ResponseMessage { Success = true, Data = result, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                 }
                 else
                 {
-                    return new ResponseMessage { Success = false, Data = listHotelWithService, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+                    return new ResponseMessage { Success = false, Data = result, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
                 }
             }
 

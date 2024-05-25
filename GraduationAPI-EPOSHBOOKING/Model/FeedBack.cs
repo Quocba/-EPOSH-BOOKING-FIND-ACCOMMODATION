@@ -16,13 +16,13 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public bool IsBlocked { get; set; }
 
         [ForeignKey("AccountID")]
-        public Account Account { get; set; }
+        public Account? Account { get; set; }
 
         [ForeignKey("BookingID")]
-        public Booking Booking { get; set; }
+        public Booking? Booking { get; set; }
 
         [ForeignKey("HotelID")]
-        public Hotel Hotel { get; set; }
+        public Hotel? Hotel { get; set; }
 
        
 

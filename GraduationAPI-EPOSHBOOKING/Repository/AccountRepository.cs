@@ -7,6 +7,7 @@ using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using System.Net;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Principal;
 using System.Text.RegularExpressions;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
 
@@ -146,6 +147,46 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 StatusCode = 201,
                 Data = new { account.AccountID, account.Email, profile.fullName }
             };
+        }
+
+        public ResponseMessage UpdateNewPassword(string email, string newPassword)
+        {
+            var getAccount = db.accounts.FirstOrDefault(account => account.Email.Equals(email));
+            if(getAccount != null)
+            {
+                getAccount.Password = Ultils.Utils.HashPassword(newPassword);
+                db.accounts.Update(getAccount);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true, Data = getAccount, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+                return new ResponseMessage { Success = false, Data = email, Message = "Email Does not exitst", StatusCode = (int)HttpStatusCode.NotFound };
+           
+        }
+
+        public ResponseMessage UpdateProfileByAccount(int accountID, Profile profile,IFormFile avatar)
+        {
+            try
+            {
+                var getAccount = db.accounts.Include(profile => profile.Profile).FirstOrDefault(account => account.AccountID == accountID);
+                if (getAccount != null)
+                {
+                    getAccount.Profile.fullName = profile.fullName;
+                    getAccount.Profile.BirthDay = profile.BirthDay;
+                    getAccount.Profile.Gender = profile.Gender;
+                    getAccount.Profile.Address = profile.Address;
+                    getAccount.Profile.Avatar = Ultils.Utils.ConvertIFormFileToByteArray(avatar);
+                    db.accounts.Update(getAccount);
+                    db.SaveChanges();
+                    return new ResponseMessage { Success = true, Data = getAccount, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                }
+                    return new ResponseMessage { Success = false,Data = getAccount, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseMessage { Success = false, Data = ex, Message = "Internal Server Error", StatusCode = (int)HttpStatusCode.InternalServerError };
+
+            }
+
         }
 
 
