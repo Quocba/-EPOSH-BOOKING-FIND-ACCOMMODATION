@@ -62,7 +62,18 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
             }
             return otp;
         }
-
+        public static byte[] ConvertIFormFileToByteArray(IFormFile file)
+        {
+            if (file != null && file.Length > 0)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    file.CopyTo(memoryStream);
+                    return memoryStream.ToArray();
+                }
+            }
+            return null;
+        }
         public static string GenerateRandomString()
         {
             int length = 32;

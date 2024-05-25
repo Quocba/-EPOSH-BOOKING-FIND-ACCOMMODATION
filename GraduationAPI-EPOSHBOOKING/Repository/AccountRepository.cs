@@ -7,6 +7,7 @@ using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using System.Net;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Principal;
 using System.Text.RegularExpressions;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
 
@@ -148,6 +149,118 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             };
         }
 
+        public ResponseMessage UpdateNewPassword(string email, string newPassword)
+        {
+            var getAccount = db.accounts.FirstOrDefault(account => account.Email.Equals(email));
+            if(getAccount != null)
+            {
+                getAccount.Password = Ultils.Utils.HashPassword(newPassword);
+                db.accounts.Update(getAccount);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true, Data = getAccount, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+                return new ResponseMessage { Success = false, Data = email, Message = "Email Does not exitst", StatusCode = (int)HttpStatusCode.NotFound };
+           
+        }
 
+        public ResponseMessage ChangePassword(int accountId, string oldPassword, string newPassword)
+        {
+            var account = db.accounts.FirstOrDefault(a => a.AccountID == accountId);
+
+            if (account == null)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Account not found",
+                    StatusCode = (int)HttpStatusCode.NotFound
+                };
+            }
+
+            string hashedOldPassword = Ultils.Utils.HashPassword(oldPassword);
+            if (account.Password != hashedOldPassword)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Old password is incorrect",
+                    StatusCode = (int)HttpStatusCode.BadRequest
+                };
+            }
+
+            string hashedNewPassword = Ultils.Utils.HashPassword(newPassword);
+            account.Password = hashedNewPassword;
+
+            db.SaveChanges();
+
+            return new ResponseMessage
+            {
+                Success = true,
+                Message = "Password changed successfully",
+                StatusCode = (int)HttpStatusCode.OK
+            };
+        }
+
+        public ResponseMessage UpdateProfileByAccount(int accountID, Profile profile,IFormFile avatar)
+        {
+            try
+            {
+                var getAccount = db.accounts.Include(profile => profile.Profile).FirstOrDefault(account => account.AccountID == accountID);
+                if (getAccount != null)
+                {
+                    getAccount.Profile.fullName = profile.fullName;
+                    getAccount.Profile.BirthDay = profile.BirthDay;
+                    getAccount.Profile.Gender = profile.Gender;
+                    getAccount.Profile.Address = profile.Address;
+                    getAccount.Profile.Avatar = Ultils.Utils.ConvertIFormFileToByteArray(avatar);
+                    db.accounts.Update(getAccount);
+                    db.SaveChanges();
+                    return new ResponseMessage { Success = true, Data = getAccount, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                }
+                    return new ResponseMessage { Success = false,Data = getAccount, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseMessage { Success = false, Data = ex, Message = "Internal Server Error", StatusCode = (int)HttpStatusCode.InternalServerError };
+
+            }
+
+        }
+
+        public ResponseMessage GetProfileByAccountId(int accountId)
+        {
+            var account = db.accounts
+                            .Include(a => a.Profile)
+                            .FirstOrDefault(a => a.AccountID == accountId);
+
+            if (account == null)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Account not found",
+                    StatusCode = (int)HttpStatusCode.NotFound
+                };
+            }
+
+            var profile = account.Profile;
+            if (profile == null)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Profile not found",
+                    StatusCode = (int)HttpStatusCode.NotFound
+                };
+            }
+
+            return new ResponseMessage
+            {
+                Success = true,
+                Data = profile,
+                Message = "Profile retrieved successfully",
+                StatusCode = (int)HttpStatusCode.OK
+            };
+        }
     }
 }
