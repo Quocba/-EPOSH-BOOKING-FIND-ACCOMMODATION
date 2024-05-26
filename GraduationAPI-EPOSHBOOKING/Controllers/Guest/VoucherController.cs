@@ -44,6 +44,14 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             return StatusCode(response.StatusCode, response);
         }
 
+        [HttpPost("receive-voucher")]
+        public IActionResult ReceviceVoucher([FromForm]int accountID, [FromForm]int voucherID)
+        {
+            var response = _voucherRepository.ReceiveVoucher(accountID, voucherID);
+            return StatusCode(response.StatusCode, response);
+        }
+     
+
 
     }
 }
