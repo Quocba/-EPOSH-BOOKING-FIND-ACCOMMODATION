@@ -232,7 +232,7 @@ namespace UnitTestingAPI
             OpenedIn = 2024,
             Description = "Tao là trùm",
             HotelStandar = 4,
-            Status = true,
+            isActive = true,
             HotelAddress = new HotelAddress
             {
                 AddressID = 1,
@@ -276,7 +276,7 @@ namespace UnitTestingAPI
             OpenedIn = 2024,
             Description = "Tao Siêu Nhân",
             HotelStandar = 5,
-            Status = true,
+            isActive = true,
             HotelAddress = new HotelAddress
             {
                 AddressID = 2,
@@ -320,7 +320,7 @@ namespace UnitTestingAPI
             OpenedIn = 2024,
             Description = "Experience luxury at Sunrise Hotel.",
             HotelStandar = 5,
-            Status = true,
+            isActive = true,
             HotelAddress = new HotelAddress
             {
                 AddressID = 3,
