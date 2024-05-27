@@ -221,6 +221,145 @@ namespace UnitTestingAPI
             var result = controller.GetServiceByHotel(hotelID) as ObjectResult;
             Assert.AreEqual(404, result.StatusCode);
         }
+
+
+        [Test]
+        public void SearchHotel_ByCityOnly_ReturnsCorrectResults()
+        {
+           
+            string city = "CityA";
+            var fakeHotels = GetFakeHotels();
+            var expected = fakeHotels.Where(h => h.HotelAddress.City.Equals(city, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            repository.Setup(repo => repo.SearchHotel(city, null, null, null, null))
+                          .Returns(new ResponseMessage { Success = true, Data = expected, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK });
+
+            
+            var result = controller.SearchHotel(city, null, null, null, null) as ObjectResult;
+
+            
+            Assert.IsNotNull(result, "Result should not be null");
+            Assert.AreEqual(200, result.StatusCode);
+            var responseMessage = result.Value as ResponseMessage;
+            Assert.IsNotNull(responseMessage, "Response message should not be null");
+            Assert.IsTrue(responseMessage.Success);
+            Assert.AreEqual("Successfully", responseMessage.Message);
+            Assert.AreEqual(expected, responseMessage.Data);
+        }
+
+
+        public void SearchHotel_ByCityAndDates_ReturnsCorrectResults()
+        {
+           
+            string city = "CityA";
+            DateTime checkInDate = DateTime.Today;
+            DateTime checkOutDate = DateTime.Today.AddDays(1);
+            var fakeHotels = GetFakeHotels();
+            var expected = fakeHotels
+                            .Where(h => h.HotelAddress.City.Equals(city, StringComparison.OrdinalIgnoreCase) &&
+                                        h.rooms.Any(r => r.SpecialPrice.Any(sp => sp.StartDate <= checkInDate && sp.EndDate >= checkOutDate)))
+                            .Select(h => new
+                            {
+                                Hotel = h,
+                                RoomSpecialPrice = h.rooms.Where(r => r.SpecialPrice.Any(sp => sp.StartDate <= checkInDate && sp.EndDate >= checkOutDate))
+                                                          .Select(r => new { r.RoomID, Price = r.SpecialPrice.First().Price }).ToList(),
+                                AvgRating = h.feedBacks.Any() ? h.feedBacks.Average(fb => fb.Rating) : 0,
+                                CountReview = h.feedBacks.Count
+                            }).ToList();
+
+            repository.Setup(repo => repo.SearchHotel(city, checkInDate, checkOutDate, null, null))
+                          .Returns(new ResponseMessage { Success = true, Data = expected, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK });
+
+           
+            var result = controller.SearchHotel(city, checkInDate, checkOutDate, null, null) as ObjectResult;
+
+          
+            Assert.IsNotNull(result, "Result should not be null");
+            Assert.AreEqual(200, result.StatusCode);
+            var responseMessage = result.Value as ResponseMessage;
+            Assert.IsNotNull(responseMessage, "Response message should not be null");
+            Assert.IsTrue(responseMessage.Success);
+            Assert.AreEqual("Successfully", responseMessage.Message);
+            Assert.AreEqual(expected, responseMessage.Data);
+        }
+
+
+        [Test]
+        public void SearchHotel_ByCityCapacityQuantity_ReturnsCorrectResults()
+        {
+           
+            string city = "CityA";
+            int numberCapacity = 2;
+            int quantity = 1;
+            var fakeHotels = GetFakeHotels();
+            var expected = fakeHotels
+                            .Where(h => h.HotelAddress.City.Equals(city, StringComparison.OrdinalIgnoreCase) &&
+                                        h.rooms.Any(r => r.NumberCapacity >= numberCapacity && r.Quantity >= quantity))
+                            .Select(h => new
+                            {
+                                Hotel = h,
+                                AvgRating = h.feedBacks.Any() ? h.feedBacks.Average(fb => fb.Rating) : 0,
+                                CountReview = h.feedBacks.Count
+                            }).ToList();
+
+            repository.Setup(repo => repo.SearchHotel(city, null, null, numberCapacity, quantity))
+                          .Returns(new ResponseMessage { Success = true, Data = expected, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK });
+
+            
+            var result = controller.SearchHotel(city, null, null, numberCapacity, quantity) as ObjectResult;
+
+            
+            Assert.IsNotNull(result, "Result should not be null");
+            Assert.AreEqual(200, result.StatusCode);
+            var responseMessage = result.Value as ResponseMessage;
+            Assert.IsNotNull(responseMessage, "Response message should not be null");
+            Assert.IsTrue(responseMessage.Success);
+            Assert.AreEqual("Successfully", responseMessage.Message);
+            Assert.AreEqual(expected, responseMessage.Data);
+        }
+
+        [Test]
+        public void SearchHotel_ByAllParameters_ReturnsCorrectResults()
+
+        { 
+            string city = "CityA";
+            DateTime checkInDate = DateTime.Today;
+            DateTime checkOutDate = DateTime.Today.AddDays(1);
+            int numberCapacity = 2;
+            int quantity = 1;
+            var fakeHotels = GetFakeHotels();
+            var expected = fakeHotels
+                            .Where(h => h.HotelAddress.City.Equals(city, StringComparison.OrdinalIgnoreCase) &&
+                                        h.rooms.Any(r => r.SpecialPrice.Any(sp => sp.StartDate <= checkInDate && sp.EndDate >= checkOutDate) &&
+                                                         r.NumberCapacity >= numberCapacity &&
+                                                         r.Quantity >= quantity))
+                            .Select(h => new
+                            {
+                                Hotel = h,
+                                AvgRating = h.feedBacks.Any() ? h.feedBacks.Average(fb => fb.Rating) : 0,
+                                CountReview = h.feedBacks.Count,
+                                RoomSpecialPrice = h.rooms.Where(r => r.SpecialPrice.Any(sp => sp.StartDate <= checkInDate && sp.EndDate >= checkOutDate))
+                                                          .Select(r => new { r.RoomID, Price = r.SpecialPrice.First().Price }).ToList()
+                            }).ToList();
+
+            repository.Setup(repo => repo.SearchHotel(city, checkInDate, checkOutDate, numberCapacity, quantity))
+                          .Returns(new ResponseMessage { Success = true, Data = expected, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK });
+
+            
+            var result = controller.SearchHotel(city, checkInDate, checkOutDate, numberCapacity, quantity) as ObjectResult;
+
+            
+            Assert.IsNotNull(result, "Result should not be null");
+            Assert.AreEqual(200, result.StatusCode);
+            var responseMessage = result.Value as ResponseMessage;
+            Assert.IsNotNull(responseMessage, "Response message should not be null");
+            Assert.IsTrue(responseMessage.Success);
+            Assert.AreEqual("Successfully", responseMessage.Message);
+            Assert.AreEqual(expected, responseMessage.Data);
+        }
+
+
+
         private List<Hotel> GetFakeHotels()
         {
             var hotels = new List<Hotel>
@@ -232,7 +371,7 @@ namespace UnitTestingAPI
             OpenedIn = 2024,
             Description = "Tao là trùm",
             HotelStandar = 4,
-            isActive = true,
+            Status = true,
             HotelAddress = new HotelAddress
             {
                 AddressID = 1,
@@ -276,7 +415,7 @@ namespace UnitTestingAPI
             OpenedIn = 2024,
             Description = "Tao Siêu Nhân",
             HotelStandar = 5,
-            isActive = true,
+            Status = true,
             HotelAddress = new HotelAddress
             {
                 AddressID = 2,
@@ -320,7 +459,7 @@ namespace UnitTestingAPI
             OpenedIn = 2024,
             Description = "Experience luxury at Sunrise Hotel.",
             HotelStandar = 5,
-            isActive = true,
+            Status = true,
             HotelAddress = new HotelAddress
             {
                 AddressID = 3,

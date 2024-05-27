@@ -4,6 +4,7 @@ using GraduationAPI_EPOSHBOOKING.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,16 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduationAPI_EPOSHBOOKING.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+<<<<<<<< HEAD:GraduationAPI-EPOSHBOOKING/Migrations/20240527030502_updateTabaseHotel.Designer.cs
+    [Migration("20240527030502_updateTabaseHotel")]
+    partial class updateTabaseHotel
+========
+    [Migration("20240527031303_updateTableHotel")]
+    partial class updateTableHotel
+>>>>>>>> origin/baodev:GraduationAPI-EPOSHBOOKING/Migrations/20240527031303_updateTableHotel.Designer.cs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
