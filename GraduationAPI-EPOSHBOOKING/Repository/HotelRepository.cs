@@ -26,7 +26,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var listHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.feedBacks)
                 .Include(room => room.rooms).ThenInclude(x => x.SpecialPrice).OrderByDescending(hotel => hotel.HotelStandar)
                 .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved")).ToList();
-
             if (listHotel.Any())
             {
                 var listHotelWithAvgRating = listHotel.Select(hotel => new
@@ -111,7 +110,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0
             });
 
-            if (listHotelWithRating.Any())
+            if (listHotelWithRating.Any())  
             {
                 return new ResponseMessage { Success = true, Data = listHotelWithRating, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }

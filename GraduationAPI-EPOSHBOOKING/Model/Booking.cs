@@ -16,6 +16,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public double TaxesPrice { get; set; }
         public int NumberOfRoom { get; set; }
         public int NumberGuest { get; set; }
+        public String? ReasonCancle { get; set;}
         public String Status { get; set; }
 
         [ForeignKey("AccountID")]
