@@ -24,7 +24,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetAllHotel()
         {
             var listHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.feedBacks)
-                .Include(room => room.rooms).ThenInclude(x => x.SpecialPrice).OrderByDescending(hotel => hotel.HotelStandar).ToList();
+                .Include(room => room.rooms).ThenInclude(x => x.SpecialPrice).OrderByDescending(hotel => hotel.HotelStandar)
+                .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved")).ToList();
             if (listHotel.Any())
             {
                 var listHotelWithAvgRating = listHotel.Select(hotel => new
@@ -47,7 +48,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             var getListHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.feedBacks).Include(room => room.rooms).ThenInclude(specialPrice => specialPrice.SpecialPrice)
                 .OrderByDescending(hotel => hotel.HotelStandar)
-                .Where(x => x.HotelAddress.City.Equals(city)).ToList();
+                .Where(x => x.HotelAddress.City.Equals(city) && x.Status == true && x.isRegister.Equals("Approved")).ToList();
 
             if (getListHotel.Any())
             {
@@ -69,7 +70,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             var getHotel = db.hotel.Include(x => x.HotelImages).Include(x => x.HotelAddress).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices).Include(x => x.feedBacks)
                 .ThenInclude(booking => booking.Booking).ThenInclude(account => account.Account).ThenInclude(profile => profile.Profile)
-                .FirstOrDefault(x => x.HotelID == id);
+                .FirstOrDefault(x => x.HotelID == id && x.Status == true && x.isRegister.Equals("Approved"));
             
             if (getHotel != null)
             {
@@ -100,7 +101,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     rooms = hotel.rooms.Where(room => room.Price >= minPrice && room.Price <= maxPrice || room.SpecialPrice.Any(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate
                     && sp.Price >= minPrice && sp.Price <= maxPrice)).ToList(),
                     feedBacks = hotel.feedBacks.ToList(),
-                }).ToList();
+                }).Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved")).ToList();
 
             var filterHotel = getHotel.Where(hotel => hotel.rooms.Any());
             var listHotelWithRating = filterHotel.Select(hotel => new  
@@ -119,7 +120,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetByRating(int rating)
         {
             var listHotel = db.hotel.Include(x => x.HotelImages).Include(x => x.HotelAddress).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices)
-                .Include(x => x.feedBacks).Include(x => x.rooms).ThenInclude(x => x.SpecialPrice).ToList();
+                .Include(x => x.feedBacks).Include(x => x.rooms).ThenInclude(x => x.SpecialPrice)
+                .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved")).ToList();
             var filterHotelWithRating = listHotel.OrderByDescending(hotel => hotel.HotelStandar).Select(hotel => new
             {
                 Hotel = hotel,
@@ -143,7 +145,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             if (services.Any())
             {
                 var listHotel = db.hotel.Include(x => x.HotelImages).Include(x => x.HotelAddress).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices)
-                .Include(x => x.feedBacks).Include(x => x.rooms).ThenInclude(special => special.SpecialPrice).ToList();
+                .Include(x => x.feedBacks).Include(x => x.rooms).ThenInclude(special => special.SpecialPrice)
+                .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved")).ToList();
 
                 var listHotelWithService = listHotel.Where(hotel => hotel.HotelServices.Any(service => services.Contains(service.Type))).OrderByDescending(hotel => hotel.HotelStandar).ToList();
                 var result = listHotelWithService.Select(hotel => new
@@ -178,7 +181,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetServiceByHotelID(int hotelID)
         {
             var hotelService = db.hotel.Include(hotelService => hotelService.HotelServices).ThenInclude(subService => subService.HotelSubServices).Where(x => x.HotelID == hotelID)
-                .ToList();
+                .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved")).ToList();
             if (hotelService.Any())
             {
                 return new ResponseMessage { Success = true, Data = hotelService, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
@@ -209,7 +212,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             var listHotel = db.hotel.Include(address => address.HotelAddress)
                 .Include(feedback => feedback.feedBacks)
-                .Include(room => room.rooms).ThenInclude(specialPrice => specialPrice.SpecialPrice).ToList();
+                .Include(room => room.rooms).ThenInclude(specialPrice => specialPrice.SpecialPrice)
+                .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved")).ToList();
 
             if (!city.IsNullOrEmpty() && checkInDate == null && checkOutDate == null && numberCapacity == null && quantity == null)
             {

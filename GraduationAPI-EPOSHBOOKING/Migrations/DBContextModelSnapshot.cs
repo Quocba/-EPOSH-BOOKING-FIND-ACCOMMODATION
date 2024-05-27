@@ -400,9 +400,8 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Avatar")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<byte[]>("Avatar")
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<DateTime?>("BirthDay")
                         .HasColumnType("datetime2");
