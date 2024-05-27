@@ -82,7 +82,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 return new ResponseMessage { Success = false, Data = accountId, Message = "Account not found", StatusCode = (int)HttpStatusCode.NotFound };
             }
-            // check Title, Description, Location, ImageData is null or empty
             if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(description) || string.IsNullOrEmpty(location) || string.IsNullOrEmpty(imageData))
             {
                 return new ResponseMessage { Success = false, Data = null, Message = "Title, Description, Location, ImageData is required", StatusCode = (int)HttpStatusCode.BadRequest };
@@ -99,8 +98,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
             db.blog.Add(blog);
             db.SaveChanges();
-
-            // Tạo đối tượng BlogImage mới
             BlogImage blogImage = new BlogImage
             {
                 ImageData = System.Text.Encoding.UTF8.GetBytes(imageData),
@@ -112,24 +109,63 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = true, Data = createdBlog, Message = "Blog created successfully", StatusCode = (int)HttpStatusCode.OK };
         }
 
-
-        public ResponseMessage DeleteBlog(int blogId)
+        public ResponseMessage CommentBlog(int blogId, int accountId, string description)
         {
-            var blog = db.blog.Include(b => b.BlogImage).Include(a => a.Account).FirstOrDefault(b => b.BlogID == blogId);
+            var blog = db.blog.Include(b => b.Comment).FirstOrDefault(b => b.BlogID == blogId);
             if (blog == null)
             {
                 return new ResponseMessage { Success = false, Data = blogId, Message = "Blog not found", StatusCode = (int)HttpStatusCode.NotFound };
             }
 
+            var account = db.accounts.FirstOrDefault(a => a.AccountID == accountId);
+            if (account == null)
+            {
+                return new ResponseMessage { Success = false, Data = accountId, Message = "Account not found", StatusCode = (int)HttpStatusCode.NotFound };
+            }
+
+            if (string.IsNullOrEmpty(description))
+            {
+                return new ResponseMessage { Success = false, Data = null, Message = "Description is required", StatusCode = (int)HttpStatusCode.BadRequest };
+            }
+            CommentBlog comment = new CommentBlog
+            {
+                BlogID = blogId,
+                AccountID = accountId,
+                Desciption = description,
+
+                DateComment = DateTime.Now
+            };
+            db.blogComment.Add(comment);
+            db.SaveChanges();
+
+            var createdComment = db.blogComment
+                                    .Include(c => c.Blog)
+                                    .Include(c => c.Account)
+                                    .FirstOrDefault(c => c.BlogID == blogId && c.AccountID == accountId && c.Desciption == description);
+
+            return new ResponseMessage { Success = true, Data = comment, Message = "Comment created successfully", StatusCode = (int)HttpStatusCode.OK };
+        }
+        public ResponseMessage DeleteBlog(int blogId)
+        {
+            var blog = db.blog.Include(b => b.BlogImage).Include(b => b.Comment).FirstOrDefault(b => b.BlogID == blogId);
+            if (blog == null)
+            {
+                return new ResponseMessage { Success = false, Data = blogId, Message = "Blog not found", StatusCode = (int)HttpStatusCode.NotFound };
+            }
+
+            foreach (var comment in blog.Comment)
+            {
+                db.blogComment.Remove(comment);
+            }
             foreach (var image in blog.BlogImage)
             {
                 db.blogImage.Remove(image);
             }
-            // Chưa code xóa comment blog
             db.blog.Remove(blog);
             db.SaveChanges();
 
             return new ResponseMessage { Success = true, Data = blogId, Message = "Blog deleted successfully", StatusCode = (int)HttpStatusCode.OK };
         }
+
     }
 }

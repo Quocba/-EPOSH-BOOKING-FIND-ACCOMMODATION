@@ -60,6 +60,11 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             var response = _blogRepository.DeleteBlog(blogId);
             return StatusCode(response.StatusCode, response);
         }
-
+        [HttpPost("comment-blog")]
+        public IActionResult CommentBlog([FromBody] CommentRequest commentRequest)
+        {
+            var response = _blogRepository.CommentBlog(commentRequest.BlogID, commentRequest.AccountID, commentRequest.Description);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
