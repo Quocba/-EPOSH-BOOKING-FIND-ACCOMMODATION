@@ -71,9 +71,89 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 .Where(blog => blog.Account.AccountID == accountId);
             if (getBlog != null)
             {
-                return new ResponseMessage { Success = true, Data = getBlog,Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                return new ResponseMessage { Success = true, Data = getBlog, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
-            return new ResponseMessage { Success = false,Data = getBlog,Message = "Data not found", StatusCode= (int)HttpStatusCode.NotFound};
+            return new ResponseMessage { Success = false, Data = getBlog, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
+        public ResponseMessage CreateBlog(Blog blog, int accountId, List<IFormFile> image)
+        {
+            var account = db.accounts.FirstOrDefault(a => a.AccountID == accountId);
+            if (account == null)
+            {
+                return new ResponseMessage { Success = false, Data = accountId, Message = "Account not found", StatusCode = (int)HttpStatusCode.NotFound };
+            }
+            Blog addBlog = new Blog
+            {
+                Title = blog.Title,
+                Description = blog.Description,
+                Location = blog.Location,
+                Status = "Wait for confirm",
+                Account = account
+            };
+            db.blog.Add(addBlog);
+            foreach (var convert in image)
+            {
+                byte[]imageDate = Ultils.Utils.ConvertIFormFileToByteArray(convert);
+                BlogImage addImage = new BlogImage
+                {
+                    Blog = addBlog,
+                    ImageData = imageDate,
+                };
+                db.blogImage.Add(addImage);
+            }
+            db.SaveChanges();
+           
+            return new ResponseMessage { Success = true, Data = addBlog, Message = "Blog created successfully", StatusCode = (int)HttpStatusCode.OK };
+        }
+
+        public ResponseMessage CommentBlog(int blogId, int accountId, string description)
+        {
+            var blog = db.blog.Include(b => b.Comment).FirstOrDefault(b => b.BlogID == blogId);
+            var account = db.accounts.FirstOrDefault(a => a.AccountID == accountId);
+            if (blog != null && account != null)
+            {
+                CommentBlog comment = new CommentBlog
+                {
+                    BlogID = blogId,
+                    AccountID = accountId,
+                    Desciption = description,
+
+                    DateComment = DateTime.Now
+                };
+                db.blogComment.Add(comment);
+                db.SaveChanges();
+                var createdComment = db.blogComment
+                                        .Include(c => c.Blog)
+                                        .Include(c => c.Account)
+                                        .FirstOrDefault(c => c.BlogID == blogId && c.AccountID == accountId && c.Desciption == description);
+                
+
+                return new ResponseMessage { Success = true, Data = createdComment, Message = "Comment created successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+                return new ResponseMessage { Success = false, Data = null, Message = "Account or Blog Does not exist", StatusCode = (int)HttpStatusCode.NotFound };
+
+        }
+        public ResponseMessage DeleteBlog(int blogId)
+        {
+            var blog = db.blog.Include(b => b.BlogImage).Include(b => b.Comment).FirstOrDefault(b => b.BlogID == blogId);
+            if (blog == null)
+            {
+                return new ResponseMessage { Success = false, Data = blogId, Message = "Blog not found", StatusCode = (int)HttpStatusCode.NotFound };
+            }
+
+            foreach (var comment in blog.Comment)
+            {
+                db.blogComment.Remove(comment);
+            }
+            foreach (var image in blog.BlogImage)
+            {
+                db.blogImage.Remove(image);
+            }
+            db.blog.Remove(blog);
+            db.SaveChanges();
+
+            return new ResponseMessage { Success = true, Data = blogId, Message = "Blog deleted successfully", StatusCode = (int)HttpStatusCode.OK };
+        }
+
     }
 }

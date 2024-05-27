@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduationAPI_EPOSHBOOKING.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20240527031303_updateTableHotel")]
-    partial class updateTableHotel
+    [Migration("20240527071632_updateBlogStatus")]
+    partial class updateBlogStatus
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -142,6 +142,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<int>("NumberOfRoom")
                         .HasColumnType("int");
 
+                    b.Property<string>("ReasonCancle")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("RoomID")
                         .HasColumnType("int");
 
@@ -266,7 +269,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<int>("OpenedIn")
                         .HasColumnType("int");
 
-                    b.Property<bool>("isActive")
+                    b.Property<bool>("Status")
                         .HasColumnType("bit");
 
                     b.Property<string>("isRegister")

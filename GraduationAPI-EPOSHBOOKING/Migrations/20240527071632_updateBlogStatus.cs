@@ -5,25 +5,24 @@
 namespace GraduationAPI_EPOSHBOOKING.Migrations
 {
     /// <inheritdoc />
-    public partial class updateTableHotel : Migration
+    public partial class updateBlogStatus : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "isRegister",
-                table: "Hotel",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
+           name: "Status",
+           table: "Blogs",  // Ensure the table name matches your entity definition
+           type: "nvarchar(max)",
+           nullable: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "isRegister",
-                table: "Hotel");
+            name: "Status",
+            table: "Blogs");
         }
     }
 }

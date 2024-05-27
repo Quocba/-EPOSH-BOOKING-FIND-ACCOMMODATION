@@ -139,6 +139,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<int>("NumberOfRoom")
                         .HasColumnType("int");
 
+                    b.Property<string>("ReasonCancle")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("RoomID")
                         .HasColumnType("int");
 
@@ -263,7 +266,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<int>("OpenedIn")
                         .HasColumnType("int");
 
-                    b.Property<bool>("isActive")
+                    b.Property<bool>("Status")
                         .HasColumnType("bit");
 
                     b.Property<string>("isRegister")
