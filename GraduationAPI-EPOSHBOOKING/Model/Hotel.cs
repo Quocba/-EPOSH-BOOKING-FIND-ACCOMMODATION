@@ -17,7 +17,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
 
         public int HotelStandar { get; set; }
         public bool isActive { get; set;}
-        public String isRegister { get; set; }
+        public String? isRegister { get; set; }
         [ForeignKey("AccountID")]
         public Account Account { get; set; }
 

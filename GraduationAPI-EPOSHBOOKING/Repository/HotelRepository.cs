@@ -24,7 +24,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetAllHotel()
         {
             var listHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.feedBacks)
-                .Include(room => room.rooms).ThenInclude(x => x.SpecialPrice).OrderByDescending(hotel => hotel.HotelStandar).ToList();
+                .Include(room => room.rooms).ThenInclude(x => x.SpecialPrice).OrderByDescending(hotel => hotel.HotelStandar)
+                .ToList();
             if (listHotel.Any())
             {
                 var listHotelWithAvgRating = listHotel.Select(hotel => new
