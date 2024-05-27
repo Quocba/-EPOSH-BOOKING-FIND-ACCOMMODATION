@@ -15,7 +15,21 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         {
             _blogRepository = blogRepository;
         }
-
+        public class BlogRequest
+        {
+            public string Title { get; set; }
+            public string Description { get; set; }
+            public string Location { get; set; }
+            public string Status { get; set; }
+            public string ImageData { get; set; }
+            public int AccountID { get; set; }
+        }
+        public class CommentRequest
+        {
+            public int BlogID { get; set; }
+            public int AccountID { get; set; }
+            public string Description { get; set; }
+        }
         [HttpGet("get-all-blog")]
         public IActionResult GetAllBlogs()
         {
@@ -33,6 +47,24 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         {
         var response = _blogRepository.GetBlogDetailById(accountId);
         return StatusCode(response.StatusCode, response);     
+        }
+        [HttpPost("create-blog")]
+        public IActionResult CreateBlog([FromBody] BlogRequest blogRequest)
+        {
+            var response = _blogRepository.CreateBlog(blogRequest.Title, blogRequest.Description, blogRequest.Location, blogRequest.Status, blogRequest.ImageData, blogRequest.AccountID);
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpDelete("delete-blog/{blogId}")]
+        public IActionResult DeleteBlog(int blogId)
+        {
+            var response = _blogRepository.DeleteBlog(blogId);
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpPost("comment-blog")]
+        public IActionResult CommentBlog([FromBody] CommentRequest commentRequest)
+        {
+            var response = _blogRepository.CommentBlog(commentRequest.BlogID, commentRequest.AccountID, commentRequest.Description);
+            return StatusCode(response.StatusCode, response);
         }
     }
 }
