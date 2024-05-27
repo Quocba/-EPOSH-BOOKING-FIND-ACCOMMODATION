@@ -19,5 +19,13 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
             var response = repository.GetBookingByAccount(accountID);
             return StatusCode(response.StatusCode, response);
         }
+
+        [HttpPut("cancle-booking")]
+        public IActionResult CancleBooking([FromForm]int bookingID, [FromForm]String Reason)
+        {
+            var response = repository.CancleBooking(bookingID, Reason);
+            return StatusCode(response.StatusCode, response);
+        }
+
     }
 }
