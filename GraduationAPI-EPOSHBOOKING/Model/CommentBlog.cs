@@ -7,14 +7,14 @@ namespace GraduationAPI_EPOSHBOOKING.Model
     public class CommentBlog
     {
         [Key]
-        public int AccountID { get; set; }  
-        public Account Account { get; set; }
-        [Key]
-        public int BlogID { get; set; }
-        public Blog Blog { get; set; }
-        public String Desciption { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int CommentID { get; set; }
+        public String Description { get; set; }
         public DateTime DateComment { get; set; }
-
+        [ForeignKey("BlogID")]
+        public Blog blog { get; set; }
+        [ForeignKey("AccountID")]
+        public Account account { get; set; }
        
     }
 }
