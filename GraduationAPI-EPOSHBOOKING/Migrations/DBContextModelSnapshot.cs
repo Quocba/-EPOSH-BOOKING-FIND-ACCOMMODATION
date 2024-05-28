@@ -66,7 +66,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BlogID"));
 
-                    b.Property<int>("AccountID")
+                    b.Property<int?>("AccountID")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -81,7 +81,6 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
@@ -174,6 +173,12 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.CommentBlog", b =>
                 {
+                    b.Property<int>("CommentID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CommentID"));
+
                     b.Property<int>("AccountID")
                         .HasColumnType("int");
 
@@ -183,11 +188,13 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<DateTime>("DateComment")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Desciption")
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("AccountID", "BlogID");
+                    b.HasKey("CommentID");
+
+                    b.HasIndex("AccountID");
 
                     b.HasIndex("BlogID");
 
@@ -652,9 +659,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Account", "Account")
                         .WithMany("Blogs")
-                        .HasForeignKey("AccountID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AccountID");
 
                     b.Navigation("Account");
                 });
@@ -697,21 +702,21 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.CommentBlog", b =>
                 {
-                    b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Account", "Account")
+                    b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Account", "account")
                         .WithMany()
                         .HasForeignKey("AccountID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Blog", "Blog")
+                    b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Blog", "blog")
                         .WithMany("Comment")
                         .HasForeignKey("BlogID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Account");
+                    b.Navigation("account");
 
-                    b.Navigation("Blog");
+                    b.Navigation("blog");
                 });
 
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.FeedBack", b =>
