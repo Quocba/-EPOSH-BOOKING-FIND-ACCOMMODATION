@@ -46,7 +46,9 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetHotelByCity(String city)
         {
-            var getListHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.feedBacks).Include(room => room.rooms).ThenInclude(specialPrice => specialPrice.SpecialPrice)
+            var getListHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.feedBacks)
+                .Include(room => room.rooms)
+                .ThenInclude(specialPrice => specialPrice.SpecialPrice)
                 .OrderByDescending(hotel => hotel.HotelStandar)
                 .Where(x => x.HotelAddress.City.Equals(city) && x.Status == true && x.isRegister.Equals("Approved")).ToList();
 
@@ -68,7 +70,9 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetHotelByID(int id)
         {
-            var getHotel = db.hotel.Include(x => x.HotelImages).Include(x => x.HotelAddress).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices).Include(x => x.feedBacks)
+            var getHotel = db.hotel.Include(x => x.HotelImages)
+                .Include(x => x.HotelAddress)
+                .Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices).Include(x => x.feedBacks)
                 .ThenInclude(booking => booking.Booking).ThenInclude(account => account.Account).ThenInclude(profile => profile.Profile)
                 .FirstOrDefault(x => x.HotelID == id && x.Status == true && x.isRegister.Equals("Approved"));
             

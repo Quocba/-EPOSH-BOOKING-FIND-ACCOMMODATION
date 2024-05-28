@@ -106,33 +106,53 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = true, Data = addBlog, Message = "Blog created successfully", StatusCode = (int)HttpStatusCode.OK };
         }
 
-        public ResponseMessage CommentBlog(int blogId, int accountId, string description)
-        {
-            var blog = db.blog.Include(b => b.Comment).FirstOrDefault(b => b.BlogID == blogId);
-            var account = db.accounts.FirstOrDefault(a => a.AccountID == accountId);
-            if (blog != null && account != null)
-            {
-                CommentBlog comment = new CommentBlog
-                {
-                    BlogID = blogId,
-                    AccountID = accountId,
-                    Desciption = description,
+        //public ResponseMessage CommentBlog(int blogId, int accountId, string description)
+        //{
+        //    var blog = db.blog.Include(b => b.Comment).FirstOrDefault(b => b.BlogID == blogId);
+        //    var account = db.accounts.FirstOrDefault(a => a.AccountID == accountId);
+        //    if (blog != null && account != null)
+        //    {
+        //        CommentBlog comment = new CommentBlog
+        //        {
+        //            BlogID = blogId,
+        //            AccountID = accountId,
+        //            Description = description,
 
-                    DateComment = DateTime.Now
-                };
-                db.blogComment.Add(comment);
-                db.SaveChanges();
-                var createdComment = db.blogComment
-                                        .Include(c => c.Blog)
-                                        .Include(c => c.Account)
-                                        .FirstOrDefault(c => c.BlogID == blogId && c.AccountID == accountId && c.Desciption == description);
-                
+        //            DateComment = DateTime.Now
+        //        };
+        //        db.blogComment.Add(comment);
+        //        db.SaveChanges();
+        //        var createdComment = db.blogComment
+        //                               .Include(c => c.Blog)
+        //                               .Include(c => c.Account)
+        //                               .Where(c => c.BlogID == blogId && c.AccountID == accountId && c.Description == description)
+        //                               .Select(comment => new
+        //                               {
+        //                                   Description = comment.Description,
+        //                                   DateComment = comment.DateComment,
+        //                                   Blog = new
+        //                                   {
+        //                                       comment.Blog.BlogID,
+        //                                       comment.Blog.Title,
+        //                                       comment.Blog.Description,
+        //                                       comment.Blog.Location,
+        //                                       comment.Blog.Status
+        //                                   },
+        //                                   Account = new
+        //                                   {
+        //                                       comment.Account.AccountID,
+        //                                       comment.Account.Email,
+        //                                       comment.Account.IsActive
+        //                                   }
+        //                               })
+        //                               .FirstOrDefault();
 
-                return new ResponseMessage { Success = true, Data = createdComment, Message = "Comment created successfully", StatusCode = (int)HttpStatusCode.OK };
-            }
-                return new ResponseMessage { Success = false, Data = null, Message = "Account or Blog Does not exist", StatusCode = (int)HttpStatusCode.NotFound };
 
-        }
+        //        return new ResponseMessage { Success = true, Data = createdComment, Message = "Comment created successfully", StatusCode = (int)HttpStatusCode.OK };
+        //    }
+        //        return new ResponseMessage { Success = false, Data = null, Message = "Account or Blog Does not exist", StatusCode = (int)HttpStatusCode.NotFound };
+
+        //}
         public ResponseMessage DeleteBlog(int blogId)
         {
             var blog = db.blog.Include(b => b.BlogImage).Include(b => b.Comment).FirstOrDefault(b => b.BlogID == blogId);
