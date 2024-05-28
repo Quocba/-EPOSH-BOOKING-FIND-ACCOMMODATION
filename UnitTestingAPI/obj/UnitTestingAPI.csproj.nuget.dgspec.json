@@ -1,31 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\UnitTestingAPI\\UnitTestingAPI.csproj": {}
+    "C:\\Users\\Asus_FX504\\Documents\\do an\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\UnitTestingAPI\\UnitTestingAPI.csproj": {}
   },
   "projects": {
-    "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\GraduationAPI-EPOSHBOOKING\\GraduationAPI-EPOSHBOOKING.csproj": {
+    "C:\\Users\\Asus_FX504\\Documents\\do an\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\GraduationAPI-EPOSHBOOKING\\GraduationAPI-EPOSHBOOKING.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\GraduationAPI-EPOSHBOOKING\\GraduationAPI-EPOSHBOOKING.csproj",
+        "projectUniqueName": "C:\\Users\\Asus_FX504\\Documents\\do an\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\GraduationAPI-EPOSHBOOKING\\GraduationAPI-EPOSHBOOKING.csproj",
         "projectName": "GraduationAPI-EPOSHBOOKING",
-        "projectPath": "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\GraduationAPI-EPOSHBOOKING\\GraduationAPI-EPOSHBOOKING.csproj",
-        "packagesPath": "C:\\Users\\Acer\\.nuget\\packages\\",
-        "outputPath": "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\GraduationAPI-EPOSHBOOKING\\obj\\",
+        "projectPath": "C:\\Users\\Asus_FX504\\Documents\\do an\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\GraduationAPI-EPOSHBOOKING\\GraduationAPI-EPOSHBOOKING.csproj",
+        "packagesPath": "C:\\Users\\Asus_FX504\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Asus_FX504\\Documents\\do an\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\GraduationAPI-EPOSHBOOKING\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Acer\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config"
+          "C:\\Users\\Asus_FX504\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
         ],
         "sources": {
-          "C:\\Program Files\\dotnet\\library-packs": {},
-          "C:\\Program Files\\dotnet\\sdk\\7.0.306\\Sdks\\Microsoft.NET.Sdk.Web\\library-packs": {},
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -38,6 +34,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -92,39 +93,36 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.205\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\UnitTestingAPI\\UnitTestingAPI.csproj": {
+    "C:\\Users\\Asus_FX504\\Documents\\do an\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\UnitTestingAPI\\UnitTestingAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\UnitTestingAPI\\UnitTestingAPI.csproj",
+        "projectUniqueName": "C:\\Users\\Asus_FX504\\Documents\\do an\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\UnitTestingAPI\\UnitTestingAPI.csproj",
         "projectName": "UnitTestingAPI",
-        "projectPath": "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\UnitTestingAPI\\UnitTestingAPI.csproj",
-        "packagesPath": "C:\\Users\\Acer\\.nuget\\packages\\",
-        "outputPath": "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\UnitTestingAPI\\obj\\",
+        "projectPath": "C:\\Users\\Asus_FX504\\Documents\\do an\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\UnitTestingAPI\\UnitTestingAPI.csproj",
+        "packagesPath": "C:\\Users\\Asus_FX504\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Asus_FX504\\Documents\\do an\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\UnitTestingAPI\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Acer\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config"
+          "C:\\Users\\Asus_FX504\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
         ],
         "sources": {
-          "C:\\Program Files\\dotnet\\library-packs": {},
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net7.0": {
             "targetAlias": "net7.0",
             "projectReferences": {
-              "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\GraduationAPI-EPOSHBOOKING\\GraduationAPI-EPOSHBOOKING.csproj": {
-                "projectPath": "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\GraduationAPI-EPOSHBOOKING\\GraduationAPI-EPOSHBOOKING.csproj"
+              "C:\\Users\\Asus_FX504\\Documents\\do an\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\GraduationAPI-EPOSHBOOKING\\GraduationAPI-EPOSHBOOKING.csproj": {
+                "projectPath": "C:\\Users\\Asus_FX504\\Documents\\do an\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\GraduationAPI-EPOSHBOOKING\\GraduationAPI-EPOSHBOOKING.csproj"
               }
             }
           }
@@ -133,6 +131,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -180,7 +183,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.205\\RuntimeIdentifierGraph.json"
         }
       }
     }

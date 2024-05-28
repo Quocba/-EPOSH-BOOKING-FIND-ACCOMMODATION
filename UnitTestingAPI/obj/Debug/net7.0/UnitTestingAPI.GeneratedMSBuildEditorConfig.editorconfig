@@ -8,4 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = UnitTestingAPI
-build_property.ProjectDir = D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\UnitTestingAPI\
+build_property.ProjectDir = C:\Users\Asus_FX504\Documents\do an\-EPOSH-BOOKING-FIND-ACCOMMODATION\UnitTestingAPI\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
