@@ -4,6 +4,7 @@ using GraduationAPI_EPOSHBOOKING.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduationAPI_EPOSHBOOKING.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20240527091816_changeNameTableBlog")]
+    partial class changeNameTableBlog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -173,12 +176,6 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.CommentBlog", b =>
                 {
-                    b.Property<int>("CommentID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CommentID"));
-
                     b.Property<int>("AccountID")
                         .HasColumnType("int");
 
@@ -192,9 +189,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("CommentID");
-
-                    b.HasIndex("AccountID");
+                    b.HasKey("AccountID", "BlogID");
 
                     b.HasIndex("BlogID");
 
@@ -277,6 +272,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("isRegister")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("HotelID");
@@ -701,21 +697,21 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.CommentBlog", b =>
                 {
-                    b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Account", "account")
+                    b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Account", "Account")
                         .WithMany()
                         .HasForeignKey("AccountID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Blog", "blog")
+                    b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Blog", "Blog")
                         .WithMany("Comment")
                         .HasForeignKey("BlogID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("account");
+                    b.Navigation("Account");
 
-                    b.Navigation("blog");
+                    b.Navigation("Blog");
                 });
 
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.FeedBack", b =>
