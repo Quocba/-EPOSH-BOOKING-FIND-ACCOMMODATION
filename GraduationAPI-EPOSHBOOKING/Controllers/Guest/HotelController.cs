@@ -1,5 +1,8 @@
 ﻿using GraduationAPI_EPOSHBOOKING.IRepository;
+using GraduationAPI_EPOSHBOOKING.Model;
+using GraduationAPI_EPOSHBOOKING.Repository;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
 {
@@ -73,6 +76,13 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         {
             var resposne = repository.SearchHotel(city, checkInDate, checkOuDate, numberCapacity,Quantity);
             return StatusCode(resposne.StatusCode, resposne);
+        }
+        // viet controller add image
+        [HttpPost("add-hotel-image")]
+        public IActionResult AddHotelImage([FromForm] int hotelId, [FromForm] List<IFormFile> images)
+        {
+            var response = repository.AddHotelImage(hotelId, images);
+            return StatusCode(response.StatusCode, response);
         }
     }
 }

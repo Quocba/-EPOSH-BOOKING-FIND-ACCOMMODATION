@@ -7,6 +7,8 @@ using Microsoft.Identity.Client.Utils.Windows;
 using System.Net;
 using GraduationAPI_EPOSHBOOKING.Ultils;
 using Microsoft.IdentityModel.Tokens;
+using Azure;
+using static System.Net.Mime.MediaTypeNames;
 
 #pragma warning disable // tắt cảnh báo để code sạch hơn
 namespace GraduationAPI_EPOSHBOOKING.Repository
@@ -305,7 +307,30 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
+        // chưa code xong
+        public ResponseMessage AddHotelImage(int hotelId, List<IFormFile> images)
+        {
+            var hotel = db.hotel.FirstOrDefault(hotel => hotel.HotelID == hotelId);
+            if (hotel != null)
+            {
+                var listImage = new List<HotelImage>();
+                foreach (var convert in images)
+                {
+                    byte[] imageData = Utils.ConvertIFormFileToByteArray(convert);
+                    HotelImage addImage = new HotelImage
+                    {
+                        ImageData = imageData,
+                        Hotel = hotel
+                    };
+                    listImage.Add(addImage);
+                }
+                db.SaveChanges();
+                return new ResponseMessage { Success = true, Data = listImage, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+            return new ResponseMessage { Success = false, Data = null, Message = "Hotel not found", StatusCode = (int)HttpStatusCode.NotFound };
+        }
+
     }
 
-    }   
+ }   
 

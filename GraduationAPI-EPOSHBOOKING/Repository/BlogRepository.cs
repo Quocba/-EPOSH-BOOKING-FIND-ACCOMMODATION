@@ -111,10 +111,10 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage CommentBlog(int blogId, int accountId, string description)
         {
             var blog = db.blog
-            .Include(b => b.Comment)
-            .FirstOrDefault(b => b.BlogID == blogId);
+                .Include(b => b.Comment)
+                .FirstOrDefault(b => b.BlogID == blogId);
             var account = db.accounts
-             .FirstOrDefault(a => a.AccountID == accountId);
+                .FirstOrDefault(a => a.AccountID == accountId);
             if (blog == null)
             {
                 return new ResponseMessage { Success = false, Data = blogId, Message = "Blog not found", StatusCode = (int)HttpStatusCode.NotFound };
@@ -132,6 +132,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             };
             db.blogComment.Add(comment);
             db.SaveChanges();
+
+            // Remove sensitive data from the response
+            comment.account.Password = null;
+            comment.account.Phone = null;
+
             return new ResponseMessage { Success = true, Data = comment, Message = "Commented successfully", StatusCode = (int)HttpStatusCode.OK };
         }
 
