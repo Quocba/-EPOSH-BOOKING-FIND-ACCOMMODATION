@@ -25,6 +25,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
                                                        List<IFormFile> images,
                                                        IFormFile mainImage,
                                                        int accountID,
-                                                       List<ServiceWithSubServices>service);
+                                                       List<string> serviceTypes, List<string> subServiceNames);
     }
 }

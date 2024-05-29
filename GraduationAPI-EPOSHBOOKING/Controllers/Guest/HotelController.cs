@@ -92,10 +92,11 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
                                           [FromForm] List<IFormFile> images,
                                           [FromForm] IFormFile mainImage,
                                           [FromForm] int accountID,
-                                          [FromForm] List<ServiceWithSubServices>services)
+                                         [FromForm] List<string> serviceTypes,
+                                         [FromForm] List<string> subServiceNames)
         {
             var response = repository.HotelRegistration
-                (hotelName, openedIn, description, hotelStandar, hotelAddress, city, latitude, longitude, images, mainImage, accountID,services);
+                (hotelName, openedIn, description, hotelStandar, hotelAddress, city, latitude, longitude, images, mainImage, accountID, serviceTypes,subServiceNames);
             if (response.Success)
             {
                 return Ok(response);
