@@ -1,4 +1,5 @@
-﻿using GraduationAPI_EPOSHBOOKING.Model;
+﻿using GraduationAPI_EPOSHBOOKING.DTO;
+using GraduationAPI_EPOSHBOOKING.Model;
 
 namespace GraduationAPI_EPOSHBOOKING.IRepository
 {
@@ -24,7 +25,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
                                                        List<IFormFile> images,
                                                        IFormFile mainImage,
                                                        int accountID,
-                                                       List<string> serviceTypes,
-                                                       List<List<string>> subServiceNames);
+                                                       List<ServiceWithSubServices>service);
     }
 }

@@ -20,7 +20,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             this.db = _db;
             this.ultils = _ultils;
         }
-
+    
         public ResponseMessage GetAllHotel()
         {
             var listHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.feedBacks)
@@ -210,7 +210,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
-
+        public class ServiceWithSubServices
+        {
+            public string Type { get; set; }
+            public List<string> SubServiceNames { get; set; }
+        }
         //Chức năng chưa hoàn thiện
         public ResponseMessage SearchHotel(String city, DateTime? checkInDate, DateTime? checkOutDate, int? numberCapacity, int? quantity)
         {
@@ -305,23 +309,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
-        public ResponseMessage HotelRegistration(string hotelName,
-                                         int openedIn,
-                                         string description,
-                                         int hotelStandar,
-                                         string hotelAddress,
-                                         string city,
-                                         double latitude,
-                                         double longitude,
-                                         List<IFormFile> images,
-                                         IFormFile mainImage,
-                                         int accountID,
-                                         List<string> serviceTypes,
-                                         List<List<string>> subServiceNames)
+        public ResponseMessage HotelRegistration(string hotelName, int openedIn, string description, int hotelStandar, string hotelAddress, string city, double latitude, double longitude, List<IFormFile> images, IFormFile mainImage, int accountID, List<DTO.ServiceWithSubServices> services)
         {
             var account = db.accounts
-                            .Include(profile => profile.Profile)
-                            .FirstOrDefault(a => a.AccountID == accountID);
+                         .Include(profile => profile.Profile)
+                         .FirstOrDefault(a => a.AccountID == accountID);
 
             var addAddress = new HotelAddress
             {
@@ -349,20 +341,23 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             db.hotel.Add(addHotel);
             db.SaveChanges(); // Save changes to generate IDs for the hotel
 
-            var hotelServices = new List<HotelService>();
-            var hotelSubServices = new List<HotelSubService>();
 
-            for (int i = 0; i < serviceTypes.Count; i++)
+            var hotelServices = new List<HotelService>();
+
+            foreach (var service in services)
             {
                 var addService = new HotelService
                 {
-                    Type = serviceTypes[i],
+                    Type = service.Type,
                     Hotel = addHotel // Make sure the HotelID is correctly set
                 };
 
                 db.hotelService.Add(addService);
                 db.SaveChanges(); // Save changes to generate IDs for the service
-                foreach (var subServiceName in subServiceNames[i])
+
+                var hotelSubServices = new List<HotelSubService>();
+
+                foreach (var subServiceName in service.SubServiceNames)
                 {
                     var addSubService = new HotelSubService
                     {
@@ -435,5 +430,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             };
         }
     }
-}
+    }
+
 
