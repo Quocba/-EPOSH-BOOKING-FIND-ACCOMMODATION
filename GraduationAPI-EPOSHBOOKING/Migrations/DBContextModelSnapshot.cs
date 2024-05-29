@@ -259,7 +259,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("HotelStandar")
+                    b.Property<int?>("HotelStandar")
                         .HasColumnType("int");
 
                     b.Property<byte[]>("MainImage")

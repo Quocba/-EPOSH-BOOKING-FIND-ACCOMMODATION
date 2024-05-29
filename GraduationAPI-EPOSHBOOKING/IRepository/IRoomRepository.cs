@@ -5,7 +5,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
     public interface IRoomRepository
     {
         ResponseMessage GetRoomDetail(int roomID);
-        
-       
+        ResponseMessage GetAllRoom();
     }
 }

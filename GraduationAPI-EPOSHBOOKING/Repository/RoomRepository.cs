@@ -26,6 +26,17 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = false,Data = getRoom, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
 
+        public ResponseMessage GetAllRoom()
+        {
+            var listRoom = db.room.Include(service => service.RoomService)
+                .ThenInclude(subService => subService.RoomSubServices)
+                .Include(img => img.RoomImages).ToList();
+            if (listRoom.Any())
+            {
+                return new ResponseMessage { Success = true, Data = listRoom, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+            return new ResponseMessage { Success = false, Data = listRoom, Message = "No Data", StatusCode = (int)HttpStatusCode.NotFound };
+        }
 
        
     }

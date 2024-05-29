@@ -1,5 +1,8 @@
 ﻿using GraduationAPI_EPOSHBOOKING.IRepository;
+using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Net;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
 {
@@ -74,6 +77,32 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             var resposne = repository.SearchHotel(city, checkInDate, checkOuDate, numberCapacity,Quantity);
             return StatusCode(resposne.StatusCode, resposne);
         }
+
+        [HttpPost("hotel-registration")]
+        public IActionResult RegisterHotel(
+      [FromForm] string hotelName,
+      [FromForm] int openedIn,
+      [FromForm] string description,
+      [FromForm] int hotelStandar,
+      [FromForm] string hotelAddress,
+      [FromForm] string city,
+      [FromForm] double latitude,
+      [FromForm] double longitude,
+      [FromForm] List<IFormFile> images,
+      [FromForm] IFormFile mainImage,
+      [FromForm] int accountID,
+      [FromForm] List<string> serviceTypes,
+      [FromForm] List<List<string>> subServiceNames)
+        {
+            var response = repository.HotelRegistration
+                (hotelName, openedIn, description, hotelStandar, hotelAddress, city, latitude, longitude, images, mainImage, accountID, serviceTypes, subServiceNames);
+            if (response.Success)
+            {
+                return Ok(response);
+            }
+            return StatusCode(response.StatusCode, response);
+        }
+
     }
 }
  

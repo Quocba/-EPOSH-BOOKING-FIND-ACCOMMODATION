@@ -53,6 +53,46 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             // Check if the check-in date is more than 24 hours from now
             return timeDifference.TotalHours > 24;
         }
+        public ResponseMessage ChangeStatusWaitForPayment(int bookingID)
+        {
+            var getBooking = db.booking.FirstOrDefault(booking => booking.BookingID == bookingID);
+            if (getBooking != null)
+            {
+                getBooking.Status = "Wait For Payment";
+                db.booking.Update(getBooking);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true, Data = getBooking, Message = "Confirm Successfully", StatusCode= (int)HttpStatusCode.OK };
+            }
+            return new ResponseMessage { Success = false, Data = getBooking, Message = "Fail", StatusCode = (int)(HttpStatusCode.NotFound)};  
+        }
+
+        public ResponseMessage ChangeStatusComplete(int bookingID)
+        {
+            var getBooking = db.booking.FirstOrDefault(booking => booking.BookingID==bookingID);
+            if (getBooking != null)
+            {
+                getBooking.Status = "Complete";
+                db.booking.Update(getBooking);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true, Data = getBooking, Message = "Successfully", StatusCode=(int)HttpStatusCode.OK};
+            }
+            return new ResponseMessage { Success = false,Data = getBooking, Message = "Fail", StatusCode =(int)(HttpStatusCode.NotFound)};
+        }
+
+
+        public ResponseMessage GetAllBooking()
+        {
+            var listBooking = db.booking.Include(room => room.Room)
+                .Include(hotel => hotel)
+                .Include(account => account.Account)
+                .Include(voucher => voucher.Voucher)
+                .ToList();
+            if (listBooking != null)
+            {
+                return new ResponseMessage { Success = true, Data = listBooking, Message = "Successfully", StatusCode= (int)HttpStatusCode.OK };
+            }
+            return new ResponseMessage { Success = false,Data = listBooking, Message = "No Data", StatusCode=(int)HttpStatusCode.NotFound };
+        }
 
         public ResponseMessage CreateBooking(int accountID, int voucherID, int RoomID,Booking? booking)
         {
@@ -93,7 +133,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         TaxesPrice = taxesPrice,
                         NumberGuest = booking.NumberGuest,
                         NumberOfRoom = booking.NumberOfRoom,
-                        Status = "Wait For Confirm"
+                        Status = "Wait For Check-In"
                     };
                     voucher.QuantityUseed = voucher.QuantityUseed - 1;
                     room.Quantity = room.Quantity - booking.NumberOfRoom;
@@ -112,7 +152,9 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                             db.myVoucher.Update(myvoucher);
                         };
                     }
+                    Ultils.Utils.sendMail(createBookingWithVoucher.Account.Email);
                     db.SaveChanges();
+                  
                     return new ResponseMessage { Success = true, Data = createBookingWithVoucher, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                 }
                 else
@@ -139,6 +181,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     db.room.Update(room);
                     db.booking.Add(createBooking);
                     db.SaveChanges();
+                    Ultils.Utils.sendMail(createBooking.Account.Email);
                     return new ResponseMessage { Success = true, Data = createBooking, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                 }
             }

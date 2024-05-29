@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "nIHdB9W90RFuAd4rQ/JtEBQqE0zJ5AIQHl1NRnHOe84OH/keZnT977i1VPvG42G/5M2a8d7tRgQubhOTiAXAtw==",
+  "dgSpecHash": "tclhwFJwEbZBvdKN0g4fUQtOz765oTnn4zRByhduTeirJ0a+Sj0DIfFAYt0lNN1iPDse2Stq4oXp+YBwcGF0Vg==",
   "success": true,
   "projectFilePath": "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\UnitTestingAPI\\UnitTestingAPI.csproj",
   "expectedPackageFiles": [
@@ -48,7 +48,7 @@
     "C:\\Users\\Acer\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\moq\\4.20.70\\moq.4.20.70.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\netstandard.library\\2.0.0\\netstandard.library.2.0.0.nupkg.sha512",
-    "C:\\Users\\Acer\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
+    "C:\\Users\\Acer\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\nuget.frameworks\\5.11.0\\nuget.frameworks.5.11.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\nunit\\3.13.3\\nunit.3.13.3.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\nunit.analyzers\\3.6.1\\nunit.analyzers.3.6.1.nupkg.sha512",

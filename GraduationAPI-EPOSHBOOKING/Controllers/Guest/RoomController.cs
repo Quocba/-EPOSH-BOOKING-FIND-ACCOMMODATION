@@ -19,5 +19,12 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             var response = reponsitory.GetRoomDetail(roomID);
             return StatusCode(response.StatusCode, response);   
         }
+
+        [HttpGet("get-all-room")]
+        public IActionResult GetAllRoom()
+        {
+            var resposne = reponsitory.GetAllRoom();
+            return StatusCode(resposne.StatusCode, resposne);
+        }
     }
 }
