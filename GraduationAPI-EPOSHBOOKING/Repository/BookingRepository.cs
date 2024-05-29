@@ -53,5 +53,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             // Check if the check-in date is more than 24 hours from now
             return timeDifference.TotalHours > 24;
         }
+
     }
 }
