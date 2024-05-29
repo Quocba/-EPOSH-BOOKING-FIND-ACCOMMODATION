@@ -66,7 +66,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     .ThenInclude(subService => subService.RoomSubServices)
                     .Include(specialPrice => specialPrice.SpecialPrice)
                     .FirstOrDefault(room => room.RoomID == RoomID);
-                var voucher = db.voucher.FirstOrDefault(voucher => voucher.VoucherID == voucherID);
+                var voucher = db.voucher.FirstOrDefault(voucher => voucher.VoucherID == voucherID && voucher.QuantityUseed > 0);
 
                 double unitPrice = room.Price;
                 var specialPrice = room.SpecialPrice
@@ -133,6 +133,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         NumberGuest = booking.NumberGuest,
                         NumberOfRoom = booking.NumberOfRoom,
                         Status = "Wait For Confirm"
+                        
                     };
                     room.Quantity = room.Quantity - booking.NumberOfRoom;
                     db.room.Update(room);
