@@ -1,4 +1,5 @@
 ﻿using GraduationAPI_EPOSHBOOKING.IRepository;
+using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
@@ -24,6 +25,13 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
         public IActionResult CancleBooking([FromForm]int bookingID, [FromForm]String Reason)
         {
             var response = repository.CancleBooking(bookingID, Reason);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPost("create-booking")]
+        public IActionResult CreateBooking([FromForm]int accountID, [FromForm]int voucherID, [FromForm]int roomID, [FromForm]Booking? booking)
+        {
+            var response = repository.CreateBooking(accountID, voucherID, roomID, booking);
             return StatusCode(response.StatusCode, response);
         }
 

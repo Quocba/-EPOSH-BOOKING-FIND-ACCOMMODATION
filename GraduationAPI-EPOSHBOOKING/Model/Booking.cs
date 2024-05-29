@@ -17,13 +17,13 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public int NumberOfRoom { get; set; }
         public int NumberGuest { get; set; }
         public String? ReasonCancle { get; set;}
-        public String Status { get; set; }
+        public String? Status { get; set; }
 
         [ForeignKey("AccountID")]
-        public Account Account { get; set; }
+        public Account? Account { get; set; }
 
         [ForeignKey("RoomID")]
-        public Room Room { get; set; }
+        public Room? Room { get; set; }
 
         [ForeignKey("VoucherID")]
         public Voucher? Voucher { get; set; }
