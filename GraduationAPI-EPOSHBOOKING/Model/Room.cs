@@ -17,12 +17,12 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public String TypeOfBed { get; set; }
 
         [ForeignKey("HotelID")]
-        public Hotel Hotel { get; set; }
+        public Hotel? Hotel { get; set; }
 
-        public ICollection<RoomImage> RoomImages { get; set; }
+        public ICollection<RoomImage>? RoomImages { get; set; }
         
-        public ICollection<RoomService> RoomService { get; set; }
-        public ICollection<SpecialPrice> SpecialPrice { get; set; }
+        public ICollection<RoomService>? RoomService { get; set; }
+        public ICollection<SpecialPrice>? SpecialPrice { get; set; }
  
     }
 }

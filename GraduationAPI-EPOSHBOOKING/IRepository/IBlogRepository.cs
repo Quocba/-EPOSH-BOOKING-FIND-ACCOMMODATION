@@ -9,7 +9,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage GetBlogsByAccountId(int accountId);
         public ResponseMessage CreateBlog(Blog blog, int accountId,List<IFormFile> image);
         public ResponseMessage DeleteBlog(int blogId);
-
-        //public ResponseMessage CommentBlog(int blogId, int accountId, string description);
+        public ResponseMessage CommentBlog(int blogId, int accountId, string description);
     }
 }

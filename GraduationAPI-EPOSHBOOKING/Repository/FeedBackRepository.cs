@@ -19,7 +19,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             try
             {
-               
+
                 byte[] feedBackImage = Ultils.Utils.ConvertIFormFileToByteArray(Image);
                 var booking = db.booking.Include(room => room.Room).ThenInclude(hotel => hotel.Hotel).Include(account => account.Account)
                     .FirstOrDefault(booking => booking.BookingID == BookingID);
@@ -78,7 +78,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     } : null
                 };
 
-                return new ResponseMessage {Success = true, Data = result, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                return new ResponseMessage { Success = true, Data = result, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
 
 
             }
@@ -86,6 +86,47 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 return new ResponseMessage { Success = false, Data = null, Message = "Internal Server Error", StatusCode = (int)HttpStatusCode.InternalServerError };
             }
+        }
+
+        public ResponseMessage ReportFeedback(int AccountID, int FeedBackID, string reason)
+        {
+            var account = db.accounts.Find(AccountID);
+            if (account == null)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Account not found",
+                    StatusCode = (int)HttpStatusCode.NotFound
+                };
+            }
+            var feedback = db.feedback.Find(FeedBackID);
+            if (feedback == null)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Feedback not found",
+                    StatusCode = (int)HttpStatusCode.NotFound
+                };
+            }
+
+            var report = new ReportFeedBack
+            {
+                FeedBack = feedback,
+                ReporterEmail = db.accounts.Find(AccountID).Email,
+                ReasonReport = reason
+            };
+
+            db.reportFeedBack.Add(report);
+            db.SaveChanges();
+
+            return new ResponseMessage
+            {
+                Success = true,
+                Message = "Feedback reported successfully",
+                StatusCode = (int)HttpStatusCode.OK
+            };
         }
     }
 }

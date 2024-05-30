@@ -4,6 +4,8 @@ using System.Net.Mail;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Drawing;
+using ClosedXML.Excel;
 
 namespace GraduationAPI_EPOSHBOOKING.Ultils
 {
@@ -103,7 +105,6 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
 
             return prefix + new string(stringChars);
         }
-
     }
 
 }
