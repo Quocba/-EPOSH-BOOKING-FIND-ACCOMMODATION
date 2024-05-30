@@ -23,8 +23,22 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             this.repository = hotelRepository;
         }
 
-    
-       
+        public class HotelRegistrationModel
+        {
+            public string HotelName { get; set; }
+            public int OpenedIn { get; set; }
+            public string Description { get; set; }
+            public int HotelStandard { get; set; }
+            public string HotelAddress { get; set; }
+            public string City { get; set; }
+            public double Latitude { get; set; }
+            public double Longitude { get; set; }
+            public List<IFormFile> Images { get; set; }
+            public IFormFile MainImage { get; set; }
+            public int AccountID { get; set; }
+            public string Services { get; set; } // Changed to string to capture JSON
+        }
+
         [HttpGet("get-all")]
       public IActionResult GetAllHotel()
         {
@@ -89,29 +103,26 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpPost("hotel-registration")]
-        public IActionResult RegisterHotel(
-                                            [FromForm] string hotelName,
-                                            [FromForm] int openedIn,
-                                            [FromForm] string description,
-                                            [FromForm] int hotelStandar,
-                                            [FromForm] string hotelAddress,
-                                            [FromForm] string city,
-                                            [FromForm] double latitude,
-                                            [FromForm] double longitude,
-                                            [FromForm] List<IFormFile> images,
-                                            [FromForm] IFormFile mainImage,
-                                            [FromForm] int accountID,
-                                            [FromForm] List<string> serviceTypes,
-                                            [FromForm] List<string> subServiceNames)
-        {   
-            var response = repository.HotelRegistration
-                (hotelName, openedIn, description, hotelStandar, hotelAddress, city, latitude, longitude, images, mainImage, accountID, serviceTypes, subServiceNames);
-            if (response.Success)
-            {
-                return Ok(response);
-            }
+        public IActionResult RegisterHotel([FromForm]HotelRegistrationModel registrationModel)
+        {
+            var services = JsonConvert.DeserializeObject<List<ServiceType>>(registrationModel.Services);
+
+            var response = repository.HotelRegistration(
+                registrationModel.HotelName,
+                registrationModel.OpenedIn,
+                registrationModel.Description,
+                registrationModel.HotelStandard,
+                registrationModel.HotelAddress,
+                registrationModel.City,
+                registrationModel.Latitude,
+                registrationModel.Longitude,
+                registrationModel.Images,
+                registrationModel.MainImage,
+                registrationModel.AccountID,
+                services
+            );
             return StatusCode(response.StatusCode, response);
-        }
+        }   
         [HttpPut("update-basic-infomation")]
         public IActionResult UpdateBasicInfomation([FromForm] int hotelID,
                                             [FromForm] string hotelName,

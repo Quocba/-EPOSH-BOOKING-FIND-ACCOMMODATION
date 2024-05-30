@@ -25,7 +25,7 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
                                                    List<IFormFile> images,
                                                    IFormFile mainImage,
                                                    int accountID,
-                                                   List<string> serviceTypes, List<string> subServiceNames);
+                                                   List<ServiceType>services);
         public ResponseMessage UpdateBasicInfomation(int hotelID,string hotelName,
                                                      int openedIn,
                                                      string description,
