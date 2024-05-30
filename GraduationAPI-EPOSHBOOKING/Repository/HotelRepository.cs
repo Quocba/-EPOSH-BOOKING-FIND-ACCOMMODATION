@@ -391,7 +391,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
                 db.hotelImage.Add(addImage);
             }
-
+            
             db.SaveChanges(); // Save all changes at the end
             return new ResponseMessage
             {

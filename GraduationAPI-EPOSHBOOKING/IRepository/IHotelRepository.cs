@@ -27,4 +27,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
                                                        int accountID,
                                                        List<string> serviceTypes, List<string> subServiceNames);
     }
+
+     
 }
