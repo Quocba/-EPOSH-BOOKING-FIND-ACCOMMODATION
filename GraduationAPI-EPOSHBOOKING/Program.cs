@@ -1,4 +1,4 @@
-using GraduationAPI_EPOSHBOOKING.DataAccess;
+﻿using GraduationAPI_EPOSHBOOKING.DataAccess;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using GraduationAPI_EPOSHBOOKING.Repository;
@@ -31,12 +31,15 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+    
 });
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {

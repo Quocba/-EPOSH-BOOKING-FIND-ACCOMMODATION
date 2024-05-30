@@ -1,4 +1,4 @@
-﻿using GraduationAPI_EPOSHBOOKING.DTO;
+﻿
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +16,10 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         {
             this.repository = hotelRepository;
         }
-      [HttpGet("get-all")]
+
+    
+       
+        [HttpGet("get-all")]
       public IActionResult GetAllHotel()
         {
             var respone = repository.GetAllHotel();
@@ -81,25 +84,47 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
 
         [HttpPost("hotel-registration")]
         public IActionResult RegisterHotel(
-                                          [FromForm] string hotelName,
-                                          [FromForm] int openedIn,
-                                          [FromForm] string description,
-                                          [FromForm] int hotelStandar,
-                                          [FromForm] string hotelAddress,
-                                          [FromForm] string city,
-                                          [FromForm] double latitude,
-                                          [FromForm] double longitude,
-                                          [FromForm] List<IFormFile> images,
-                                          [FromForm] IFormFile mainImage,
-                                          [FromForm] int accountID,
-                                          [FromForm] List<ServiceWithSubServices>services)
-        {
+                                            [FromForm] string hotelName,
+                                            [FromForm] int openedIn,
+                                            [FromForm] string description,
+                                            [FromForm] int hotelStandar,
+                                            [FromForm] string hotelAddress,
+                                            [FromForm] string city,
+                                            [FromForm] double latitude,
+                                            [FromForm] double longitude,
+                                            [FromForm] List<IFormFile> images,
+                                            [FromForm] IFormFile mainImage,
+                                            [FromForm] int accountID,
+                                            [FromForm] List<string> serviceTypes,
+                                            [FromForm] List<string> subServiceNames)
+        {   
             var response = repository.HotelRegistration
-                (hotelName, openedIn, description, hotelStandar, hotelAddress, city, latitude, longitude, images, mainImage, accountID,services);
+                (hotelName, openedIn, description, hotelStandar, hotelAddress, city, latitude, longitude, images, mainImage, accountID, serviceTypes, subServiceNames);
             if (response.Success)
             {
                 return Ok(response);
             }
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpPut("update-basic-infomation")]
+        public IActionResult UpdateBasicInfomation([FromForm] int hotelID,
+                                            [FromForm] string hotelName,
+                                            [FromForm] int openedIn,
+                                            [FromForm] string description,
+                                            [FromForm] string hotelAddress,
+                                            [FromForm] string city,
+                                            [FromForm] double latitude,
+                                            [FromForm] double longitude,
+                                            [FromForm] IFormFile mainImage)
+        {
+            var response = repository.UpdateBasicInfomation(hotelID, hotelName, openedIn, description, hotelAddress, city, latitude, longitude,mainImage);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPut("update-service")]
+        public IActionResult UpdateHotelService([FromForm]int hotelID, [FromForm] List<string> type, [FromForm]List<string> subServiceName)
+        {
+            var response = repository.UpdateHotelService(hotelID, type, subServiceName);
             return StatusCode(response.StatusCode, response);
         }
 

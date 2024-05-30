@@ -8,6 +8,7 @@ using System.Net;
 using GraduationAPI_EPOSHBOOKING.Ultils;
 using Microsoft.IdentityModel.Tokens;
 
+
 #pragma warning disable // tắt cảnh báo để code sạch hơn
 namespace GraduationAPI_EPOSHBOOKING.Repository
 {
@@ -20,7 +21,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             this.db = _db;
             this.ultils = _ultils;
         }
-    
+
         public ResponseMessage GetAllHotel()
         {
             var listHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.feedBacks)
@@ -309,7 +310,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
-        public ResponseMessage HotelRegistration(string hotelName, int openedIn, string description, int hotelStandar, string hotelAddress, string city, double latitude, double longitude, List<IFormFile> images, IFormFile mainImage, int accountID, List<DTO.ServiceWithSubServices> services)
+        public ResponseMessage HotelRegistration(string hotelName, int openedIn, string description, int hotelStandar, string hotelAddress, string city, double latitude, double longitude, List<IFormFile> images, IFormFile mainImage, int accountID, List<string> serviceTypes, List<string> subServiceNames)
         {
             var account = db.accounts
                          .Include(profile => profile.Profile)
@@ -342,13 +343,13 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             db.SaveChanges(); // Save changes to generate IDs for the hotel
 
 
-            var hotelServices = new List<HotelService>();
+            int subServiceIndex = 0;
 
-            foreach (var service in services)
+            foreach (var serviceType in serviceTypes)
             {
                 var addService = new HotelService
                 {
-                    Type = service.Type,
+                    Type = serviceType,
                     Hotel = addHotel // Make sure the HotelID is correctly set
                 };
 
@@ -357,8 +358,16 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
                 var hotelSubServices = new List<HotelSubService>();
 
-                foreach (var subServiceName in service.SubServiceNames)
+                for (int i = subServiceIndex; i < subServiceNames.Count; i++)
                 {
+                    var subServiceName = subServiceNames[i];
+
+                    if (string.IsNullOrEmpty(subServiceName))
+                    {
+                        subServiceIndex = i + 1;
+                        break;
+                    }
+
                     var addSubService = new HotelSubService
                     {
                         SubServiceName = subServiceName,
@@ -370,8 +379,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 }
 
                 addService.HotelSubServices = hotelSubServices;
-                hotelServices.Add(addService);
             }
+
 
             foreach (var img in images)
             {
@@ -388,48 +397,128 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage
             {
                 Success = true,
-                Data = new
-                {
-                    Hotel = new
-                    {
-                        addHotel.HotelID,
-                        addHotel.Name,
-                        addHotel.OpenedIn,
-                        addHotel.MainImage,
-                        addHotel.Description,
-                        HotelAddress = new
-                        {
-                            addHotel.HotelAddress.Address,
-                            addHotel.HotelAddress.City,
-                            addHotel.HotelAddress.latitude,
-                            addHotel.HotelAddress.longitude
-                        },
-                        addHotel.Status,
-                        addHotel.isRegister,
-                        addHotel.HotelStandar,
-                        Account = new
-                        {
-                            account.AccountID,
-                            account.Profile
-                            // Thêm thông tin tài khoản nếu cần
-                        }
-                    },
-                    HotelServices = hotelServices.Select(s => new
-                    {
-                        s.ServiceID,
-                        s.Type,
-                        HotelSubServices = s.HotelSubServices.Select(sub => new
-                        {
-                            sub.SubServiceID,
-                            sub.SubServiceName
-                        }).ToList()
-                    }).ToList()
-                },
+                Data = addHotel,
                 Message = "Successfully registered hotel",
                 StatusCode = (int)HttpStatusCode.OK
             };
         }
+
+        public ResponseMessage UpdateBasicInfomation(int hotelID, string hotelName, int openedIn, string description,
+            string hotelAddress, string city, double latitude, double longitude, IFormFile mainImage)
+        {
+            var getHotel = db.hotel.Include(address => address.HotelAddress).FirstOrDefault(hotel => hotel.HotelID == hotelID);
+            if (getHotel != null)
+            {
+                getHotel.Name = hotelName;
+                getHotel.OpenedIn = openedIn;
+                getHotel.Description = description;
+                getHotel.HotelStandar = getHotel.HotelStandar;
+                getHotel.HotelAddress.Address = hotelAddress;
+                getHotel.HotelAddress.latitude = latitude;
+                getHotel.HotelAddress.longitude = longitude;
+                getHotel.HotelAddress.City = city;
+                getHotel.MainImage = Ultils.Utils.ConvertIFormFileToByteArray(mainImage);
+                db.hotel.Update(getHotel);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true, Data = getHotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+            return new ResponseMessage { Success = false, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+        }
+
+        public ResponseMessage UpdateHotelService(int hotelID, List<string> type, List<string> subServiceNames)
+        {
+            using (var transaction = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    // Find the hotel
+                    var hotel = db.hotel.Include(h => h.HotelServices)
+                                        .ThenInclude(s => s.HotelSubServices)
+                                        .FirstOrDefault(h => h.HotelID == hotelID);
+
+                    if (hotel == null)
+                    {
+                        return new ResponseMessage
+                        {
+                            Success = false,
+                            Message = "Hotel not found",
+                            StatusCode = (int)HttpStatusCode.NotFound
+                        };
+                    }
+
+                    // Remove existing services and sub-services
+                    foreach (var service in hotel.HotelServices)
+                    {
+                        db.hotelSubService.RemoveRange(service.HotelSubServices);
+                        db.hotelService.Remove(service);
+                    }
+                    db.SaveChanges();
+
+                    // Add new services and sub-services
+                    int subServiceIndex = 0;
+
+                    foreach (var serviceType in type)
+                    {
+                        var addService = new HotelService
+                        {
+                            Type = serviceType,
+                            Hotel = hotel // Associate the service with the hotel
+                        };
+
+                        db.hotelService.Add(addService);
+                        db.SaveChanges(); // Save changes to generate IDs for the service
+
+                        var hotelSubServices = new List<HotelSubService>();
+
+                        while (subServiceIndex < subServiceNames.Count)
+                        {
+                            var subServiceName = subServiceNames[subServiceIndex];
+                            subServiceIndex++;
+
+                            if (string.IsNullOrEmpty(subServiceName))
+                            {
+                                break; // move to the next service type
+                            }
+
+                            var addSubService = new HotelSubService
+                            {
+                                SubServiceName = subServiceName,
+                                HotelService = addService // Use the generated ServiceID
+                            };
+
+                            db.hotelSubService.Add(addSubService);
+                            hotelSubServices.Add(addSubService);
+                        }
+
+                        addService.HotelSubServices = hotelSubServices;
+                    }
+
+                    db.SaveChanges(); // Save all changes at the end
+                    transaction.Commit();
+
+                    return new ResponseMessage
+                    {
+                        Success = true,
+                        Data = hotel,
+                        Message = "Successfully updated hotel services",
+                        StatusCode = (int)HttpStatusCode.OK
+                    };
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    Console.WriteLine($"Error occurred: {ex.Message}");
+                    return new ResponseMessage
+                    {
+                        Success = false,
+                        Message = ex.Message,
+                        StatusCode = (int)HttpStatusCode.InternalServerError
+                    };
+                }
+            }
+        }
     }
-    }
+}
+
 
 
