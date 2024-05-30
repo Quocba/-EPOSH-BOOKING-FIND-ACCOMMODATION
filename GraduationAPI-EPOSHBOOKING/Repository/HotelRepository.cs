@@ -313,23 +313,22 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         }
 
 
-        public ResponseMessage HotelRegistration(
-       string hotelName,
-       int openedIn,
-       string description,
-       int hotelStandard,
-       string hotelAddress,
-       string city,
-       double latitude,
-       double longitude,
-       List<IFormFile> images,
-       IFormFile mainImage,
-       int accountID,
-       List<ServiceType> services)
+        public ResponseMessage HotelRegistration(string hotelName,
+                                                   int openedIn,
+                                                   string description,
+                                                   int hotelStandard,
+                                                   string hotelAddress,
+                                                   string city,
+                                                   double latitude,
+                                                   double longitude,
+                                                   List<IFormFile> images,
+                                                   IFormFile mainImage,
+                                                   int accountID,
+                                                   List<ServiceType> services)
         {
             var account = db.accounts
-                         .Include(profile => profile.Profile)
-                         .FirstOrDefault(a => a.AccountID == accountID);
+                            .Include(profile => profile.Profile)
+                            .FirstOrDefault(a => a.AccountID == accountID);
 
             var addAddress = new HotelAddress
             {
@@ -357,16 +356,16 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             db.hotel.Add(addHotel);
             db.SaveChanges(); // Save changes to generate IDs for the hotel
 
-            foreach (var serviceType in services)
-            {
-                var addService = new HotelService
+                foreach (var serviceType in services)
                 {
-                    Type = serviceType.Type,
-                    Hotel = addHotel // Associate the service with the hotel
-                };
+                    var addService = new HotelService
+                    {
+                        Type = serviceType.Type,
+                        Hotel = addHotel // Associate the service with the hotel
+                    };
 
-                db.hotelService.Add(addService);
-                db.SaveChanges(); // Save changes to generate IDs for the service
+                    db.hotelService.Add(addService);
+                    db.SaveChanges(); // Save changes to generate IDs for the service
 
                 var hotelSubServices = new List<HotelSubService>();
 
@@ -385,16 +384,16 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 addService.HotelSubServices = hotelSubServices;
             }
 
-            foreach (var img in images)
-            {
-                var addImage = new HotelImage
+                foreach (var img in images)
                 {
-                    ImageData = Utils.ConvertIFormFileToByteArray(img),
-                    Hotel = addHotel
-                };
+                    var addImage = new HotelImage
+                    {
+                        ImageData = Utils.ConvertIFormFileToByteArray(img),
+                        Hotel = addHotel
+                    };
 
-                db.hotelImage.Add(addImage);
-            }
+                    db.hotelImage.Add(addImage);
+                }
 
             db.SaveChanges(); // Save all changes at the end
             return new ResponseMessage
@@ -402,7 +401,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 Success = true,
                 Data = addHotel,
                 Message = "Successfully registered hotel",
-                StatusCode = (int)HttpStatusCode.OK
+                StatusCode = (int)HttpStatusCode.OK 
             };
         }
 
@@ -543,7 +542,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = true, Data = hotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             return new ResponseMessage { Success = false, Data = null, Message = "Hotel not found", StatusCode = (int)HttpStatusCode.NotFound };
-        }   
+        }
 
 
     }
