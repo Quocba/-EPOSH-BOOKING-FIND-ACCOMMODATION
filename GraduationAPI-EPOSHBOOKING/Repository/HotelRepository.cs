@@ -313,7 +313,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         }
 
 
-        public ResponseMessage HotelRegistration(string hotelName, int openedIn, string description, int hotelStandar, string hotelAddress, string city, double latitude, double longitude, List<IFormFile> images, IFormFile mainImage, int accountID, List<string> serviceTypes, List<string> subServiceNames)
+        public ResponseMessage HotelRegistration(string hotelName, int openedIn, string description, int hotelStandar, string hotelAddress, string city, double latitude, double longitude,
+                                                List<IFormFile> images, IFormFile mainImage, int accountID,List<ServiceType>services)
         {
             var account = db.accounts
                          .Include(profile => profile.Profile)
@@ -346,44 +347,29 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             db.SaveChanges(); // Save changes to generate IDs for the hotel
 
 
-            int subServiceIndex = 0;
-
-            foreach (var serviceType in serviceTypes)
+           foreach(var service in services)
             {
                 var addService = new HotelService
                 {
-                    Type = serviceType,
-                    Hotel = addHotel // Make sure the HotelID is correctly set
+                    Type = service.Type,
+                    Hotel = addHotel
                 };
-
                 db.hotelService.Add(addService);
-                db.SaveChanges(); // Save changes to generate IDs for the service
-
-                var hotelSubServices = new List<HotelSubService>();
-
-                for (int i = subServiceIndex; i < subServiceNames.Count; i++)
+                db.SaveChanges();
+                var hotelSubService = new List<HotelSubService>();
+                foreach (var subServiceName in service.SubServiceNames)
                 {
-                    var subServiceName = subServiceNames[i];
-
-                    if (string.IsNullOrEmpty(subServiceName))
-                    {
-                        subServiceIndex = i + 1;
-                        break;
-                    }
-
                     var addSubService = new HotelSubService
                     {
                         SubServiceName = subServiceName,
-                        HotelService = addService // Use the generated ServiceID
+                        HotelService = addService
                     };
-
                     db.hotelSubService.Add(addSubService);
-                    hotelSubServices.Add(addSubService);
+                    hotelSubService.Add(addSubService);
                 }
+                addService.HotelSubServices = hotelSubService;
 
-                addService.HotelSubServices = hotelSubServices;
             }
-
 
             foreach (var img in images)
             {
@@ -428,7 +414,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = false, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
 
-        public ResponseMessage UpdateHotelService(int hotelID, List<string> type, List<string> subServiceNames)
+        public ResponseMessage UpdateHotelService(int hotelID, List<ServiceType> services)
         {
             using (var transaction = db.Database.BeginTransaction())
             {
@@ -458,13 +444,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     db.SaveChanges();
 
                     // Add new services and sub-services
-                    int subServiceIndex = 0;
-
-                    foreach (var serviceType in type)
+                    foreach (var serviceType in services)
                     {
                         var addService = new HotelService
                         {
-                            Type = serviceType,
+                            Type = serviceType.Type,
                             Hotel = hotel // Associate the service with the hotel
                         };
 
@@ -473,16 +457,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
                         var hotelSubServices = new List<HotelSubService>();
 
-                        while (subServiceIndex < subServiceNames.Count)
+                        foreach (var subServiceName in serviceType.SubServiceNames)
                         {
-                            var subServiceName = subServiceNames[subServiceIndex];
-                            subServiceIndex++;
-
-                            if (string.IsNullOrEmpty(subServiceName))
-                            {
-                                break; // move to the next service type
-                            }
-
                             var addSubService = new HotelSubService
                             {
                                 SubServiceName = subServiceName,
