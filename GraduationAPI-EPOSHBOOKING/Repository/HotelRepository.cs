@@ -428,7 +428,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = false, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
 
-        public ResponseMessage UpdateHotelService(int hotelID, List<string> type, List<string> subServiceNames)
+        public ResponseMessage UpdateHotelService(int hotelID, List<ServiceType> services)
         {
             using (var transaction = db.Database.BeginTransaction())
             {
@@ -458,13 +458,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     db.SaveChanges();
 
                     // Add new services and sub-services
-                    int subServiceIndex = 0;
-
-                    foreach (var serviceType in type)
+                    foreach (var serviceType in services)
                     {
                         var addService = new HotelService
                         {
-                            Type = serviceType,
+                            Type = serviceType.Type,
                             Hotel = hotel // Associate the service with the hotel
                         };
 
@@ -473,16 +471,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
                         var hotelSubServices = new List<HotelSubService>();
 
-                        while (subServiceIndex < subServiceNames.Count)
+                        foreach (var subServiceName in serviceType.SubServiceNames)
                         {
-                            var subServiceName = subServiceNames[subServiceIndex];
-                            subServiceIndex++;
-
-                            if (string.IsNullOrEmpty(subServiceName))
-                            {
-                                break; // move to the next service type
-                            }
-
                             var addSubService = new HotelSubService
                             {
                                 SubServiceName = subServiceName,

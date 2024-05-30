@@ -126,11 +126,11 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             var response = repository.UpdateBasicInfomation(hotelID, hotelName, openedIn, description, hotelAddress, city, latitude, longitude,mainImage);
             return StatusCode(response.StatusCode, response);
         }
-
+       
         [HttpPut("update-service")]
-        public IActionResult UpdateHotelService([FromForm]int hotelID, [FromForm] List<string> type, [FromForm]List<string> subServiceName)
+        public IActionResult UpdateHotelService([FromBody] UpdateService update)
         {
-            var response = repository.UpdateHotelService(hotelID, type, subServiceName);
+            var response = repository.UpdateHotelService(update.HotelID, update.Services);
             return StatusCode(response.StatusCode, response);
         }
 

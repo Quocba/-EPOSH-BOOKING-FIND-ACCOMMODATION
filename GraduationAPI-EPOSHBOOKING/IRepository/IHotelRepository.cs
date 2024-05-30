@@ -34,7 +34,7 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
                                                      double latitude,
                                                      double longitude,
                                                      IFormFile mainImage);
-        public ResponseMessage UpdateHotelService(int hotelID,List<string>type, List<string>serviceName);
+        public ResponseMessage UpdateHotelService(int hotelID,List<ServiceType>services);
         public ResponseMessage AddHotelImage(int hotelId, List<IFormFile> images);
         public ResponseMessage DeleteHotelImages(int hotelId);
 
