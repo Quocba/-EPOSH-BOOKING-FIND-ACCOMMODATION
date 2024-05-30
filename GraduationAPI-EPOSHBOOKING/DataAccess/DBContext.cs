@@ -33,8 +33,6 @@ namespace GraduationAPI_EPOSHBOOKING.DataAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<MyVoucher>().HasKey(o => new { o.VoucherID, o.AccountID });
-            
-
         }
 
     }
