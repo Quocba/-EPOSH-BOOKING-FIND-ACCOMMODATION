@@ -14,10 +14,11 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public String Name { get; set; }
         public int OpenedIn { get; set; }
         public String Description { get; set; }
+        public String? isRegister { get; set; }
 
-        public int? HotelStandar { get; set; }
-        public bool Status { get; set;}
-        public String isRegister { get; set; }
+        public bool? Status { get; set; }
+        public int ?HotelStandar { get; set; }
+
         [ForeignKey("AccountID")]
         public Account Account { get; set; }
 

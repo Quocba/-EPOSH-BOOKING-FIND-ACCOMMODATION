@@ -276,7 +276,6 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("isRegister")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("HotelID");

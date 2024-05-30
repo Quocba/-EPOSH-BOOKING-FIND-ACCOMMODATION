@@ -2,6 +2,8 @@
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
+using System.Drawing;
 using System.Net;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
 
@@ -190,5 +192,24 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = true, Data = ex, Message = "Internal Server Error", StatusCode = (int)HttpStatusCode.InternalServerError };
             }
         }
+        public ResponseMessage GetAllBookings()
+        {
+            try
+            {
+                var bookings = db.booking
+                                  .Include(b => b.Room)
+                                  .Include(b => b.Account)
+                                  .ToList();
+
+                return new ResponseMessage { Success = true, Data = bookings, Message = "Successfully retrieved all bookings.", StatusCode = (int)HttpStatusCode.OK };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseMessage { Success = false, Data = null, Message = "Internal Server Error", StatusCode = (int)HttpStatusCode.InternalServerError };
+            }
+        }
+        
+       
+
     }
 }

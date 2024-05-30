@@ -1,6 +1,7 @@
 ﻿using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
 {
@@ -35,6 +36,13 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
             return StatusCode(response.StatusCode, response);
         }
 
+        [HttpGet("get-all-bookings")]
+        public IActionResult GetAllBookings()
+        {
+            var response = repository.GetAllBooking();
+            return StatusCode(response.StatusCode, response);
+        }
+
         [HttpGet("get-all-booking")]
         public IActionResult GetAllBooking()
         {
@@ -56,5 +64,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
             return StatusCode(response.StatusCode, response);
         }
 
+        }
+
     }
-}
+
