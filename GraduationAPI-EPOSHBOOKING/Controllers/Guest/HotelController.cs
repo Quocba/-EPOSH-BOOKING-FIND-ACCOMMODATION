@@ -3,6 +3,12 @@ using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+
+﻿using GraduationAPI_EPOSHBOOKING.IRepository;
+using GraduationAPI_EPOSHBOOKING.Model;
+using GraduationAPI_EPOSHBOOKING.Repository;
+using Microsoft.AspNetCore.Mvc;
+
 using System.Net;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
@@ -125,6 +131,20 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         public IActionResult UpdateHotelService([FromForm]int hotelID, [FromForm] List<string> type, [FromForm]List<string> subServiceName)
         {
             var response = repository.UpdateHotelService(hotelID, type, subServiceName);
+            return StatusCode(response.StatusCode, response);
+        }
+
+
+        [HttpPost("add-hotel-image")]
+        public IActionResult AddHotelImage([FromForm] int hotelId, [FromForm] List<IFormFile> images)
+        {
+            var response = repository.AddHotelImage(hotelId, images);
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpDelete("delete-hotel-images")]
+        public IActionResult DeleteHotelImages([FromQuery] int hotelId)
+        {
+            var response = repository.DeleteHotelImages(hotelId);
             return StatusCode(response.StatusCode, response);
         }
 

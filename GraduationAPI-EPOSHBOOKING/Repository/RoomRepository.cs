@@ -174,7 +174,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                  getRoom.Price = room.Price;
                  getRoom.Quantity = room.Quantity;
                  getRoom.SizeOfRoom = room.SizeOfRoom;
-                 getRoom.TypeOfRoom = room.TypeOfBed;
+                 getRoom.TypeOfBed = room.TypeOfBed;
                  db.room.Update(getRoom);
                  
                 var getSpecialPriceRoom = db.specialPrice.FirstOrDefault(sp => sp.Room.RoomID== roomID);
