@@ -1,6 +1,7 @@
 ﻿using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
 {
@@ -34,6 +35,25 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
             var response = repository.CreateBooking(accountID, voucherID, roomID, booking);
             return StatusCode(response.StatusCode, response);
         }
+        // code ham GetAllBookings
+        [HttpGet("get-all-bookings")]
+        public IActionResult GetAllBookings()
+        {
+            var response = repository.GetAllBookings();
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpGet("export-by-accountID")]
+        public IActionResult ExportBookingsByAccountID([FromQuery] int accountID)
+        {
+            var fileContent = repository.ExportBookingsByAccountID(accountID);
+            if (fileContent == null)
+            {
+                return NotFound(new ResponseMessage { Success = false, Data = null, Message = "No bookings found", StatusCode = (int)HttpStatusCode.NotFound });
+            }
 
+            var fileName = $"Bookings_{accountID}.xlsx";
+            var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            return File(fileContent, contentType, fileName);
+        }
     }
 }

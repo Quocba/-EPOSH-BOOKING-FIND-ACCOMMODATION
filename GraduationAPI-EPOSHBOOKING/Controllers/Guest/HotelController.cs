@@ -77,11 +77,16 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             var resposne = repository.SearchHotel(city, checkInDate, checkOuDate, numberCapacity,Quantity);
             return StatusCode(resposne.StatusCode, resposne);
         }
-        // viet controller add image
         [HttpPost("add-hotel-image")]
         public IActionResult AddHotelImage([FromForm] int hotelId, [FromForm] List<IFormFile> images)
         {
             var response = repository.AddHotelImage(hotelId, images);
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpDelete("delete-hotel-images")]
+        public IActionResult DeleteHotelImages([FromQuery] int hotelId)
+        {
+            var response = repository.DeleteHotelImages(hotelId);
             return StatusCode(response.StatusCode, response);
         }
     }

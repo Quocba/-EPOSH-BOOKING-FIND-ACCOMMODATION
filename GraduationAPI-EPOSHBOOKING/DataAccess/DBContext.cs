@@ -7,7 +7,7 @@ namespace GraduationAPI_EPOSHBOOKING.DataAccess
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=LAPTOP-3P8D5MG5;Initial Catalog=EposhBookingGraduation;Integrated Security=True;Trust Server Certificate=True");
+            optionsBuilder.UseSqlServer("Data Source=DESKTOP-O8T8BIQ;Initial Catalog=EposhBookingGraduation;Integrated Security=True;Trust Server Certificate=True");
         }
         public DbSet<Account> accounts { get; set; }
         public DbSet<Role> roles { get; set; }
@@ -33,8 +33,6 @@ namespace GraduationAPI_EPOSHBOOKING.DataAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<MyVoucher>().HasKey(o => new { o.VoucherID, o.AccountID });
-            
-
         }
 
     }

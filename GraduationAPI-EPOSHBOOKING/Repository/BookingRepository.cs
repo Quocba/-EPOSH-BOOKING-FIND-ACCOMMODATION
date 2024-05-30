@@ -2,6 +2,8 @@
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
+using System.Drawing;
 using System.Net;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
 
@@ -147,5 +149,82 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = true, Data = ex, Message = "Internal Server Error", StatusCode = (int)HttpStatusCode.InternalServerError };
             }
         }
+        public ResponseMessage GetAllBookings()
+        {
+            try
+            {
+                var bookings = db.booking
+                                  .Include(b => b.Room)
+                                  .Include(b => b.Account)
+                                  .ToList();
+
+                return new ResponseMessage { Success = true, Data = bookings, Message = "Successfully retrieved all bookings.", StatusCode = (int)HttpStatusCode.OK };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseMessage { Success = false, Data = null, Message = "Internal Server Error", StatusCode = (int)HttpStatusCode.InternalServerError };
+            }
+        }
+        // đã format thêm màu
+        public byte[] ExportBookingsByAccountID(int accountID)
+        {
+            var bookings = db.booking.Where(booking => booking.Account.AccountID == accountID)
+                .Include(room => room.Room)
+                .ThenInclude(hotel => hotel.Hotel)
+                .ToList();
+            if (!bookings.Any())
+            {
+                return null;
+            } 
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Bookings");
+
+                // Header row
+                var headers = new[]
+                {
+            "BookingID", "CheckInDate", "CheckOutDate", "TotalPrice", "UnitPrice", "TaxesPrice", "NumberOfRoom", "NumberGuest", "ReasonCancel"
+            };
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cells[1, i + 1].Value = headers[i];
+                    worksheet.Cells[1, i + 1].Style.Font.Bold = true;
+                    worksheet.Cells[1, i + 1].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    worksheet.Cells[1, i + 1].Style.Fill.BackgroundColor.SetColor(Color.LightBlue);
+                    worksheet.Cells[1, i + 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    worksheet.Cells[1, i + 1].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                }
+
+                var row = 2;
+                foreach (var booking in bookings)
+                {
+                    worksheet.Cells[row, 1].Value = booking.BookingID;
+                    worksheet.Cells[row, 2].Value = booking.CheckInDate;
+                    worksheet.Cells[row, 3].Value = booking.CheckOutDate;
+                    worksheet.Cells[row, 4].Value = booking.TotalPrice;
+                    worksheet.Cells[row, 5].Value = booking.UnitPrice;
+                    worksheet.Cells[row, 6].Value = booking.TaxesPrice;
+                    worksheet.Cells[row, 7].Value = booking.NumberOfRoom;
+                    worksheet.Cells[row, 8].Value = booking.NumberGuest;
+                    worksheet.Cells[row, 9].Value = booking.ReasonCancle;
+
+                    for (int col = 1; col <= headers.Length; col++)
+                    {
+                        worksheet.Cells[row, col].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                        worksheet.Cells[row, col].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
+                    }
+
+                    row++;
+                }
+                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+                var stream = new MemoryStream();
+                package.SaveAs(stream);
+                return stream.ToArray();
+            }
+        }
+
     }
 }

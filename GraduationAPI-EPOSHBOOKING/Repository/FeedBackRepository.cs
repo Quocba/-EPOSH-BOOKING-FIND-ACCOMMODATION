@@ -90,6 +90,16 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage ReportFeedback(int AccountID, int FeedBackID, string reason)
         {
+            var account = db.accounts.Find(AccountID);
+            if (account == null)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Account not found",
+                    StatusCode = (int)HttpStatusCode.NotFound
+                };
+            }
             var feedback = db.feedback.Find(FeedBackID);
             if (feedback == null)
             {

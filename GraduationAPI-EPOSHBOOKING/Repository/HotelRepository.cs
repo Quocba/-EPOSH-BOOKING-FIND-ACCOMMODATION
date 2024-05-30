@@ -307,13 +307,12 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
-        // chưa code xong
+        // chưa có limit add 20 tấm 
         public ResponseMessage AddHotelImage(int hotelId, List<IFormFile> images)
         {
             var hotel = db.hotel.FirstOrDefault(hotel => hotel.HotelID == hotelId);
             if (hotel != null)
             {
-                var listImage = new List<HotelImage>();
                 foreach (var convert in images)
                 {
                     byte[] imageData = Utils.ConvertIFormFileToByteArray(convert);
@@ -322,13 +321,24 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         ImageData = imageData,
                         Hotel = hotel
                     };
-                    listImage.Add(addImage);
+                    db.hotelImage.Add(addImage);
                 }
                 db.SaveChanges();
-                return new ResponseMessage { Success = true, Data = listImage, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                return new ResponseMessage { Success = true, Data = hotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             return new ResponseMessage { Success = false, Data = null, Message = "Hotel not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
+        public ResponseMessage DeleteHotelImages(int hotelId)
+        {
+            var hotel = db.hotel.Include(x => x.HotelImages).FirstOrDefault(hotel => hotel.HotelID == hotelId);
+            if (hotel != null)
+            {
+                db.hotelImage.RemoveRange(hotel.HotelImages);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true, Data = hotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+            return new ResponseMessage { Success = false, Data = null, Message = "Hotel not found", StatusCode = (int)HttpStatusCode.NotFound };
+        }   
 
     }
 

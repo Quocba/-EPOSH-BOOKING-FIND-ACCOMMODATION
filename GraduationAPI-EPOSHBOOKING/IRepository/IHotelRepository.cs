@@ -14,5 +14,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage GetGalleriesByHotelID(int hotelID);
         public ResponseMessage SearchHotel(String? city,DateTime? checkInDate, DateTime? checkOutDate,int? numberCapacity,int? quantity);
         public ResponseMessage AddHotelImage(int hotelId, List<IFormFile> images);
+        public ResponseMessage DeleteHotelImages(int hotelId);
     }
 }
