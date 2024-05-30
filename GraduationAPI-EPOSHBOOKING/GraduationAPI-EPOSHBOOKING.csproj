@@ -26,6 +26,7 @@
   <ItemGroup>
     <Folder Include="Controllers\Admin\" />
     <Folder Include="Controllers\Partner\" />
+    <Folder Include="DTO\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 
