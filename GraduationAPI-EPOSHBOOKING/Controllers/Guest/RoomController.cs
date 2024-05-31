@@ -13,7 +13,26 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         
             this.reponsitory = roomRepository;
         }
-
+        public class AddRoomModel
+        {
+            public int HotelID { get; set; }
+            public Room Room { get; set; }
+            public DateTime StartDate { get; set; }
+            public DateTime EndDate { get; set; }
+            public double SpecialPrice { get; set; }
+            public List<IFormFile> Images { get; set; }
+            public string Services { get; set; }
+        };
+        public class UpdateRoomModel
+        {
+            public int RoomID { get; set; }
+            public Room Room { get; set; }
+            public DateTime StartDate { get; set; }
+            public DateTime EndDate { get; set; }
+            public double SpecialPrice { get; set; }
+            public List<IFormFile> Images { get; set; }
+            public string Services { get; set; }
+        };
         [HttpGet("get-room-by-id")]
         public IActionResult GetRoomDetail([FromQuery]int roomID)
         {
@@ -35,20 +54,37 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpPost("add-room")]
-        public IActionResult AddRoom([FromForm] int hotelID, [FromForm] Room room,
-                                 [FromForm] DateTime startDate, [FromForm] DateTime endDate, [FromForm] double specialPrice,
-                                 [FromForm] List<IFormFile> images, [FromForm] List<string> type, [FromForm] List<string> subServiceNames)
+        public IActionResult AddRoom([FromForm] AddRoomModel addRoomModel)
         {
-            var response = reponsitory.AddRoom(hotelID, room, startDate, endDate, specialPrice, images, type, subServiceNames);
+            var services = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ServiceType>>(addRoomModel.Services);
+
+            var response = reponsitory.AddRoom(
+                addRoomModel.HotelID,
+                addRoomModel.Room,
+                addRoomModel.StartDate,
+                addRoomModel.EndDate,
+                addRoomModel.SpecialPrice,
+                addRoomModel.Images,
+                services
+            );
+
             return StatusCode(response.StatusCode, response);
         }
 
         [HttpPut("update-room")]
-        public IActionResult UpdateRoom([FromForm]int roomID, [FromForm] Room room, 
-                                        [FromForm] DateTime StartDate, [FromForm] DateTime EndDate, [FromForm] double specialPrice,
-                                        [FromForm] List<IFormFile> images, [FromForm] List<string> type, [FromForm]List<string> subServiceNames)
+        public IActionResult UpdateRoom([FromForm] UpdateRoomModel updateRoomModel)
         {
-            var response = reponsitory.UpdateRoom(roomID, room, StartDate, EndDate, specialPrice, images, type, subServiceNames);
+            var services = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ServiceType>>(updateRoomModel.Services);
+
+            var response = reponsitory.UpdateRoom(
+                updateRoomModel.RoomID,
+                updateRoomModel.Room,
+                updateRoomModel.StartDate,
+                updateRoomModel.EndDate,
+                updateRoomModel.SpecialPrice,
+                updateRoomModel.Images,
+                services
+            );
             return StatusCode(response.StatusCode, response);
         }
 
