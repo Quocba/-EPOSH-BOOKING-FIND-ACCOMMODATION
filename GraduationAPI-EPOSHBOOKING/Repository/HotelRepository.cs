@@ -314,7 +314,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
 
         public ResponseMessage HotelRegistration(string hotelName, int openedIn, string description, int hotelStandar, string hotelAddress, string city, double latitude, double longitude,
-                                                List<IFormFile> images, IFormFile mainImage, int accountID,List<ServiceType>services)
+                                                List<IFormFile> images, IFormFile mainImage, int accountID, List<ServiceType> services)
         {
             var account = db.accounts
                          .Include(profile => profile.Profile)
@@ -347,7 +347,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             db.SaveChanges(); // Save changes to generate IDs for the hotel
 
 
-           foreach(var service in services)
+            foreach (var service in services)
             {
                 var addService = new HotelService
                 {
@@ -527,9 +527,118 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = true, Data = hotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             return new ResponseMessage { Success = false, Data = null, Message = "Hotel not found", StatusCode = (int)HttpStatusCode.NotFound };
-        }   
+        }
 
+        public ResponseMessage GetAllHotelInfomation()
+        {
+            var listHotel = db.hotel
+                              .Include(hotelService => hotelService.HotelServices)
+                              .ThenInclude(hotelSubService => hotelSubService.HotelSubServices)
+                              .Include(address => address.HotelAddress)
+                              .Include(room => room.rooms)
+                              .ToList()
+                              .Select(hotel => new
+                              {
+                                  Hotel = hotel,
+                                  Room = hotel.rooms,
+                                  TotalBooking = db.booking.Count(booking => booking.Room.Hotel.HotelID == hotel.HotelID),
+                                  TotalRevenue = db.booking.Where(booking => booking.Room.Hotel.HotelID == hotel.HotelID).Sum(booking => booking.TotalPrice)
+                              });
+            return new ResponseMessage { Success = true, Data = listHotel, Message = "Succsessfully", StatusCode = (int)HttpStatusCode.OK };
 
+        }
+
+        public ResponseMessage BlockedHotel(int hotelID)
+        {
+            var getHotel = db.hotel
+                             .Include(account => account.Account)
+                             .FirstOrDefault(hotel => hotel.HotelID == hotelID);
+            var getAccount = db.accounts.FirstOrDefault(account => account.AccountID == getHotel.Account.AccountID);
+            if (getHotel != null && getAccount != null)
+            {
+                getHotel.isRegister = "Blocked";
+                getHotel.Status = false;
+                getAccount.IsActive = false;
+                db.hotel.Update(getHotel);
+                db.accounts.Update(getAccount);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true, Data = getHotel, StatusCode = (int)HttpStatusCode.OK };
+            }
+            return new ResponseMessage { Success = true, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.OK };
+        }
+
+        public ResponseMessage ConfirmRegistration(int hotelID)
+        {
+            var getHotel = db.hotel
+                             .Include(account => account.Account)
+                             .Include(hotelService => hotelService.HotelServices)
+                             .ThenInclude(hotelSubService => hotelSubService.HotelSubServices)
+                             .Include(address => address.HotelAddress)
+                             .FirstOrDefault(hotel => hotel.HotelID == hotelID);
+            var getAccount = db.accounts.FirstOrDefault(account => account.AccountID == getHotel.Account.AccountID);
+            if (getHotel != null)
+            {
+                getHotel.isRegister = "Approved";
+                getHotel.Status = true;
+                getAccount.IsActive = true;
+                db.hotel.Update(getHotel);
+                db.SaveChanges();
+                String mailContent = "Bạn đã được duyệt để trở thành đối tác của chúng tôi.Vui lòng đăng nhập vào hệ thống và thực hiện các hoạt động.";
+                Ultils.Utils.SendMailRegistration(getAccount.Email,mailContent);
+                return new ResponseMessage { Success = true, Data = getHotel, Message = "Sucessfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+                return new ResponseMessage { Success = false, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+        }
+
+        public ResponseMessage FilterHotelByStatus(bool Status)
+        {
+            var filterHotel = db.hotel.Where(hotel => hotel.Status == Status).ToList();
+            return new ResponseMessage {Success = true, Data = filterHotel, Message ="Successfully",StatusCode= (int)HttpStatusCode.OK};
+        }
+
+        public ResponseMessage RejectRegistration(int hotelID, String reasonReject)
+        {
+            var getHotel = db.hotel
+                             .Include(account => account.Account)
+                             .FirstOrDefault(hotel => hotel.HotelID == hotelID);
+            var getAccount = db.accounts
+                               .Include(role => role.Role)
+                               .FirstOrDefault(account => account.AccountID == getHotel.Account.AccountID);
+            String Role = "Customer";
+            var getRole = db.roles.FirstOrDefault(role => role.Name.Equals(Role));
+            if(getHotel != null)
+            {
+                getHotel.isRegister = "Was rejected";
+                getAccount.Role = getRole;
+                db.hotel.Update(getHotel);
+                db.accounts.Update(getAccount);
+                db.SaveChanges();
+                Ultils.Utils.SendMailRegistration(getAccount.Email, reasonReject);
+                return new ResponseMessage { Success = true, Data = getHotel, Message = "Successfully", StatusCode= (int)HttpStatusCode.OK};
+            }
+            else
+            {
+                return new ResponseMessage { Success =false, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound};
+            }
+        }
+
+        public ResponseMessage SearchHotelByName(string hotelName)
+        {
+            var searchResult = db.hotel.Where(hotel => hotel.Name.Contains(hotelName)).ToList();
+            return new ResponseMessage { Success = true, Data = searchResult, Message = "Successfully", StatusCode=(int)HttpStatusCode.OK};
+        }
+
+        public ResponseMessage GetAllHotelWaitForConfirm()
+        {
+            var listHotel = db.hotel
+                              .Include(hotelService => hotelService.HotelServices)
+                              .ThenInclude(hotelSubService => hotelSubService.HotelSubServices) 
+                              .Include(account => account.Account)
+                              .Include(profile => profile.Account.Profile)
+                              .Where(hotel => hotel.isRegister.Equals("Wait for approved") && hotel.Status == false)
+                              .ToList();
+            return new ResponseMessage { Success = true,Data = listHotel, Message = "Sucessfully",StatusCode =(int)HttpStatusCode.OK};
+        }
     }
 }
 

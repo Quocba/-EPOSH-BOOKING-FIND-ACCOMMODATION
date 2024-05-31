@@ -50,7 +50,27 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             var response = _voucherRepository.ReceiveVoucher(accountID, voucherID);
             return StatusCode(response.StatusCode, response);
         }
-     
+
+        [HttpPost("create-voucher")]
+        public IActionResult CreateVoucher([FromForm]Voucher voucher, [FromForm]IFormFile image)
+        {
+            var response = _voucherRepository.CreateVoucher(voucher, image);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpDelete("delete-voucher")]
+        public IActionResult DeleteVoucher([FromQuery] int voucherID)
+        {
+            var response = _voucherRepository.DeleteVoucher(voucherID);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPut("update-voucher")]
+        public IActionResult UpdateVoucher([FromForm]int voucherID, [FromForm]Voucher voucher ,[FromForm]IFormFile image)
+        {
+            var response = _voucherRepository.UpdateVoucher(voucherID, voucher , image);
+            return StatusCode(response.StatusCode, response);
+        }
 
 
     }
