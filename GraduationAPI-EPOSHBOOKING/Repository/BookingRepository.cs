@@ -182,7 +182,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             try
             {
                 var bookings = db.booking
-                    .Where(booking => booking.Account.AccountID == accountID)
+                    .Where(booking => booking.Account.AccountID == accountID && booking.Status == "Complete")
                     .Include(booking => booking.Room)
                     .ThenInclude(room => room.Hotel)
                     .Include(booking => booking.Voucher)
