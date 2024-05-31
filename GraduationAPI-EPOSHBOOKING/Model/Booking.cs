@@ -18,7 +18,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public int NumberGuest { get; set; }
         public String? ReasonCancle { get; set;}
         public String? Status { get; set; }
-
+        
         [ForeignKey("AccountID")]
         public Account? Account { get; set; }
 
