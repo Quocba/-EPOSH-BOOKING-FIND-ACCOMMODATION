@@ -28,8 +28,8 @@ namespace UnitTestingAPI
             // Arrange
             List<Voucher> vouchersList = new List<Voucher>
             {
-                new Voucher { VoucherID = 1, Code = "DISCOUNT10", VoucherName = "Voucher 1", Discount = 0.2, QuantityUseed = 1, Description = "10% off" },
-                new Voucher { VoucherID = 2, Code = "DISCOUNT20", VoucherName = "Voucher 2", Discount = 0.3, QuantityUseed = 2, Description = "20% off" }
+                new Voucher { VoucherID = 1, Code = "DISCOUNT10", VoucherName = "Voucher 1", Discount = 0.2, QuantityUsed = 1, Description = "10% off" },
+                new Voucher { VoucherID = 2, Code = "DISCOUNT20", VoucherName = "Voucher 2", Discount = 0.3, QuantityUsed = 2, Description = "20% off" }
             };
 
             _mockRepository.Setup(repo => repo.GetAllVouchers())

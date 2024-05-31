@@ -37,7 +37,13 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage UpdateHotelService(int hotelID,List<ServiceType>services);
         public ResponseMessage AddHotelImage(int hotelId, List<IFormFile> images);
         public ResponseMessage DeleteHotelImages(int hotelId);
-
+        public ResponseMessage GetAllHotelInfomation();
+        public ResponseMessage FilterHotelByStatus(bool Status);
+        public ResponseMessage BlockedHotel(int hotelID);
+        public ResponseMessage ConfirmRegistration(int hotelID);
+        public ResponseMessage RejectRegistration(int hotelID,String reasonReject);
+        public ResponseMessage SearchHotelByName(String hotelName);
+        public ResponseMessage GetAllHotelWaitForConfirm();
     }
 
  

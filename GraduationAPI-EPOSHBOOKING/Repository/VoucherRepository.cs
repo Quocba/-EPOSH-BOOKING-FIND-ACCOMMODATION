@@ -18,6 +18,39 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             this.db = _db;
         }
 
+        public ResponseMessage CreateVoucher(Voucher voucher,IFormFile voucherImage)
+        {
+            var checkAlreadyExistCode = db.voucher.FirstOrDefault(code => code.Code == voucher.Code);
+            if (checkAlreadyExistCode == null)
+            {
+                Voucher createVouvhcer = new Voucher
+                {
+                    Code = voucher.Code,
+                    Description = voucher.Description,
+                    Discount = voucher.Discount,
+                    QuantityUsed = voucher.QuantityUsed,
+                    VoucherImage = Ultils.Utils.ConvertIFormFileToByteArray(voucherImage),
+                    VoucherName = voucher.VoucherName
+                };
+                db.voucher.Add(createVouvhcer);
+                db.SaveChanges();
+                return new ResponseMessage {Success = true, Data = createVouvhcer, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK};
+            }
+            return new ResponseMessage { Success = false, Data = checkAlreadyExistCode, Message = "Code already exits", StatusCode = (int)HttpStatusCode.NotFound };
+        }
+
+        public ResponseMessage DeleteVoucher(int voucherId)
+        {
+            var checkVoucher = db.voucher.FirstOrDefault(voucher => voucher.VoucherID == voucherId);
+            if (checkVoucher != null)
+            {
+                db.voucher.Remove(checkVoucher);
+                db.SaveChanges();
+                return new ResponseMessage {Success =true, Data = checkVoucher,Message = "Sucessfully", StatusCode= (int)HttpStatusCode.OK};
+            }
+            return new ResponseMessage { Success = false,Data = checkVoucher,Message ="Data not found", StatusCode=(int)HttpStatusCode.NotFound};
+        }
+
         public ResponseMessage GetAllVouchers()
         {
             try
@@ -126,7 +159,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         VoucherID = voucher.VoucherID,
                         VoucherName = voucher.VoucherName,
                         Code = voucher.Code,
-                        QuantityUsed = voucher.QuantityUseed,
+                        QuantityUsed = voucher.QuantityUsed,
                         Discount = voucher.Discount,
                         Description = voucher.Description
                     };
@@ -170,6 +203,27 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage {Success = false, Message = ex.Message, StatusCode = (int)HttpStatusCode.InternalServerError};
             }
             
+        }
+
+        public ResponseMessage UpdateVoucher(int voucherID, Voucher voucher,IFormFile image)
+        {
+            var getVoucher = db.voucher.FirstOrDefault(voucher => voucher.VoucherID == voucherID);
+            if (getVoucher == null)
+            {
+                return new ResponseMessage { Success = false, Data = getVoucher, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+            }
+            else
+            {
+                getVoucher.VoucherImage = Ultils.Utils.ConvertIFormFileToByteArray(image);
+                getVoucher.VoucherName = voucher.VoucherName;
+                getVoucher.Code = voucher.Code;
+                getVoucher.QuantityUsed = voucher.QuantityUsed;
+                getVoucher.Discount = voucher.Discount;
+                getVoucher.Description = voucher.Description;
+                db.voucher.Update(getVoucher);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true,Data= getVoucher,Message = "Successfully", StatusCode= (int)HttpStatusCode.OK};
+            }
         }
     }
 }

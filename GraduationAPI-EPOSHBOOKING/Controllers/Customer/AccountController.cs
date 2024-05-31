@@ -30,6 +30,32 @@ namespace EPOSH_BOOKING.Controllers
 
             return StatusCode(response.StatusCode, response);
         }
+        [HttpGet("get-all")]
+        public IActionResult GetAllAccount()
+        {
+            var response = repository.GetAllAccount();
+            return StatusCode(response.StatusCode, response);
+        }
 
+        [HttpPut("blocked-account")]
+        public IActionResult BlockedAccount([FromQuery]int accountId)
+        {
+            var response = repository.BlockedAccount(accountId);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("filter-account")]
+        public IActionResult FilterAccountByStatus([FromQuery]bool isActive)
+        {
+            var response  = repository.FilterAccountByStatus(isActive);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("searchByName")]
+        public IActionResult SearchByName([FromQuery]string name)
+        {
+            var response = repository.SearchAccountByName(name);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
