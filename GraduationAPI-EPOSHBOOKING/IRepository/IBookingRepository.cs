@@ -9,6 +9,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage CancleBooking(int bookingID, String Reason);
         public ResponseMessage CreateBooking(int accountID, int voucherID,int RoomID,Booking? booking);
         public ResponseMessage GetAllBookings();
-        public byte[] ExportBookingsByAccountID(int accountID);
+        public ResponseMessage ExportBookingsByAccountID(int accountID);
     }
 }
