@@ -12,6 +12,11 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         ResponseMessage UpdateProfileByAccount(int accountID,Profile profile, IFormFile avatar);
         ResponseMessage GetProfileByAccountId(int accountId);
         ResponseMessage ChangePassword(int accountId, string oldPassword, string newPassword);
+        ResponseMessage GetAllAccount();
+        ResponseMessage BlockedAccount(int accountID);
+        ResponseMessage FilterAccountByStatus(bool isActive);
+        ResponseMessage SearchAccountByName(string fullName);
+        
     }
 }
         

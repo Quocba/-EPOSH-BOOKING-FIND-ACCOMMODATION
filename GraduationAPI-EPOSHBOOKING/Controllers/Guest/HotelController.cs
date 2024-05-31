@@ -158,6 +158,51 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             var response = repository.DeleteHotelImages(hotelId);
             return StatusCode(response.StatusCode, response);
         }
+        [HttpGet("get-all-hotel-infomation")]
+        public IActionResult GetAllHotelInfomation()
+        {
+            var response = repository.GetAllHotelInfomation();
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPut("blocked-hotel")]
+        public IActionResult BlockedHotel([FromQuery]int hotelId)
+        {
+            var response = repository.BlockedHotel(hotelId);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPut("confirm-registration")]
+        public IActionResult ConfirmRegistration([FromQuery]int hotelID)
+        {
+            var response = repository.ConfirmRegistration(hotelID);
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpGet("filter-status")]
+        public IActionResult FilterHotelByStatus([FromQuery]bool status)
+        {
+            var response= repository.FilterHotelByStatus(status);
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpPut("reject-registration")]
+        public IActionResult RejectRegistration([FromForm]int hotelID, [FromForm]String reasonReject)
+        {
+            var response = repository.RejectRegistration(hotelID, reasonReject);
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpGet("searchByName")]
+        public IActionResult SearchByName([FromQuery]string hotelName)
+        {
+            var response = repository.SearchHotelByName(hotelName);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("get-all-registrationfom")]
+        public IActionResult GetAllHotelWaitForConfirm()
+        {
+            var response = repository.GetAllHotelWaitForConfirm();
+            return StatusCode(response.StatusCode, response);
+        }
 
     }
 }
