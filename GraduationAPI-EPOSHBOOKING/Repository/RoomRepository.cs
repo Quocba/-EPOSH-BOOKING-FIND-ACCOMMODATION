@@ -53,7 +53,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage AddRoom(int hotelID, Room room, DateTime StartDate,
                                        DateTime EndDate,
-                                       double specialPrice, List<IFormFile> images, List<string> type, List<string> subServiceNames)
+                                       double specialPrice, List<IFormFile> images,List<ServiceType>services)
         {
             var getHotel = db.hotel.FirstOrDefault(hotel => hotel.HotelID == hotelID);
             Room createRoom = new Room
@@ -89,25 +89,18 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
             }
 
-            int subServiceIndex = 0;
-            foreach (var serviceType in type)
+            foreach (var service in services)
             {
                 var addService = new RoomService
                 {
-                    Type = serviceType,
+                    Type = service.Type,
                     Room = createRoom
                 };
                 db.roomService.Add(addService);
-
+                db.SaveChanges();
                 var roomSubService = new List<RoomSubService>();
-                while (subServiceIndex < subServiceNames.Count)
+                foreach (var subServiceName in service.SubServiceNames)
                 {
-                    var subServiceName = subServiceNames[subServiceIndex];
-                    subServiceIndex++;
-                    if (string.IsNullOrEmpty(subServiceName))
-                    {
-                        break;
-                    }
                     var addSubService = new RoomSubService
                     {
                         SubName = subServiceName,
@@ -116,6 +109,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     db.roomSubService.Add(addSubService);
                     roomSubService.Add(addSubService);
                 }
+                addService.RoomSubServices = roomSubService;
 
             }
             db.SaveChanges();
@@ -155,7 +149,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = true, Data = createRoom, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
         }
 
-        public ResponseMessage UpdateRoom(int roomID, Room room, DateTime StartDate, DateTime EndDate, double SpecialPrice, List<IFormFile> image, List<string> type, List<string> subServiceNames)
+        public ResponseMessage UpdateRoom(int roomID, Room room, DateTime StartDate, DateTime EndDate, double SpecialPrice, List<IFormFile> image, 
+            List<ServiceType>services)
         {
             var getRoom = db.room
                   .Include(room => room.Hotel)
@@ -212,25 +207,19 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
                 var existingServices = db.roomService.Where(rs => rs.Room.RoomID == roomID).ToList();
                 db.roomService.RemoveRange(existingServices);
-                int subServiceIndex = 0;
-                foreach (var serviceType in type)
+
+                foreach (var service in services)
                 {
                     var addService = new RoomService
                     {
-                        Type = serviceType,
+                        Type = service.Type,
                         Room = getRoom
                     };
                     db.roomService.Add(addService);
-
+                    db.SaveChanges();
                     var roomSubService = new List<RoomSubService>();
-                    while (subServiceIndex < subServiceNames.Count)
-                    {
-                        var subServiceName = subServiceNames[subServiceIndex];
-                        subServiceIndex++;
-                        if (string.IsNullOrEmpty(subServiceName))
-                        {
-                            break;
-                        }
+                    foreach (var subServiceName in service.SubServiceNames)
+                    {   
                         var addSubService = new RoomSubService
                         {
                             SubName = subServiceName,
@@ -239,6 +228,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         db.roomSubService.Add(addSubService);
                         roomSubService.Add(addSubService);
                     }
+                    addService.RoomSubServices = roomSubService;
 
                 }
 
@@ -285,5 +275,9 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
  
             }
         }
+
+     
+
+
     }
 }
