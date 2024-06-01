@@ -1,6 +1,7 @@
 ﻿using GraduationAPI_EPOSHBOOKING.DataAccess;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
+using GraduationAPI_EPOSHBOOKING.Ultils;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
@@ -14,7 +15,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             this.db = _db;
         }
-
         public ResponseMessage CreateFeedBack(int BookingID, FeedBack feedBack, IFormFile Image)
         {
             try
@@ -31,7 +31,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Description = feedBack.Description,
                     Hotel = booking.Room.Hotel,
                     Image = feedBackImage,
-                    IsBlocked = false
+                    isDeleted = false
                 };
 
                 db.feedback.Add(addFeedBack);
@@ -41,7 +41,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     addFeedBack.FeedBackID,
                     addFeedBack.Rating,
                     addFeedBack.Description,
-                    addFeedBack.IsBlocked,
+                    addFeedBack.isDeleted,
                     addFeedBack.Image,
                     Account = addFeedBack.Account != null ? new
                     {
@@ -88,45 +88,14 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
-        public ResponseMessage ReportFeedback(int AccountID, int FeedBackID, string reason)
+        public ResponseMessage GetAllFeedbackHotel(int hotelID)
         {
-            var account = db.accounts.Find(AccountID);
-            if (account == null)
-            {
-                return new ResponseMessage
-                {
-                    Success = false,
-                    Message = "Account not found",
-                    StatusCode = (int)HttpStatusCode.NotFound
-                };
-            }
-            var feedback = db.feedback.Find(FeedBackID);
-            if (feedback == null)
-            {
-                return new ResponseMessage
-                {
-                    Success = false,
-                    Message = "Feedback not found",
-                    StatusCode = (int)HttpStatusCode.NotFound
-                };
-            }
-
-            var report = new ReportFeedBack
-            {
-                FeedBack = feedback,
-                ReporterEmail = db.accounts.Find(AccountID).Email,
-                ReasonReport = reason
-            };
-
-            db.reportFeedBack.Add(report);
-            db.SaveChanges();
-
-            return new ResponseMessage
-            {
-                Success = true,
-                Message = "Feedback reported successfully",
-                StatusCode = (int)HttpStatusCode.OK
-            };
+            var listFeedback = db.feedback
+                                 .Include(account => account.Account)
+                                 .ThenInclude(profile => profile.Profile)
+                                 .Where(feedback => feedback.Hotel.HotelID == hotelID)
+                                 .ToList();
+            return new ResponseMessage { Success = true,Data = listFeedback, Message = "Successfully", StatusCode= (int)HttpStatusCode.OK };
         }
     }
 }

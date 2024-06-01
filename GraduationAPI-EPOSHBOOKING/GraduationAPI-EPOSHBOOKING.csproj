@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <Folder Include="Controllers\Admin\" />
+    <Folder Include="Controllers\Customer\" />
     <Folder Include="Controllers\Partner\" />
     <Folder Include="Migrations\" />
   </ItemGroup>

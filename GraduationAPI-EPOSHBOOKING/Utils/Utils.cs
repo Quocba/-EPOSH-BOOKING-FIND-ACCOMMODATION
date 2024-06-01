@@ -140,7 +140,7 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
                 {
                     mailMessage.From = new MailAddress(smtpUsername);
                     mailMessage.To.Add(toEmail);
-                    mailMessage.Subject = "Registration Notifycation";
+                    mailMessage.Subject = "[Eposh Notifycation]";
                     mailMessage.IsBodyHtml = true;
                     mailMessage.Body =
        mailMessage.Body =
