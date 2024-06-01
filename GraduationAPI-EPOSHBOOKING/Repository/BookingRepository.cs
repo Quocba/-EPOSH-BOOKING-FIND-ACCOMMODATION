@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Spreadsheet;
 using GraduationAPI_EPOSHBOOKING.DataAccess;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
@@ -251,7 +252,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     // Định dạng tiêu đề cột
                     ws.Cells[1, 1, 1, 9].Style.Font.Bold = true;
                     ws.Cells[1, 1, 1, 9].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    ws.Cells[1, 1, 1, 9].Style.Fill.BackgroundColor.SetColor(Color.LightBlue);
+                    ws.Cells[1, 1, 1, 9].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
                     ws.Cells[1, 1, 1, 9].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     // Set column headers
                     ws.Cells[1, 1].Value = "BookingID";
@@ -312,5 +313,98 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
+        public ResponseMessage ExportAllBookings()
+        {
+            try
+            {
+                var bookings = db.booking
+                    .Include(b => b.Room)
+                    .ThenInclude(r => r.Hotel)
+                    .Include(b => b.Account)
+                    .ThenInclude(a => a.Profile)
+                    .ToList();
+
+                if (bookings.Count == 0)
+                {
+                    return new ResponseMessage
+                    {
+                        Success = false,
+                        Data = null,
+                        Message = "No bookings found.",
+                        StatusCode = (int)HttpStatusCode.NotFound
+                    };
+                }
+
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+                using (var pck = new ExcelPackage())
+                {
+                    var ws = pck.Workbook.Worksheets.Add("Booking List");
+
+                    // Header row data
+                    string[] headers = {
+                    "Booking ID", "Check-in Date", "Check-out Date", "Total Price", "Unit Price",
+                    "Taxes Price", "Number of Rooms", "Number of Guests", "Cancellation Reason",
+                    "Status", "Hotel Name", "Room Type", "Account Email", "Account Full Name"
+                    };
+
+                    // Add and format header row
+                    for (int i = 0; i < headers.Length; i++)
+                    {
+                        ws.Cells[1, i + 1].Value = headers[i];
+                    }
+                    ws.Cells[1, 1, 1, headers.Length].Style.Font.Bold = true;
+                    ws.Cells[1, 1, 1, headers.Length].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    ws.Cells[1, 1, 1, headers.Length].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    ws.Cells[1, 1, 1, headers.Length].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+
+                    // Add data rows
+                    int row = 2;
+                    foreach (var booking in bookings)
+                    {
+                        ws.Cells[row, 1].Value = booking.BookingID;
+                        ws.Cells[row, 2].Value = booking.CheckInDate.ToString("dd-MM-yyyy");
+                        ws.Cells[row, 3].Value = booking.CheckOutDate.ToString("dd-MM-yyyy");
+                        ws.Cells[row, 4].Value = booking.TotalPrice + " " + "VND";
+                        ws.Cells[row, 5].Value = booking.UnitPrice + " " + "VND";
+                        ws.Cells[row, 6].Value = booking.TaxesPrice;
+                        ws.Cells[row, 7].Value = booking.NumberOfRoom;
+                        ws.Cells[row, 8].Value = booking.NumberGuest;
+                        ws.Cells[row, 9].Value = booking.ReasonCancle;
+                        ws.Cells[row, 10].Value = booking.Status;
+                        ws.Cells[row, 11].Value = booking.Room?.Hotel?.Name;
+                        ws.Cells[row, 12].Value = booking.Room?.TypeOfRoom;
+                        ws.Cells[row, 13].Value = booking.Account?.Email;
+                        ws.Cells[row, 14].Value = booking.Account?.Profile?.fullName;
+                        row++;
+                    }
+                    // Định dạng dữ liệu
+                    ws.Cells[2, 1, ws.Dimension.End.Row, 14].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    ws.Cells.AutoFitColumns();
+
+                    // Save to memory stream
+                    MemoryStream stream = new MemoryStream();
+                    pck.SaveAs(stream);
+
+                    return new ResponseMessage
+                    {
+                        Success = true,
+                        Data = stream.ToArray(),
+                        Message = "Excel file generated successfully.",
+                        StatusCode = (int)HttpStatusCode.OK
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Data = null,
+                    Message = "Error generating Excel file.",
+                    StatusCode = (int)HttpStatusCode.InternalServerError
+                };
+            }
+        }
     }
 }
