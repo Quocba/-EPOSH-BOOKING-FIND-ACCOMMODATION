@@ -64,7 +64,20 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
             }
 
         }
+        [HttpGet("export-all-bookings")]
+        public IActionResult ExportAllBookings()
+        {
+            var response = repository.ExportAllBookings();
 
+            if (response.Success)
+            {
+                return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"AllBookings.xlsx");
+            }
+            else
+            {
+                return StatusCode(response.StatusCode, response);
+            }
+        }
         [HttpPut("change-complete")]
         public IActionResult ChangeStatusComplete([FromForm]int bookingID)
         {

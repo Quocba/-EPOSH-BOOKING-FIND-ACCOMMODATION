@@ -20,13 +20,23 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
             var response = repository.CreateFeedBack(BookingID,newFeedBack, Image);
             return StatusCode(response.StatusCode, response);
         }
-        // viết controller gửi report feedback
         [HttpPost("report-feedback")]
         public IActionResult ReportFeedback([FromForm] int AccountID, [FromForm] int FeedBackID, [FromForm] string Reason)
         {
             var response = repository.ReportFeedback(AccountID, FeedBackID, Reason);
             return StatusCode(response.StatusCode, response);
         }
-
+        [HttpGet("get-all-report-feedback")]
+        public IActionResult GetAllReportFeedback()
+        {
+            var response = repository.GetAllReportFeedback();
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpPost("confirm-report-feedback/{reportId}")]
+        public IActionResult ConfirmReportFeedback([FromForm] int reportId)
+        {
+            var response = repository.ConfirmReportFeedback(reportId);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }

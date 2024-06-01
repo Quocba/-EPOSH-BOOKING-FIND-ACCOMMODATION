@@ -1,6 +1,7 @@
 ﻿using GraduationAPI_EPOSHBOOKING.DataAccess;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
+using GraduationAPI_EPOSHBOOKING.Ultils;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
@@ -14,7 +15,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             this.db = _db;
         }
-
         public ResponseMessage CreateFeedBack(int BookingID, FeedBack feedBack, IFormFile Image)
         {
             try
@@ -88,6 +88,18 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
+        public ResponseMessage GetAllReportFeedback()
+        {
+            var report = db.reportFeedBack
+                .Include(feedback => feedback.FeedBack)
+                .ToList();
+            if (report.Any())
+            {
+                return new ResponseMessage { Success = true, Data = report, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+            return new ResponseMessage { Success = false, Data = report, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+        }
+
         public ResponseMessage ReportFeedback(int AccountID, int FeedBackID, string reason)
         {
             var account = db.accounts.Find(AccountID);
@@ -127,6 +139,46 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 Message = "Feedback reported successfully",
                 StatusCode = (int)HttpStatusCode.OK
             };
+        }
+        public ResponseMessage ConfirmReportFeedback(int reportId)
+        {
+            try
+            {
+                var report = db.reportFeedBack.Include(r => r.FeedBack).FirstOrDefault(r => r.ReportID == reportId);
+                if (report == null)
+                {
+                    return new ResponseMessage
+                    {
+                        Success = false,
+                        Message = "Report not found",
+                        StatusCode = (int)HttpStatusCode.NotFound
+                    };
+                }
+
+                // Xóa Feedback
+                db.feedback.Remove(report.FeedBack);
+
+                // Xóa ReportFeedback
+                db.reportFeedBack.Remove(report);
+
+                db.SaveChanges();
+
+                return new ResponseMessage
+                {
+                    Success = true,
+                    Message = "Report confirmed and feedback deleted successfully",
+                    StatusCode = (int)HttpStatusCode.OK
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "Error confirming report: " + ex.Message,
+                    StatusCode = (int)HttpStatusCode.InternalServerError
+                };
+            }
         }
     }
 }

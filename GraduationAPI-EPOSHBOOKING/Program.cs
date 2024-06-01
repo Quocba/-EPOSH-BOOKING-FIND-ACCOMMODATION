@@ -3,16 +3,12 @@
 
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using GraduationAPI_EPOSHBOOKING.DataAccess;
-
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using GraduationAPI_EPOSHBOOKING.Repository;
 using GraduationAPI_EPOSHBOOKING.Ultils;
-
 using Microsoft.OpenApi.Models;
-
 using Microsoft.Extensions.Configuration;
-
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -58,5 +58,23 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             var response = _blogRepository.CommentBlog(commentRequest.BlogID, commentRequest.AccountID, commentRequest.Description);
             return StatusCode(response.StatusCode, response);
         }
+        [HttpGet("filter-blog-with-status")]
+        public IActionResult FilterBlogwithStatus([FromQuery] String status)
+        {
+            var response = _blogRepository.FilterBlogwithStatus(status);
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpPut("confirm-blog")]
+        public IActionResult ConfirmBlog([FromForm] int blogId, [FromForm] string status)
+        {
+            var response = _blogRepository.ConfirmBlog(blogId, status);
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpPut("reject-blog")]
+        public IActionResult RejectBlog([FromForm] int blogId, [FromForm] string status, [FromForm] string reasonReject)
+        {
+            var response = _blogRepository.RejectBlog(blogId, status, reasonReject);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
