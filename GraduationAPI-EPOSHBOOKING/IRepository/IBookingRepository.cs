@@ -12,11 +12,9 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage GetAllBooking();
         public ResponseMessage ChangeStatusWaitForPayment(int bookingID);
         public ResponseMessage ChangeStatusComplete(int bookingID);
-   
-
 
         public ResponseMessage GetAllBookings();
         public ResponseMessage ExportBookingsByAccountID(int accountID);
-
+        public ResponseMessage ExportAllBookings();
     }
 }
