@@ -127,7 +127,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 Email = email,
                 Password = hashedPassword,
-                IsActive = true,
+                IsActive = false,
                 Phone = phone,
                 Role = db.roles.FirstOrDefault(r => r.Name == "Customer")
             };
@@ -197,6 +197,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 Success = true,
                 Message = "Password changed successfully",
+                Data  = account,
                 StatusCode = (int)HttpStatusCode.OK
             };
         }
@@ -261,6 +262,63 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 Message = "Profile retrieved successfully",
                 StatusCode = (int)HttpStatusCode.OK
             };
+        }
+
+        public ResponseMessage GetAllAccount()
+        {
+            var listAccount = db.accounts.
+                                Include(profile => profile.Profile)
+                                .ToList();
+            return new ResponseMessage { Success = true, Data =  listAccount,Message = "Successfully" };
+        }
+
+        public ResponseMessage BlockedAccount(int accountID)
+        {
+            var getAccount = db.accounts.FirstOrDefault(account => account.AccountID == accountID);
+            var getHotel = db.hotel.FirstOrDefault(hotel => hotel.Account.AccountID == accountID);
+            if (getAccount != null && getHotel == null)
+            {
+                getAccount.IsActive = false;
+                db.accounts.Update(getAccount);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true, Data = getAccount, Message = "Blocked Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+            if (getAccount != null && getHotel != null)
+            {
+                getAccount.IsActive = false;
+                getHotel.Status = false;
+                getHotel.isRegister = "Blocked";
+                db.accounts.Update(getAccount);
+                db.hotel.Update(getHotel);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true,Message = "Blocked Successfully", Data = new { account = getAccount, hotel = getHotel }, StatusCode = (int)HttpStatusCode.OK };
+            }
+
+
+            return new ResponseMessage { Success = false, Message = "Data not found", Data = new { account = getAccount, hotel = getHotel }, StatusCode = (int)HttpStatusCode.NotFound };
+    
+        }
+
+        public ResponseMessage FilterAccountByStatus(bool isActice)
+        {
+            var filterAccount = db.accounts
+                                  .Where(account => account.IsActive ==  isActice)
+                                  .ToList();
+         
+           return new ResponseMessage { Success = true, Data = filterAccount, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            
+
+        }
+
+        public ResponseMessage SearchAccountByName(string fullName)
+        {
+            var searchResult = db.accounts
+                                 .Include(profile => profile.Profile)
+                                 .Where(account => account.Profile.fullName.Contains(fullName))
+                                 .ToList();
+    
+            return new ResponseMessage { Success = true, Data = searchResult, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            
         }
     }
 }

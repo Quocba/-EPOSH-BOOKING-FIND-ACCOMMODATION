@@ -105,6 +105,141 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
 
             return prefix + new string(stringChars);
         }
+
+       public static String GenerateStringVoucher(int length = 6)
+        {
+            Random random = new Random();
+            const string randomString = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var stringBuilder = new StringBuilder();
+            for (int i = 0; i < length; i++)
+            {
+                int randomIndex = random.Next(randomString.Length);
+                stringBuilder.Append(randomString[randomIndex]);
+            }
+            return stringBuilder.ToString();
+        }
+
+
+        public static String SendMailRegistration([FromHeader] string toEmail,String content)
+        {
+            // Cấu hình thông tin SMTP
+            string smtpServer = "smtp.gmail.com";
+            int smtpPort = 587; // Thay đổi nếu cần
+            string smtpUsername = "eposhhotel@gmail.com";
+            string smtpPassword = "yqgorijrzzvpmwqa";
+
+            // Tạo đối tượng SmtpClient
+            using (SmtpClient client = new SmtpClient(smtpServer, smtpPort))
+            {
+                client.UseDefaultCredentials = false;
+                client.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
+                client.EnableSsl = true; // Sử dụng SSL để bảo vệ thông tin đăng nhập
+
+                // Tạo đối tượng MailMessage
+                using (MailMessage mailMessage = new MailMessage())
+                {
+                    mailMessage.From = new MailAddress(smtpUsername);
+                    mailMessage.To.Add(toEmail);
+                    mailMessage.Subject = "[Eposh Notifycation]";
+                    mailMessage.IsBodyHtml = true;
+                    mailMessage.Body =
+       mailMessage.Body =
+    $@"<!DOCTYPE html>
+        <html lang='en'>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <title>EPOSH-HOTEL Invoice</title>
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    background-image: url('https://i.pinimg.com/736x/5d/98/8c/5d988c043c885fd910e0aedadbcfd423.jpg'); /* Đường dẫn đến hình ảnh nền */
+                    background-size: cover;
+                    background-repeat: no-repeat;
+                    background-position: center center;
+                    margin: 0;
+                    padding: 0;
+                }}
+                .invoice-container {{
+                    max-width: 600px;
+                    margin: 20px auto;
+                    background-color: rgba(255, 255, 255, 0.9);
+                    border-radius: 8px;
+                    padding: 20px;
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                }}
+                .header {{
+                    background-image:linear-gradient(to bottom right, #330867, #30CFD0);
+                    color: #00A5F5;
+                    padding: 10px;
+                    border-radius: 8px 8px 0 0;
+                    text-align: center;
+                    
+                }}
+                .content {{
+                    padding: 20px;
+                    background-color: #C3CFE2
+                    
+                }}
+                .content p{{
+                    font-size:19px;
+                    color:black;
+                 }}
+                .footer {{
+                    background-image:linear-gradient(to bottom right, #330867, #30CFD0);
+                    color: #fff;
+                    padding: 10px;
+                    border-radius: 0 0 8px 8px;
+                    text-align: center;
+                    font-szie: 19px;
+                    font-weight:bold;
+                }}
+                .property {{
+                    font-weight: bold;
+                }}
+                ul {{
+                    list-style: none;
+                    padding: 0;
+                    font-size:18px;
+                }}
+                li {{
+                    margin-bottom: 10px;
+                    color:black;
+                }}
+                .property-name {{
+                    font-weight: bold;
+                    color: #007bff;
+                }}  
+                .logo {{
+                    max-width: 120px; /* Kích thước tối đa của logo */
+                }}
+            </style>
+        </head>
+        <body>
+            <div class='invoice-container'>
+                <div class='header'>
+                    <img class='logo' src='https://i.imgur.com/FrtuWsK.png' alt='EPOSH-HOTEL Logo' >
+                </div>
+                <div class='content'>
+                    <ul>
+                         <li><span class='property-name'>Notifycation:</span> {content}</li>
+                    </ul>
+                </div>
+                <div class='footer'>
+                    <p>Best Regards,</p>
+                    <p>EPOSH-HOTEL Team</p>
+                </div>
+            </div>
+        </body>
+        </html>";
+
+                    // Gửi email
+                    client.Send(mailMessage);
+                }
+            }
+
+            return "Ok";
+        }
     }
 
 }

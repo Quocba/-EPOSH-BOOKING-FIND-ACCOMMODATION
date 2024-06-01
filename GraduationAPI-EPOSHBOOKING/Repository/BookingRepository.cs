@@ -1,9 +1,16 @@
-﻿using GraduationAPI_EPOSHBOOKING.DataAccess;
+﻿using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Spreadsheet;
+using GraduationAPI_EPOSHBOOKING.DataAccess;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using System.ComponentModel;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Net;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
 
@@ -25,7 +32,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 return new ResponseMessage { Success = true, Data = getBooking, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
-                return new ResponseMessage { Success = false,Data = getBooking, Message = "No Booking",StatusCode = (int)HttpStatusCode.NotFound };
+            return new ResponseMessage { Success = false, Data = getBooking, Message = "No Booking", StatusCode = (int)HttpStatusCode.NotFound };
         }
 
         public ResponseMessage CancleBooking(int bookingID, String Reason)
@@ -41,10 +48,15 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     db.SaveChanges();
                     return new ResponseMessage { Success = true, Data = getBooking, Message = "Cancle Success", StatusCode = (int)HttpStatusCode.OK };
                 }
-           
+
             }
-            return new ResponseMessage { Success = false,Data = getBooking, Message = "Cancel failed. You must cancel 24 hours before check-in date.", 
-                StatusCode = (int)HttpStatusCode.NotFound };
+            return new ResponseMessage
+            {
+                Success = false,
+                Data = getBooking,
+                Message = "Cancel failed. You must cancel 24 hours before check-in date.",
+                StatusCode = (int)HttpStatusCode.NotFound
+            };
         }
 
         private bool CanCancelBooking(DateTime checkInDate)
@@ -85,7 +97,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetAllBooking()
         {
             var listBooking = db.booking.Include(room => room.Room)
-                .Include(hotel => hotel)
+                .Include(hotel => hotel.Room.Hotel)
                 .Include(account => account.Account)
                 .Include(voucher => voucher.Voucher)
                 .ToList();
@@ -96,7 +108,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = false,Data = listBooking, Message = "No Data", StatusCode=(int)HttpStatusCode.NotFound };
         }
 
-        public ResponseMessage CreateBooking(int accountID, int voucherID, int RoomID,Booking? booking)
+        public ResponseMessage CreateBooking(int accountID, int voucherID, int RoomID, Booking? booking)
         {
             try
             {
@@ -108,7 +120,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     .ThenInclude(subService => subService.RoomSubServices)
                     .Include(specialPrice => specialPrice.SpecialPrice)
                     .FirstOrDefault(room => room.RoomID == RoomID);
-                var voucher = db.voucher.FirstOrDefault(voucher => voucher.VoucherID == voucherID && voucher.QuantityUseed > 0);
+                var voucher = db.voucher.FirstOrDefault(voucher => voucher.VoucherID == voucherID && voucher.QuantityUsed > 0);
 
                 double unitPrice = room.Price;
                 var specialPrice = room.SpecialPrice
@@ -117,7 +129,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 {
                     unitPrice = specialPrice.Price;
                 };
-                if (voucher != null && voucher.QuantityUseed > 0)
+                if (voucher != null && voucher.QuantityUsed > 0)
                 {
                     double totalPrice = unitPrice * booking.NumberOfRoom * (booking.CheckOutDate - booking.CheckInDate).Days;
                     double disscount = totalPrice * (voucher.Discount / 100);
@@ -137,12 +149,12 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         NumberOfRoom = booking.NumberOfRoom,
                         Status = "Wait For Check-In"
                     };
-                    voucher.QuantityUseed = voucher.QuantityUseed - 1;
+                    voucher.QuantityUsed = voucher.QuantityUsed - 1;
                     room.Quantity = room.Quantity - booking.NumberOfRoom;
                     db.voucher.Update(voucher);
                     db.booking.Add(createBookingWithVoucher);
                     db.room.Update(room);
-                    if (voucher.QuantityUseed == 0)
+                    if (voucher.QuantityUsed == 0)
                     {
                         var myvoucher = db.myVoucher
                              .Include(account => account.Account)
@@ -177,7 +189,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         NumberGuest = booking.NumberGuest,
                         NumberOfRoom = booking.NumberOfRoom,
                         Status = "Wait For Confirm"
-                        
+
                     };
                     room.Quantity = room.Quantity - booking.NumberOfRoom;
                     db.room.Update(room);
@@ -210,9 +222,197 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = false, Data = null, Message = "Internal Server Error", StatusCode = (int)HttpStatusCode.InternalServerError };
             }
         }
+<<<<<<< HEAD
         
        
 >>>>>>> origin/baodev
+=======
+>>>>>>> origin/baodev
 
+        public ResponseMessage ExportBookingsByAccountID(int accountID)
+        {
+            try
+            {
+                var bookings = db.booking
+                    .Where(booking => booking.Account.AccountID == accountID && booking.Status == "Complete")
+                    .Include(booking => booking.Room)
+                    .ThenInclude(room => room.Hotel)
+                    .Include(booking => booking.Voucher)
+                    .Include(booking => booking.Account)
+                    .ToList();
+                // Check if there are any bookings
+                if (bookings.Count == 0)
+                {
+                    return new ResponseMessage
+                    {
+                        Success = false,
+                        Data = null,
+                        Message = "No bookings found for this account.",
+                        StatusCode = (int)HttpStatusCode.NotFound
+                    };
+                }
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                // Create an Excel package
+                using (ExcelPackage pck = new ExcelPackage())
+                {
+                    // Create the worksheet
+                    ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Booking List");
+                    // Định dạng tiêu đề cột
+                    ws.Cells[1, 1, 1, 9].Style.Font.Bold = true;
+                    ws.Cells[1, 1, 1, 9].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    ws.Cells[1, 1, 1, 9].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
+                    ws.Cells[1, 1, 1, 9].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    // Set column headers
+                    ws.Cells[1, 1].Value = "BookingID";
+                    ws.Cells[1, 2].Value = "CheckInDate";
+                    ws.Cells[1, 3].Value = "CheckOutDate";
+                    ws.Cells[1, 4].Value = "TotalPrice";
+                    ws.Cells[1, 5].Value = "UnitPrice";
+                    ws.Cells[1, 6].Value = "TaxesPrice";
+                    ws.Cells[1, 7].Value = "NumberOfRoom";
+                    ws.Cells[1, 8].Value = "NumberGuest";
+                    ws.Cells[1, 9].Value = "ReasonCancel";
+                    //ws.Cells[1, 10].Value = "Status";
+
+                    // Add data to the worksheet
+                    int row = 2;
+                    foreach (var booking in bookings)
+                    {
+                        ws.Cells[row, 1].Value = booking.BookingID;
+                        ws.Cells[row, 2].Value = booking.CheckInDate.ToString("dd-MM-yyyy"); ;
+                        ws.Cells[row, 3].Value = booking.CheckOutDate.ToString("dd-MM-yyyy"); ;
+                        ws.Cells[row, 4].Value = booking.TotalPrice + " " + "VND";
+                        ws.Cells[row, 5].Value = booking.UnitPrice + " " + "VND";
+                        ws.Cells[row, 6].Value = booking.TaxesPrice;
+                        ws.Cells[row, 7].Value = booking.NumberOfRoom;
+                        ws.Cells[row, 8].Value = booking.NumberGuest;
+                        ws.Cells[row, 9].Value = booking.ReasonCancle;
+                        //ws.Cells[row, 10].Value = booking.Status;
+                        row++;
+                    }
+                    // Định dạng dữ liệu
+                    ws.Cells[2, 1, ws.Dimension.End.Row, 10].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    // Autofit columns
+                    ws.Columns.AutoFit();
+
+                    // Save the Excel file to a memory stream
+                    MemoryStream stream = new MemoryStream();
+                    pck.SaveAs(stream);
+
+                    // Return the Excel file as a response
+                    return new ResponseMessage
+                    {
+                        Success = true,
+                        Data = stream.ToArray(),
+                        Message = "Excel file generated successfully.",
+                        StatusCode = (int)HttpStatusCode.OK
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Data = null,
+                    Message = "Error generating Excel file.",
+                    StatusCode = (int)HttpStatusCode.InternalServerError
+                };
+            }
+        }
+
+        public ResponseMessage ExportAllBookings()
+        {
+            try
+            {
+                var bookings = db.booking
+                    .Include(b => b.Room)
+                    .ThenInclude(r => r.Hotel)
+                    .Include(b => b.Account)
+                    .ThenInclude(a => a.Profile)
+                    .ToList();
+
+                if (bookings.Count == 0)
+                {
+                    return new ResponseMessage
+                    {
+                        Success = false,
+                        Data = null,
+                        Message = "No bookings found.",
+                        StatusCode = (int)HttpStatusCode.NotFound
+                    };
+                }
+
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+                using (var pck = new ExcelPackage())
+                {
+                    var ws = pck.Workbook.Worksheets.Add("Booking List");
+
+                    // Header row data
+                    string[] headers = {
+                    "Booking ID", "Check-in Date", "Check-out Date", "Total Price", "Unit Price",
+                    "Taxes Price", "Number of Rooms", "Number of Guests", "Cancellation Reason",
+                    "Status", "Hotel Name", "Room Type", "Account Email", "Account Full Name"
+                    };
+
+                    // Add and format header row
+                    for (int i = 0; i < headers.Length; i++)
+                    {
+                        ws.Cells[1, i + 1].Value = headers[i];
+                    }
+                    ws.Cells[1, 1, 1, headers.Length].Style.Font.Bold = true;
+                    ws.Cells[1, 1, 1, headers.Length].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    ws.Cells[1, 1, 1, headers.Length].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    ws.Cells[1, 1, 1, headers.Length].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+
+                    // Add data rows
+                    int row = 2;
+                    foreach (var booking in bookings)
+                    {
+                        ws.Cells[row, 1].Value = booking.BookingID;
+                        ws.Cells[row, 2].Value = booking.CheckInDate.ToString("dd-MM-yyyy");
+                        ws.Cells[row, 3].Value = booking.CheckOutDate.ToString("dd-MM-yyyy");
+                        ws.Cells[row, 4].Value = booking.TotalPrice + " " + "VND";
+                        ws.Cells[row, 5].Value = booking.UnitPrice + " " + "VND";
+                        ws.Cells[row, 6].Value = booking.TaxesPrice;
+                        ws.Cells[row, 7].Value = booking.NumberOfRoom;
+                        ws.Cells[row, 8].Value = booking.NumberGuest;
+                        ws.Cells[row, 9].Value = booking.ReasonCancle;
+                        ws.Cells[row, 10].Value = booking.Status;
+                        ws.Cells[row, 11].Value = booking.Room?.Hotel?.Name;
+                        ws.Cells[row, 12].Value = booking.Room?.TypeOfRoom;
+                        ws.Cells[row, 13].Value = booking.Account?.Email;
+                        ws.Cells[row, 14].Value = booking.Account?.Profile?.fullName;
+                        row++;
+                    }
+                    // Định dạng dữ liệu
+                    ws.Cells[2, 1, ws.Dimension.End.Row, 14].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    ws.Cells.AutoFitColumns();
+
+                    // Save to memory stream
+                    MemoryStream stream = new MemoryStream();
+                    pck.SaveAs(stream);
+
+                    return new ResponseMessage
+                    {
+                        Success = true,
+                        Data = stream.ToArray(),
+                        Message = "Excel file generated successfully.",
+                        StatusCode = (int)HttpStatusCode.OK
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Data = null,
+                    Message = "Error generating Excel file.",
+                    StatusCode = (int)HttpStatusCode.InternalServerError
+                };
+            }
+        }
     }
 }

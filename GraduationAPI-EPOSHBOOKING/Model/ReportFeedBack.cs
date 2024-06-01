@@ -12,9 +12,10 @@ namespace GraduationAPI_EPOSHBOOKING.Model
 
         public String ReporterEmail { get; set; }
 
-        public String ReasonReport { get;set; }
-
+        public String? ReasonReport { get;set; }
+        public String Status { get; set; }
         [ForeignKey("FeedBackID")]
         public FeedBack FeedBack { get; set; }
+
     }
 }

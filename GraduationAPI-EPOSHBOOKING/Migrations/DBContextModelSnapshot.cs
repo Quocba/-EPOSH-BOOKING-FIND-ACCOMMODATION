@@ -224,11 +224,11 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<byte[]>("Image")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<bool>("IsBlocked")
-                        .HasColumnType("bit");
-
                     b.Property<int>("Rating")
                         .HasColumnType("int");
+
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("bit");
 
                     b.HasKey("FeedBackID");
 
@@ -259,7 +259,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("HotelStandar")
+                    b.Property<int>("HotelStandar")
                         .HasColumnType("int");
 
                     b.Property<byte[]>("MainImage")
@@ -440,10 +440,13 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ReasonReport")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ReporterEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -480,7 +483,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoomID"));
 
-                    b.Property<int>("HotelID")
+                    b.Property<int?>("HotelID")
                         .HasColumnType("int");
 
                     b.Property<int>("NumberCapacity")
@@ -623,7 +626,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<double>("Discount")
                         .HasColumnType("float");
 
-                    b.Property<int>("QuantityUseed")
+                    b.Property<int>("QuantityUsed")
                         .HasColumnType("int");
 
                     b.Property<byte[]>("VoucherImage")
@@ -818,9 +821,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Hotel", "Hotel")
                         .WithMany("rooms")
-                        .HasForeignKey("HotelID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("HotelID");
 
                     b.Navigation("Hotel");
                 });
