@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+#pragma warning disable // tắt cảnh báo để code sạch hơn
 
 namespace GraduationAPI_EPOSHBOOKING.Repository
 {
@@ -69,59 +70,81 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetBlogsByAccountId(int accountId)
         {
             var getBlog = db.blog.Include(img => img.BlogImage).Include(account => account.Account)
-                .Where(blog => blog.Account.AccountID == accountId);
-            if (getBlog != null)
+                .Where(blog => blog.Account.AccountID == accountId)
+                .ToList();
+            if (getBlog.Any())
             {
                 return new ResponseMessage { Success = true, Data = getBlog, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             return new ResponseMessage { Success = false, Data = getBlog, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
 
-        public ResponseMessage CreateBlog(Blog blog, int accountId, List<IFormFile> image)
-        {
-            var account = db.accounts.FirstOrDefault(a => a.AccountID == accountId);
-            if (account == null)
+            public ResponseMessage CreateBlog(Blog blog, int accountId, List<IFormFile> image)
             {
-                return new ResponseMessage { Success = false, Data = accountId, Message = "Account not found", StatusCode = (int)HttpStatusCode.NotFound };
-            }
-            Blog addBlog = new Blog
-            {
-                Title = blog.Title,
-                Description = blog.Description,
-                Location = blog.Location,
-                Status = "Wait for confirm",
-                Account = account
-            };
-            db.blog.Add(addBlog);
-            foreach (var convert in image)
-            {
-                byte[] imageDate = Ultils.Utils.ConvertIFormFileToByteArray(convert);
-                BlogImage addImage = new BlogImage
+                var account = db.accounts
+                                .Include(profile => profile.Profile)
+                                .FirstOrDefault(a => a.AccountID == accountId);
+                if (account == null)
                 {
-                    Blog = addBlog,
-                    ImageData = imageDate,
+                    return new ResponseMessage { Success = false, Data = accountId, Message = "Account not found", StatusCode = (int)HttpStatusCode.NotFound };
+                }
+                Blog addBlog = new Blog
+                {
+                    Title = blog.Title,
+                    Description = blog.Description,
+                    Location = blog.Location,
+                    Status = "Wait for confirm",
+                    Account = account
                 };
-                db.blogImage.Add(addImage);
+                db.blog.Add(addBlog);
+                foreach (var convert in image)
+                {
+                    byte[] imageDate = Ultils.Utils.ConvertIFormFileToByteArray(convert);
+                    BlogImage addImage = new BlogImage
+                    {
+                        Blog = addBlog,
+                        ImageData = imageDate,
+                    };
+                    db.blogImage.Add(addImage);
+                }
+                db.SaveChanges();
+                var result = new
+                {
+                    addBlog.BlogID,
+                    addBlog.Title,
+                    addBlog.Description,
+                    addBlog.Location,
+                    addBlog.Status,
+                    BlogImages = addBlog.BlogImage.Select(bi => new
+                    {
+                        bi.ImageID,
+                        bi.ImageData
+                    }),
+                    Account = new
+                    {
+                        addBlog.Account.AccountID,
+                        addBlog.Account.Email,
+                        addBlog.Account.Phone,
+                        addBlog.Account.Profile.fullName
+                    }
+                };
+                return new ResponseMessage { Success = true, Data = result, Message = "Blog created successfully", StatusCode = (int)HttpStatusCode.OK };
             }
-            db.SaveChanges();
-
-            return new ResponseMessage { Success = true, Data = addBlog, Message = "Blog created successfully", StatusCode = (int)HttpStatusCode.OK };
-        }
 
         public ResponseMessage CommentBlog(int blogId, int accountId, string description)
         {
             var blog = db.blog
-                .Include(b => b.Comment)
                 .FirstOrDefault(b => b.BlogID == blogId);
             var account = db.accounts
+                .Include(profile => profile.Profile)
                 .FirstOrDefault(a => a.AccountID == accountId);
             if (blog == null)
             {
-                return new ResponseMessage { Success = false, Data = blogId, Message = "Blog not found", StatusCode = (int)HttpStatusCode.NotFound };
+                return new ResponseMessage { Success = false, Data = blog, Message = "Blog not found", StatusCode = (int)HttpStatusCode.NotFound };
             }
             if (account == null)
             {
-                return new ResponseMessage { Success = false, Data = accountId, Message = "Account not found", StatusCode = (int)HttpStatusCode.NotFound };
+                return new ResponseMessage { Success = false, Data = account, Message = "Account not found", StatusCode = (int)HttpStatusCode.NotFound };
             }
             CommentBlog comment = new CommentBlog
             {
@@ -137,7 +160,27 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             comment.account.Password = null;
             comment.account.Phone = null;
 
-            return new ResponseMessage { Success = true, Data = comment, Message = "Commented successfully", StatusCode = (int)HttpStatusCode.OK };
+            var result = new
+            {
+                comment.CommentID,
+                comment.Description,
+                comment.DateComment,
+                Blog = new
+                {
+                    blog.BlogID,
+                    blog.BlogImage,
+                    blog.Title,
+                    blog.Description,
+                    blog.Location,
+                },
+                AccountComment = new
+                {
+                    comment.account.Email,
+                    comment.account.Phone,
+                    comment.account.Profile.fullName
+                }
+            };
+            return new ResponseMessage { Success = true, Data = result, Message = "Commented successfully", StatusCode = (int)HttpStatusCode.OK };
         }
 
         public ResponseMessage DeleteBlog(int blogId)

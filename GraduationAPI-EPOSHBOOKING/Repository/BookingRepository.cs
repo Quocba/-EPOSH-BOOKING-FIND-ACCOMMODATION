@@ -1,9 +1,15 @@
-﻿using GraduationAPI_EPOSHBOOKING.DataAccess;
+﻿using DocumentFormat.OpenXml.InkML;
+using GraduationAPI_EPOSHBOOKING.DataAccess;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using System.ComponentModel;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Net;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
 
@@ -25,7 +31,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 return new ResponseMessage { Success = true, Data = getBooking, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
-                return new ResponseMessage { Success = false,Data = getBooking, Message = "No Booking",StatusCode = (int)HttpStatusCode.NotFound };
+            return new ResponseMessage { Success = false, Data = getBooking, Message = "No Booking", StatusCode = (int)HttpStatusCode.NotFound };
         }
 
         public ResponseMessage CancleBooking(int bookingID, String Reason)
@@ -41,10 +47,15 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     db.SaveChanges();
                     return new ResponseMessage { Success = true, Data = getBooking, Message = "Cancle Success", StatusCode = (int)HttpStatusCode.OK };
                 }
-           
+
             }
-            return new ResponseMessage { Success = false,Data = getBooking, Message = "Cancel failed. You must cancel 24 hours before check-in date.", 
-                StatusCode = (int)HttpStatusCode.NotFound };
+            return new ResponseMessage
+            {
+                Success = false,
+                Data = getBooking,
+                Message = "Cancel failed. You must cancel 24 hours before check-in date.",
+                StatusCode = (int)HttpStatusCode.NotFound
+            };
         }
 
         private bool CanCancelBooking(DateTime checkInDate)
@@ -85,7 +96,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetAllBooking()
         {
             var listBooking = db.booking.Include(room => room.Room)
-                .Include(hotel => hotel)
+                .Include(hotel => hotel.Room.Hotel)
                 .Include(account => account.Account)
                 .Include(voucher => voucher.Voucher)
                 .ToList();
@@ -96,7 +107,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = false,Data = listBooking, Message = "No Data", StatusCode=(int)HttpStatusCode.NotFound };
         }
 
-        public ResponseMessage CreateBooking(int accountID, int voucherID, int RoomID,Booking? booking)
+        public ResponseMessage CreateBooking(int accountID, int voucherID, int RoomID, Booking? booking)
         {
             try
             {
@@ -177,7 +188,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         NumberGuest = booking.NumberGuest,
                         NumberOfRoom = booking.NumberOfRoom,
                         Status = "Wait For Confirm"
-                        
+
                     };
                     room.Quantity = room.Quantity - booking.NumberOfRoom;
                     db.room.Update(room);
@@ -208,8 +219,98 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = false, Data = null, Message = "Internal Server Error", StatusCode = (int)HttpStatusCode.InternalServerError };
             }
         }
-        
-       
+
+        public ResponseMessage ExportBookingsByAccountID(int accountID)
+        {
+            try
+            {
+                var bookings = db.booking
+                    .Where(booking => booking.Account.AccountID == accountID && booking.Status == "Complete")
+                    .Include(booking => booking.Room)
+                    .ThenInclude(room => room.Hotel)
+                    .Include(booking => booking.Voucher)
+                    .Include(booking => booking.Account)
+                    .ToList();
+                // Check if there are any bookings
+                if (bookings.Count == 0)
+                {
+                    return new ResponseMessage
+                    {
+                        Success = false,
+                        Data = null,
+                        Message = "No bookings found for this account.",
+                        StatusCode = (int)HttpStatusCode.NotFound
+                    };
+                }
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                // Create an Excel package
+                using (ExcelPackage pck = new ExcelPackage())
+                {
+                    // Create the worksheet
+                    ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Booking List");
+                    // Định dạng tiêu đề cột
+                    ws.Cells[1, 1, 1, 9].Style.Font.Bold = true;
+                    ws.Cells[1, 1, 1, 9].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    ws.Cells[1, 1, 1, 9].Style.Fill.BackgroundColor.SetColor(Color.LightBlue);
+                    ws.Cells[1, 1, 1, 9].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    // Set column headers
+                    ws.Cells[1, 1].Value = "BookingID";
+                    ws.Cells[1, 2].Value = "CheckInDate";
+                    ws.Cells[1, 3].Value = "CheckOutDate";
+                    ws.Cells[1, 4].Value = "TotalPrice";
+                    ws.Cells[1, 5].Value = "UnitPrice";
+                    ws.Cells[1, 6].Value = "TaxesPrice";
+                    ws.Cells[1, 7].Value = "NumberOfRoom";
+                    ws.Cells[1, 8].Value = "NumberGuest";
+                    ws.Cells[1, 9].Value = "ReasonCancel";
+                    //ws.Cells[1, 10].Value = "Status";
+
+                    // Add data to the worksheet
+                    int row = 2;
+                    foreach (var booking in bookings)
+                    {
+                        ws.Cells[row, 1].Value = booking.BookingID;
+                        ws.Cells[row, 2].Value = booking.CheckInDate.ToString("dd-MM-yyyy"); ;
+                        ws.Cells[row, 3].Value = booking.CheckOutDate.ToString("dd-MM-yyyy"); ;
+                        ws.Cells[row, 4].Value = booking.TotalPrice + " " + "VND";
+                        ws.Cells[row, 5].Value = booking.UnitPrice + " " + "VND";
+                        ws.Cells[row, 6].Value = booking.TaxesPrice;
+                        ws.Cells[row, 7].Value = booking.NumberOfRoom;
+                        ws.Cells[row, 8].Value = booking.NumberGuest;
+                        ws.Cells[row, 9].Value = booking.ReasonCancle;
+                        //ws.Cells[row, 10].Value = booking.Status;
+                        row++;
+                    }
+                    // Định dạng dữ liệu
+                    ws.Cells[2, 1, ws.Dimension.End.Row, 10].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    // Autofit columns
+                    ws.Columns.AutoFit();
+
+                    // Save the Excel file to a memory stream
+                    MemoryStream stream = new MemoryStream();
+                    pck.SaveAs(stream);
+
+                    // Return the Excel file as a response
+                    return new ResponseMessage
+                    {
+                        Success = true,
+                        Data = stream.ToArray(),
+                        Message = "Excel file generated successfully.",
+                        StatusCode = (int)HttpStatusCode.OK
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Data = null,
+                    Message = "Error generating Excel file.",
+                    StatusCode = (int)HttpStatusCode.InternalServerError
+                };
+            }
+        }
 
     }
 }
