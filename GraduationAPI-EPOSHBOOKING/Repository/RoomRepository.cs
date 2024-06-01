@@ -51,9 +51,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = false,Data = getRoom, Message = "Data not found",StatusCode = (int)HttpStatusCode.NotFound}; 
         }
 
-        public ResponseMessage AddRoom(int hotelID, Room room, DateTime StartDate,
-                                       DateTime EndDate,
-                                       double specialPrice, List<IFormFile> images,List<ServiceType>services)
+        public ResponseMessage AddRoom(int hotelID, Room room,List<SpecialPrice>specialPrices, List<IFormFile> images,List<ServiceType>services)
         {
             var getHotel = db.hotel.FirstOrDefault(hotel => hotel.HotelID == hotelID);
             Room createRoom = new Room
@@ -68,14 +66,18 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             };
             db.room.Add(createRoom);
 
-            SpecialPrice addSpecialPrice = new SpecialPrice
+            foreach (var specialPrice in specialPrices)
             {
-                StartDate = StartDate,
-                EndDate = EndDate,
-                Price = specialPrice,
-                Room = createRoom
-            };
-            db.specialPrice.Add(addSpecialPrice);
+                SpecialPrice addSpecialPrice = new SpecialPrice
+                {
+                    StartDate = specialPrice.StartDate,
+                    EndDate = specialPrice.EndDate,
+                    Price = specialPrice.Price,
+                    Room = createRoom
+                };
+                db.specialPrice.Add(addSpecialPrice);
+            }
+             
 
             foreach (var image in images)
             {
@@ -149,7 +151,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = true, Data = createRoom, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
         }
 
-        public ResponseMessage UpdateRoom(int roomID, Room room, DateTime StartDate, DateTime EndDate, double SpecialPrice, List<IFormFile> image, 
+        public ResponseMessage UpdateRoom(int roomID, Room room, List<SpecialPrice>SpecialPrices, List<IFormFile> image, 
             List<ServiceType>services)
         {
             var getRoom = db.room
@@ -172,24 +174,37 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                  getRoom.TypeOfBed = room.TypeOfBed;
                  db.room.Update(getRoom);
                  
-                var getSpecialPriceRoom = db.specialPrice.FirstOrDefault(sp => sp.Room.RoomID== roomID);
-                if (getSpecialPriceRoom == null)
+                var getSpecialPriceRoom = db.specialPrice.Where(sp => sp.Room.RoomID== roomID).ToList();
+                if (getSpecialPriceRoom.Any())
                 {
-                    SpecialPrice addSpecialPrice = new SpecialPrice
+                    db.specialPrice.RemoveRange(getSpecialPriceRoom);
+                    foreach (var specialPrice in SpecialPrices)
                     {
-                        StartDate = StartDate,
-                        EndDate = EndDate,
-                        Price = SpecialPrice,
-                        Room = getRoom
-                    };
-                    db.specialPrice.Add(addSpecialPrice);
+                        SpecialPrice addSpecialprice = new SpecialPrice
+                        {
+                            StartDate = specialPrice.StartDate,
+                            EndDate = specialPrice.EndDate,
+                            Price = specialPrice.Price,
+                            Room = getRoom
+                        };
+                        db.specialPrice.Add(addSpecialprice);
+                    }
+                    db.SaveChanges();
                 }
                 else
                 {
-                    getSpecialPriceRoom.StartDate = StartDate;
-                    getSpecialPriceRoom.EndDate = EndDate;
-                    getSpecialPriceRoom.Price = SpecialPrice;
-                    db.specialPrice.Update(getSpecialPriceRoom);
+                    foreach (var specialPrice in SpecialPrices)
+                    {
+                        SpecialPrice addSpecialprice = new SpecialPrice
+                        {
+                            StartDate = specialPrice.StartDate,
+                            EndDate = specialPrice.EndDate,
+                            Price = specialPrice.Price,
+                            Room = getRoom
+                        };
+                         db.specialPrice.Add(addSpecialprice);
+                    }
+                         db.SaveChanges();
                 }
                 var existingImages = db.roomImage.Where(ri => ri.Room.RoomID == roomID).ToList();
                 db.roomImage.RemoveRange(existingImages);

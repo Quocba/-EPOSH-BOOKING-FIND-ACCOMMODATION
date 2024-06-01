@@ -1,6 +1,7 @@
 ﻿using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
+#pragma warning disable // tắt cảnh báo để code sạch hơn
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
 {
@@ -17,9 +18,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         {
             public int HotelID { get; set; }
             public Room Room { get; set; }
-            public DateTime StartDate { get; set; }
-            public DateTime EndDate { get; set; }
-            public double SpecialPrice { get; set; }
+            public string SpecialPrices { get; set; }
             public List<IFormFile> Images { get; set; }
             public string Services { get; set; }
         };
@@ -27,9 +26,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         {
             public int RoomID { get; set; }
             public Room Room { get; set; }
-            public DateTime StartDate { get; set; }
-            public DateTime EndDate { get; set; }
-            public double SpecialPrice { get; set; }
+            public String specialPrice { get; set; }
             public List<IFormFile> Images { get; set; }
             public string Services { get; set; }
         };
@@ -57,13 +54,11 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         public IActionResult AddRoom([FromForm] AddRoomModel addRoomModel)
         {
             var services = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ServiceType>>(addRoomModel.Services);
-
+            var specialPrices = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SpecialPrice>>(addRoomModel.SpecialPrices);
             var response = reponsitory.AddRoom(
                 addRoomModel.HotelID,
                 addRoomModel.Room,
-                addRoomModel.StartDate,
-                addRoomModel.EndDate,
-                addRoomModel.SpecialPrice,
+                specialPrices,
                 addRoomModel.Images,
                 services
             );
@@ -75,13 +70,11 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         public IActionResult UpdateRoom([FromForm] UpdateRoomModel updateRoomModel)
         {
             var services = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ServiceType>>(updateRoomModel.Services);
-
+            var specialPrice = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SpecialPrice>>(updateRoomModel.specialPrice);
             var response = reponsitory.UpdateRoom(
                 updateRoomModel.RoomID,
                 updateRoomModel.Room,
-                updateRoomModel.StartDate,
-                updateRoomModel.EndDate,
-                updateRoomModel.SpecialPrice,
+                specialPrice,
                 updateRoomModel.Images,
                 services
             );
