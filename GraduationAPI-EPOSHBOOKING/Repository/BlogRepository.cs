@@ -2,6 +2,7 @@
 using GraduationAPI_EPOSHBOOKING.DataAccess;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
+using GraduationAPI_EPOSHBOOKING.Ultils;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -205,5 +206,83 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = true, Data = blogId, Message = "Blog deleted successfully", StatusCode = (int)HttpStatusCode.OK };
         }
 
+        public ResponseMessage FilterBlogwithStatus(string status)
+        {
+            // Filter status với các giá trị: "Wait for confirm", "Confirmed", "Rejected"
+            var blogs = db.blog
+                  .Include(b => b.Comment)
+                  .Include(b => b.BlogImage)
+                  .Where(b => b.Status == status)
+                  .ToList();
+            if (blogs.Any())
+            {
+                return new ResponseMessage { Success = true, Message = "Successfully", Data = blogs, StatusCode = (int)HttpStatusCode.OK };
+            }
+            else
+            {
+                return new ResponseMessage { Success = false, Message = "No blogs found", StatusCode = (int)HttpStatusCode.NotFound };
+            }
+        }
+
+        public ResponseMessage ConfirmBlog(int blogId)
+        {
+            {
+                var existingBlog = db.blog.FirstOrDefault(b => b.BlogID == blogId);
+                if (existingBlog == null)
+                {
+                    return new ResponseMessage { Success = false, Message = "Blog not found", StatusCode = (int)HttpStatusCode.NotFound };
+                }
+                String status = "Approved";
+                existingBlog.Status = status;
+                existingBlog.ReasonReject = null; // Hoặc existingBlog.ReasonReject = "";
+
+                db.blog.Update(existingBlog);
+                db.SaveChanges();
+
+                // Lấy email của chủ blog
+                var blogOwnerEmail = db.blog
+                    .Where(b => b.BlogID == blogId)
+                    .Select(b => b.Account.Email)
+                    .FirstOrDefault();
+
+                if (!string.IsNullOrEmpty(blogOwnerEmail))
+                {
+                    string content = "Congratulations! Your blog has been approved.";
+                    Utils.SendMailRegistration(blogOwnerEmail, content);
+                }
+
+                return new ResponseMessage { Success = true, Message = "Blog status updated successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+        }
+
+        public ResponseMessage RejectBlog(int blogId, string status, string reasonReject)
+        {
+            var existingBlog = db.blog.FirstOrDefault(b => b.BlogID == blogId);
+            if (existingBlog == null)
+            {
+                return new ResponseMessage { Success = false, Message = "Blog not found", StatusCode = (int)HttpStatusCode.NotFound };
+            }
+
+            existingBlog.Status = "Rejected";
+            existingBlog.ReasonReject = reasonReject;
+
+            db.blog.Update(existingBlog);
+            db.SaveChanges();
+
+            // Lấy email của chủ blog
+            var blogOwnerEmail = db.blog
+                .Where(b => b.BlogID == blogId)
+                .Select(b => b.Account.Email)
+                .FirstOrDefault();
+
+            if (!string.IsNullOrEmpty(blogOwnerEmail))
+            {
+                string content = $"Your blog has been rejected. Reason: {reasonReject}.";
+                Utils.SendMailRegistration(blogOwnerEmail, content);
+            }
+
+            return new ResponseMessage { Success = true, Message = "Blog rejected successfully", StatusCode = (int)HttpStatusCode.OK };
+        }
     }
 }
+

@@ -3,16 +3,12 @@
 
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using GraduationAPI_EPOSHBOOKING.DataAccess;
-
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using GraduationAPI_EPOSHBOOKING.Repository;
 using GraduationAPI_EPOSHBOOKING.Ultils;
-
 using Microsoft.OpenApi.Models;
-
 using Microsoft.Extensions.Configuration;
-
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +26,7 @@ builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IFeedbackRepository,FeedBackRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+builder.Services.AddScoped<IReportFeedbackRepository, ReportFeedbackRepository>();
 builder.Services.AddScoped<Utils>();
 
 builder.Services.AddDbContext<DBContext>();
