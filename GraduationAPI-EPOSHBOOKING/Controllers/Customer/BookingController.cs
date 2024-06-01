@@ -43,13 +43,6 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
             return StatusCode(response.StatusCode, response);
         }
 
-        [HttpGet("get-all-booking")]
-        public IActionResult GetAllBooking()
-        {
-            var response = repository.GetAllBooking();
-            return StatusCode(response.StatusCode, response);
-        }
-
         [HttpPut("change-wait-for-payment")]
         public IActionResult ChangeStatusWaitForPayment([FromForm]int bookingID)
         {

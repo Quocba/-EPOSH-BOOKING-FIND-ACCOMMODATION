@@ -127,7 +127,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 Email = email,
                 Password = hashedPassword,
-                IsActive = true,
+                IsActive = false,
                 Phone = phone,
                 Role = db.roles.FirstOrDefault(r => r.Name == "Customer")
             };
@@ -197,6 +197,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 Success = true,
                 Message = "Password changed successfully",
+                Data  = account,
                 StatusCode = (int)HttpStatusCode.OK
             };
         }

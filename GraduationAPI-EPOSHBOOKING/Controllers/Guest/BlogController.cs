@@ -37,7 +37,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         [HttpGet("get-blog-by-account")]
         public IActionResult GetBlogsByAccountId([FromQuery] int accountId)
         {
-            var response = _blogRepository.GetBlogDetailById(accountId);
+            var response = _blogRepository.GetBlogsByAccountId(accountId);
             return StatusCode(response.StatusCode, response);
         }
         [HttpPost("create-blog")]
