@@ -85,7 +85,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetAllBooking()
         {
             var listBooking = db.booking.Include(room => room.Room)
-                .Include(hotel => hotel)
+                .Include(hotel => hotel.Room.Hotel)
                 .Include(account => account.Account)
                 .Include(voucher => voucher.Voucher)
                 .ToList();
