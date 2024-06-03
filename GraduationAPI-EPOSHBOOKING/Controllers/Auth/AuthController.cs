@@ -12,19 +12,6 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
     public class AuthController : Controller
     {
 
-        public class RegisterDTO
-        {
-            public string Email { get; set; }
-            public string Password { get; set; }
-            public string FullName { get; set; }
-            public string Phone { get; set; }
-        }
-        public class ChangePasswordRequest
-        {
-            public int AccountId { get; set; }
-            public string OldPassword { get; set; }
-            public string NewPassword { get; set; }
-        }
         private readonly IAccountRepository repository;
         public AuthController(IAccountRepository repository)
         {
