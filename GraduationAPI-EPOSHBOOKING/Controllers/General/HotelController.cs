@@ -4,12 +4,12 @@ using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
-﻿using GraduationAPI_EPOSHBOOKING.IRepository;
-using GraduationAPI_EPOSHBOOKING.Model;
+using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 using System.Net;
+using GraduationAPI_EPOSHBOOKING.DTO;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
 {
@@ -23,21 +23,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             this.repository = hotelRepository;
         }
 
-        public class HotelRegistrationModel
-        {
-            public string HotelName { get; set; }
-            public int OpenedIn { get; set; }
-            public string Description { get; set; }
-            public int HotelStandard { get; set; }
-            public string HotelAddress { get; set; }
-            public string City { get; set; }
-            public double Latitude { get; set; }
-            public double Longitude { get; set; }
-            public List<IFormFile> Images { get; set; }
-            public IFormFile MainImage { get; set; }
-            public int AccountID { get; set; }
-            public string Services { get; set; } // Changed to string to capture JSON
-        }
+     
 
         [HttpGet("get-all")]
       public IActionResult GetAllHotel()
@@ -204,6 +190,12 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             return StatusCode(response.StatusCode, response);
         }
 
+        [HttpGet("analyze-hotelStander")]
+        public IActionResult AnalyzeHotelStandar()
+        {
+            var response = repository.AnalyzeHotelStandar();
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
  
