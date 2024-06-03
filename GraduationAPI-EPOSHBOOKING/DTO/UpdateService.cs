@@ -1,4 +1,6 @@
-﻿namespace GraduationAPI_EPOSHBOOKING.Model
+﻿using GraduationAPI_EPOSHBOOKING.Model;
+
+namespace GraduationAPI_EPOSHBOOKING.DTO
 {
     public class UpdateService
     {
