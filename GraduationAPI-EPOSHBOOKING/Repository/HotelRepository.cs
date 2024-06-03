@@ -9,6 +9,7 @@ using GraduationAPI_EPOSHBOOKING.Ultils;
 using Microsoft.IdentityModel.Tokens;
 using Azure;
 using static System.Net.Mime.MediaTypeNames;
+using GraduationAPI_EPOSHBOOKING.DTO;
 
 
 #pragma warning disable // tắt cảnh báo để code sạch hơn
@@ -638,6 +639,33 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                               .Where(hotel => hotel.isRegister.Equals("Wait for approved") && hotel.Status == false)
                               .ToList();
             return new ResponseMessage { Success = true,Data = listHotel, Message = "Sucessfully",StatusCode =(int)HttpStatusCode.OK};
+        }
+
+        public ResponseMessage AnalyzeHotelStandar()
+        {
+            var listHotel = db.hotel.ToList();
+            var hotelStandar = new Dictionary<string, int>();
+            for (int star = 1; star <= 5; star++)
+            {
+                hotelStandar[$"{star} Star"] = 0;
+            }
+
+            foreach (var hotel in listHotel)
+            {
+                if (hotelStandar.ContainsKey($"{hotel.HotelStandar} Star"))
+                {
+                    hotelStandar[$"{hotel.HotelStandar} Star"]++;
+                }
+            }
+
+            var hotelStarCounts = hotelStandar.Select(h => new HotelStandar
+            {
+                Name = $"Hotel {h.Key}",
+                Value = h.Value
+            }).ToList();
+
+            return new ResponseMessage { Success = true, Data = hotelStarCounts, Message = "Sucessfully", StatusCode = (int)HttpStatusCode.OK };
+
         }
     }
 }

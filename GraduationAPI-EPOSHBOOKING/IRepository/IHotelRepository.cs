@@ -44,6 +44,7 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage RejectRegistration(int hotelID,String reasonReject);
         public ResponseMessage SearchHotelByName(String hotelName);
         public ResponseMessage GetAllHotelWaitForConfirm();
+        public ResponseMessage AnalyzeHotelStandar();
     }
 
  
