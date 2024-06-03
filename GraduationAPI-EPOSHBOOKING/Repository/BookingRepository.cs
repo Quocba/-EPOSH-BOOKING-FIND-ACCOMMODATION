@@ -1,6 +1,7 @@
 ﻿using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Spreadsheet;
 using GraduationAPI_EPOSHBOOKING.DataAccess;
+using GraduationAPI_EPOSHBOOKING.DTO;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.EntityFrameworkCore;
@@ -405,6 +406,170 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     StatusCode = (int)HttpStatusCode.InternalServerError
                 };
             }
+        }
+
+        public ResponseMessage AnalysisRevenueBookingSystem()
+        {
+            var listBookingWithMonth = db.booking
+                                         .GroupBy(booking => new
+                                         {
+                                             CheckInDate = booking.CheckInDate.Month,
+                                             CheckOutDate = booking.CheckOutDate.Month,
+                                         }).ToList();
+            var totalWithMonth = new Dictionary<int, double>();
+            foreach (var months in listBookingWithMonth)
+            {
+                var checkInMonth = months.Key.CheckInDate;
+                var totalRevenueForMonth = 0.0;
+                foreach (var booking in months)
+                {
+                    totalRevenueForMonth += booking.TotalPrice;
+                }
+                if (!totalWithMonth.ContainsKey(checkInMonth))
+                {
+                    totalWithMonth.Add(checkInMonth, totalRevenueForMonth);
+                }
+                else
+                {
+                    totalWithMonth[checkInMonth] += totalRevenueForMonth;
+                }
+            }
+            var monthName = new[]
+            {
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                 };
+            var result = totalWithMonth.Select(booking => new BookingRevenuesData
+            {
+                Name = monthName[booking.Key - 1],
+                Data = booking.Value
+            });
+            return new ResponseMessage { Success = true,Data = result,Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+        }
+
+        public ResponseMessage AnalysisRevenueBookingHotel(int hotelID)
+        {
+            var listHotelBookingWithMonth = db.booking
+                                              .Include(room => room.Room)
+                                              .ThenInclude(hotel => hotel.Hotel)
+                                              .Where(booking => booking.Room.Hotel.HotelID == hotelID)
+                                              .GroupBy(booking => new
+                                              {
+                                                  CheckInDate = booking.CheckInDate.Month,
+                                                  CheckOutDate = booking.CheckOutDate.Month
+                                              }).ToList();
+            var totalWithMonth = new Dictionary<int,double>();
+            foreach (var monthGroup in listHotelBookingWithMonth)
+            {
+                var checkInMonth = monthGroup.Key.CheckInDate;
+                var totalRevenueForMonth = 0.0;
+
+                foreach (var booking in monthGroup)
+                {
+                    // Assume TotalAmount is the property storing the total amount of each booking
+                    totalRevenueForMonth += booking.TotalPrice;
+                }
+
+                if (!totalWithMonth.ContainsKey(checkInMonth))
+                {
+                    totalWithMonth.Add(checkInMonth, totalRevenueForMonth);
+                }
+                else
+                {
+                    totalWithMonth[checkInMonth] += totalRevenueForMonth;
+                }
+
+               
+            }
+            var monthName = new[]
+                {
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                 };
+            var result = totalWithMonth.Select(booking => new BookingRevenuesData
+            {
+                Name = monthName[booking.Key - 1],
+                Data = booking.Value
+            });
+            return new ResponseMessage { Success = true, Data = result, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+        }
+
+        public ResponseMessage CountBookingSystem()
+        {
+            var listBookingWithMonth = db.booking
+                                         .GroupBy(booking => new
+                                        {
+                                           CheckInDate = booking.CheckInDate,
+                                           CheckOutDate = booking.CheckOutDate
+                                         }).ToList();
+            var QuantityBookingWithMonth = new Dictionary<int, int>();
+
+            foreach (var months in listBookingWithMonth)
+            {
+                var CheckInMonth = months.Key.CheckInDate.Month;
+
+                if (!QuantityBookingWithMonth.ContainsKey(CheckInMonth))
+                {
+                    QuantityBookingWithMonth.Add(CheckInMonth, months.Count());
+                }
+                else
+                {
+                    QuantityBookingWithMonth[CheckInMonth] += months.Count();
+                }
+            }
+            var monthName = new[]
+            {
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+            };
+            var result = QuantityBookingWithMonth.Select(qb => new BookingData
+            {
+                Name = monthName[qb.Key - 1],
+                Data = qb.Value
+            }).ToList();
+            return new ResponseMessage { Success = true, Data = result, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+
+        }
+
+        public ResponseMessage CountBookingHotel(int hotelID)
+        {
+            var listBookingWithMonth = db.booking
+                                         .Include(room => room.Room)
+                                         .ThenInclude(hotel => hotel.Hotel)
+                                         .Where(booking => booking.Room.Hotel.HotelID == hotelID)
+                                        .GroupBy(booking => new
+                                        {
+                                            CheckInDate = booking.CheckInDate,
+                                            CheckOutDate = booking.CheckOutDate
+                                        }).ToList();
+            var QuantityBookingWithMonth = new Dictionary<int, int>();
+
+            foreach (var months in listBookingWithMonth)
+            {
+                var CheckInMonth = months.Key.CheckInDate.Month;
+
+                if (!QuantityBookingWithMonth.ContainsKey(CheckInMonth))
+                {
+                    QuantityBookingWithMonth.Add(CheckInMonth, months.Count());
+                }
+                else
+                {
+                    QuantityBookingWithMonth[CheckInMonth] += months.Count();
+                }
+            }
+
+            var monthName = new[]
+            {
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+            };
+            var result = QuantityBookingWithMonth.Select(qb => new BookingData
+            {
+                Name = monthName[qb.Key - 1],
+                Data = qb.Value
+            }).ToList();
+            return new ResponseMessage { Success = true, Data = result, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+
         }
     }
 }

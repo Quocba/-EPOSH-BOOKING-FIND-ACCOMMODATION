@@ -1,4 +1,5 @@
-﻿using GraduationAPI_EPOSHBOOKING.IRepository;
+﻿using GraduationAPI_EPOSHBOOKING.DTO;
+using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
@@ -14,22 +15,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         
             this.reponsitory = roomRepository;
         }
-        public class AddRoomModel
-        {
-            public int HotelID { get; set; }
-            public Room Room { get; set; }
-            public string SpecialPrices { get; set; }
-            public List<IFormFile> Images { get; set; }
-            public string Services { get; set; }
-        };
-        public class UpdateRoomModel
-        {
-            public int RoomID { get; set; }
-            public Room Room { get; set; }
-            public String specialPrice { get; set; }
-            public List<IFormFile> Images { get; set; }
-            public string Services { get; set; }
-        };
+    
         [HttpGet("get-room-by-id")]
         public IActionResult GetRoomDetail([FromQuery]int roomID)
         {

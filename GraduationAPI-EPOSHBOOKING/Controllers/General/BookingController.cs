@@ -85,7 +85,34 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             return StatusCode(response.StatusCode, response);
         }
 
-    }
+        [HttpGet("analysis-revenue")]
+        public IActionResult AnalysisRevenueBookingSystem()
+        {
+            var response = repository.AnalysisRevenueBookingSystem();
+            return StatusCode(response.StatusCode, response);
+        }
 
+        [HttpGet("analysis-revenue-hotel")]
+        public IActionResult AnalysisRevenueBookingHotel([FromQuery]int hotelID)
+        {
+            var response = repository.AnalysisRevenueBookingHotel(hotelID);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("count-booking-system")]
+        public IActionResult CountBookingSystem()
+        {
+            var response = repository.CountBookingSystem();
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("count-booking-hotel")]
+        public IActionResult CountBookingHotel([FromQuery]int hotelID)
+        {
+            var response = repository.CountBookingHotel(hotelID);
+            return StatusCode(response.StatusCode, response);
+        }
+    }
+    
 }
 
