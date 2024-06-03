@@ -162,3 +162,4 @@ D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\UnitTest
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\UnitTestingAPI\obj\Debug\net7.0\UnitTestingAPI.pdb
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\UnitTestingAPI\obj\Debug\net7.0\UnitTestingAPI.genruntimeconfig.cache
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\UnitTestingAPI\obj\Debug\net7.0\ref\UnitTestingAPI.dll
+D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\UnitTestingAPI\bin\Debug\net7.0\libman.json

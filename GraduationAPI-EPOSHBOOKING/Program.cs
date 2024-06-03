@@ -10,6 +10,7 @@ using GraduationAPI_EPOSHBOOKING.Ultils;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +29,6 @@ builder.Services.AddScoped<IFeedbackRepository,FeedBackRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IReportFeedbackRepository, ReportFeedbackRepository>();
 builder.Services.AddScoped<Utils>();
-
 builder.Services.AddDbContext<DBContext>();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -48,8 +48,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     });
     var app = builder.Build();
 
-    if (app.Environment.IsDevelopment())
-    {
+  
 
         app.UseDeveloperExceptionPage();
         app.UseSwagger();
@@ -57,7 +56,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         });
-    }
+    
     app.UseHttpsRedirection();
     // Enable CORS
     app.UseCors("AllowAllOrigins");
