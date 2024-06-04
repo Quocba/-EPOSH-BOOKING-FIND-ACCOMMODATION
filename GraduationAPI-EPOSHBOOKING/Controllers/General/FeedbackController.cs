@@ -20,7 +20,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             var response = repository.CreateFeedBack(BookingID, newFeedBack, Image);
             return StatusCode(response.StatusCode, response);
         }
-        [HttpGet("get-all-feedback")]
+        [HttpGet("get-all-hotel-feedback")]
         public IActionResult GetFeedbackByHotel([FromQuery] int hotelID)
         {
             var response = repository.GetAllFeedbackHotel(hotelID);
