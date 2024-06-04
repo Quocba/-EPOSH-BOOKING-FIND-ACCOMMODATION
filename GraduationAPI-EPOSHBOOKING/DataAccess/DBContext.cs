@@ -8,8 +8,13 @@ namespace GraduationAPI_EPOSHBOOKING.DataAccess
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+<<<<<<< HEAD
             //optionsBuilder.UseSqlServer("Data Source=LAPTOP-3P8D5MG5;Initial Catalog=EposhBookingGraduation;Integrated Security=True;Trust Server Certificate=True");
             optionsBuilder.UseSqlServer("Data Source=eposhserver.database.windows.net;Initial Catalog=EPOSHBOOKING;User ID=Admintrator;Password=Admin123@;Trust Server Certificate=True");
+=======
+            optionsBuilder.UseSqlServer("Data Source=LAPTOP-3P8D5MG5;Initial Catalog=EposhBookingGraduation;Integrated Security=True;Trust Server Certificate=True");
+            //optionsBuilder.UseSqlServer("Data Source=eposhserver.database.windows.net;Initial Catalog=EPOSHGRADUATION;Persist Security Info=True;User ID=Admintrator;Password=Admin123@;Trust Server Certificate=True");
+>>>>>>> origin/main
         }
         public DbSet<Account> accounts { get; set; }
         public DbSet<Role> roles { get; set; }

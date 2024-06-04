@@ -12,6 +12,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public String Title { get; set; }
         public String Description { get; set; }
         public String Location { get; set; }
+        public DateTime PublishDate { get; set; }
         public String? Status { get; set; }
         public DateTime PublishDate { get;set; }
         public String? ReasonReject { get; set; }

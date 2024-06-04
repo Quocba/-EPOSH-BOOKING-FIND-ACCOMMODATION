@@ -269,7 +269,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var listAccount = db.accounts.
                                 Include(profile => profile.Profile)
                                 .ToList();
+<<<<<<< HEAD
             return new ResponseMessage { Success = true, Data =  listAccount,Message = "Successfully",StatusCode = (int)HttpStatusCode.OK };
+=======
+            return new ResponseMessage { Success = true, Data =  listAccount,Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+>>>>>>> origin/main
         }
 
         public ResponseMessage BlockedAccount(int accountID)
