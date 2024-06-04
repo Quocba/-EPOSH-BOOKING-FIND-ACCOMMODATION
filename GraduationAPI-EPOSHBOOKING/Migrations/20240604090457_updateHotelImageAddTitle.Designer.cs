@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduationAPI_EPOSHBOOKING.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20240604041342_addPublishDate")]
-    partial class addPublishDate
+    [Migration("20240604090457_updateHotelImageAddTitle")]
+    partial class updateHotelImageAddTitle
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -333,6 +333,10 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     b.Property<byte[]>("ImageData")
                         .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ImageID");
 
