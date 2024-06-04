@@ -331,6 +331,10 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<byte[]>("ImageData")
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("ImageID");
 
                     b.HasIndex("HotelID");

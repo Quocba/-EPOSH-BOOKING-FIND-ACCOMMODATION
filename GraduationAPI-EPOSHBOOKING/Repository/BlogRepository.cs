@@ -95,6 +95,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Description = blog.Description,
                     Location = blog.Location,
                     Status = "Awaiting Approval",
+                    PublishDate = DateTime.Now,
                     Account = account
                 };
                 db.blog.Add(addBlog);
