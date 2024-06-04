@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAsiEaVNLve0+F33zG3xwuIwAAAAACAAAAAAAQZgAAAAEAACAAAADCh+WEIxuZlSZEPKnmwapB0vg8PBRsscajMX6a5KX4cgAAAAAOgAAAAAIAACAAAADam0WbR97agrJ18qVbQilKTPmMKd07Hix0QttCiAszRYAAAADQIUhup+VLSnWjSE7DGHvYOYuiH0+DgNZkJgYmuBuaYEWJkhrTaVByGHit0gXBcBWWyoqPgnO3vddQ+CEIJFw2pJ2VyMDlzxdF1uvSg3p1OgvlfFT7oES3FHhhTMoHBhXSPmmct3B5JtAS+zYtuvYm2C5CMkL2+1J4Xm2AW+qsj0AAAADLeN3KAc2z6uo9cAGb31+sjUQpzs87jW6Yad3Ocw6UVq42rTEZ0BH4Qt/GXBOZHJovYH+hWzO+w5GwhOuc05GK</EncryptedPassword>
+    <History>True|2024-06-03T13:47:47.7920824Z;True|2024-06-03T20:42:36.4888403+07:00;True|2024-06-03T19:19:23.2622959+07:00;True|2024-06-03T19:15:28.9277092+07:00;True|2024-06-03T19:10:42.1792971+07:00;True|2024-06-03T19:08:36.0703656+07:00;True|2024-06-03T19:04:08.0381505+07:00;True|2024-06-03T18:58:38.1150224+07:00;True|2024-06-03T18:54:39.5705068+07:00;True|2024-06-03T18:52:27.6232727+07:00;True|2024-06-03T18:44:23.8303755+07:00;True|2024-06-03T18:43:03.8895753+07:00;True|2024-06-03T18:41:49.9798348+07:00;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+  <ItemGroup>
+    <DestinationConnectionStrings Include="DB">
+      <Value>Data Source=eposhserver.database.windows.net,1433%3bInitial Catalog=EPOSHGRADUATION%3bUser ID=Administrator%3bPassword=Admin123%40</Value>
+    </DestinationConnectionStrings>
+  </ItemGroup>
+</Project>

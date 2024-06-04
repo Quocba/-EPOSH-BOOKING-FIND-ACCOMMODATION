@@ -5,6 +5,7 @@ namespace GraduationAPI_EPOSHBOOKING.DataAccess
 {
     public class DBContext : DbContext
     {
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer("Data Source=LAPTOP-3P8D5MG5;Initial Catalog=EposhBookingGraduation;Integrated Security=True;Trust Server Certificate=True");
