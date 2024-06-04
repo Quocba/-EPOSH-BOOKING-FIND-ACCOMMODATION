@@ -133,15 +133,15 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
 
 
         [HttpPost("add-hotel-image")]
-        public IActionResult AddHotelImage([FromForm] int hotelId, [FromForm] List<IFormFile> images)
+        public IActionResult AddHotelImage([FromForm] int hotelId, [FromForm]String title, [FromForm]IFormFile images)
         {
-            var response = repository.AddHotelImage(hotelId, images);
+            var response = repository.AddHotelImage(hotelId,title, images);
             return StatusCode(response.StatusCode, response);
         }
         [HttpDelete("delete-hotel-images")]
-        public IActionResult DeleteHotelImages([FromQuery] int hotelId)
+        public IActionResult DeleteHotelImages([FromQuery] int imageID)
         {
-            var response = repository.DeleteHotelImages(hotelId);
+            var response = repository.DeleteHotelImages(imageID);
             return StatusCode(response.StatusCode, response);
         }
         [HttpGet("get-all-hotel-infomation")]
