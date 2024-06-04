@@ -82,7 +82,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
             if (getHotel != null)
             {
-                double avgRating = Math.Round(getHotel.feedBacks.Average(feedback => feedback.Rating), 2);
+                double avgRating = getHotel.feedBacks.Any() ? Math.Round(getHotel.feedBacks.Average(feedBack => feedBack.Rating), 2) : 0;
                 return new ResponseMessage { Success = true, Data = new { hotel = getHotel, avgRating = avgRating }, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             else
