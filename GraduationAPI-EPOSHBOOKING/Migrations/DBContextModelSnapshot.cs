@@ -77,6 +77,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("PublishDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("ReasonReject")
                         .HasColumnType("nvarchar(max)");
 

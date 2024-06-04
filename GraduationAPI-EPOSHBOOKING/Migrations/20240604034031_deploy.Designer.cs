@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduationAPI_EPOSHBOOKING.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20240601082902_updateReportFeedbackTableFiedStatus")]
-    partial class updateReportFeedbackTableFiedStatus
+    [Migration("20240604034031_deploy")]
+    partial class deploy
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -79,6 +79,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("PublishDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ReasonReject")
                         .HasColumnType("nvarchar(max)");
@@ -443,7 +446,6 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ReasonReport")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ReporterEmail")
