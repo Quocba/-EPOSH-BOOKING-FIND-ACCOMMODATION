@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Azure;
 using static System.Net.Mime.MediaTypeNames;
 using GraduationAPI_EPOSHBOOKING.DTO;
+using DocumentFormat.OpenXml.Office2013.Excel;
 
 
 #pragma warning disable // tắt cảnh báo để code sạch hơn
@@ -353,7 +354,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 var addService = new HotelService
                 {
                     Type = service.Type,
-                    Hotel = addHotel
+                    Hotel = addHotel,
+                    
                 };
                 db.hotelService.Add(addService);
                 db.SaveChanges();
@@ -377,7 +379,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 var addImage = new HotelImage
                 {
                     ImageData = Ultils.Utils.ConvertIFormFileToByteArray(img),
-                    Hotel = addHotel
+                    Hotel = addHotel,
+                    Title = "Hotel View"
                 };
 
                 db.hotelImage.Add(addImage);
@@ -498,34 +501,30 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
-        public ResponseMessage AddHotelImage(int hotelId, List<IFormFile> images)
+        public ResponseMessage AddHotelImage(int hotelId, String title ,IFormFile images)
         {
             var hotel = db.hotel.FirstOrDefault(hotel => hotel.HotelID == hotelId);
             if (hotel != null)
             {
-                foreach (var convert in images)
+                HotelImage addImage = new HotelImage
                 {
-                    byte[] imageData = Utils.ConvertIFormFileToByteArray(convert);
-                    HotelImage addImage = new HotelImage
-                    {
-                        ImageData = imageData,
-                        Hotel = hotel
-                    };
-                    db.hotelImage.Add(addImage);
-                }
+                    Title = title,
+                    ImageData = Ultils.Utils.ConvertIFormFileToByteArray(images)
+                };
+                db.hotelImage.Add(addImage);
                 db.SaveChanges();
                 return new ResponseMessage { Success = true, Data = hotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             return new ResponseMessage { Success = false, Data = null, Message = "Hotel not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
-        public ResponseMessage DeleteHotelImages(int hotelId)
+        public ResponseMessage DeleteHotelImages(int imageID)
         {
-            var hotel = db.hotel.Include(x => x.HotelImages).FirstOrDefault(hotel => hotel.HotelID == hotelId);
-            if (hotel != null)
+            var getImage = db.hotelImage.FirstOrDefault(image => image.ImageID == imageID);
+            if (getImage != null)
             {
-                db.hotelImage.RemoveRange(hotel.HotelImages);
+                db.hotelImage.Remove(getImage);
                 db.SaveChanges();
-                return new ResponseMessage { Success = true, Data = hotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                return new ResponseMessage { Success = true, Data = getImage, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             return new ResponseMessage { Success = false, Data = null, Message = "Hotel not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
