@@ -1,14 +1,12 @@
 {
   "dependencies": {
-    "secrets1": {
-      "secretStore": null,
-      "resourceId": null,
-      "type": "secrets.user",
-      "connectionId": null
-    },
     "apis1": {
       "ignored": "True",
       "type": "apis"
+    },
+    "secrets1": {
+      "type": "secrets.user",
+      "dynamicId": null
     }
   }
 }

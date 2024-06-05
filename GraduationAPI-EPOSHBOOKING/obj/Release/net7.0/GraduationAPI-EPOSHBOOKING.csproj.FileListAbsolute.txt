@@ -88,3 +88,8 @@ D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\Graduati
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\GraduationAPI-EPOSHBOOKING.genruntimeconfig.cache
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\ref\GraduationAPI-EPOSHBOOKING.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\bin\Release\net7.0\libman.json
+D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\bin\Release\net7.0\SkiaSharp.dll
+D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\bin\Release\net7.0\runtimes\osx\native\libSkiaSharp.dylib
+D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\bin\Release\net7.0\runtimes\win-arm64\native\libSkiaSharp.dll
+D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\bin\Release\net7.0\runtimes\win-x64\native\libSkiaSharp.dll
+D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\bin\Release\net7.0\runtimes\win-x86\native\libSkiaSharp.dll

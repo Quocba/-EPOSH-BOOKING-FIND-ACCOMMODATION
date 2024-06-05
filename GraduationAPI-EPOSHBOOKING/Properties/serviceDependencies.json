@@ -1,16 +1,16 @@
 {
   "dependencies": {
-    "secrets1": {
-      "type": "secrets",
-      "connectionId": null
-    },
     "apis1": {
       "ignored": "true",
       "type": "apis.azure"
     },
+    "secrets1": {
+      "type": "secrets",
+      "dynamicId": null
+    },
     "mssql1": {
       "type": "mssql",
-      "connectionId": "ConnectionStrings:DB"
+      "connectionId": "ConnectionStrings:Azure"
     }
   }
 }

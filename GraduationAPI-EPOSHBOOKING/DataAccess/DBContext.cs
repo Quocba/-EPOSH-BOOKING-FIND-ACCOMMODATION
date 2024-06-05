@@ -5,7 +5,9 @@ namespace GraduationAPI_EPOSHBOOKING.DataAccess
 {
     public class DBContext : DbContext
     {
-
+        //public DBContext(DbContextOptions<DBContext> options) : base(options)
+        //{
+        //}
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
