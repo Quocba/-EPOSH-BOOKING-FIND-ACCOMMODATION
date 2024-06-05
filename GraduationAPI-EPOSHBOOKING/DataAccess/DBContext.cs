@@ -11,8 +11,10 @@ namespace GraduationAPI_EPOSHBOOKING.DataAccess
 
             optionsBuilder.UseSqlServer("Data Source=eposhserver.database.windows.net;Initial Catalog=EPOSHBOOKING;User ID=Admintrator;Password=Admin123@;Trust Server Certificate=True");
 
+            //optionsBuilder.UseSqlServer("Data Source=srv165150.zhost.vn\\MSSQLSERVER2019;Initial Catalog=EPOSHBOOKING;User ID=Administrator;Password=Admin123@;Trust Server Certificate=True");
+
             //optionsBuilder.UseSqlServer("Data Source=LAPTOP-3P8D5MG5;Initial Catalog=EposhBookingGraduation;Integrated Security=True;Trust Server Certificate=True");
- 
+
         }
         public DbSet<Account> accounts { get; set; }
         public DbSet<Role> roles { get; set; }

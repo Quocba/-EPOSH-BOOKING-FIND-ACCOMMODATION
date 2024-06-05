@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>GraduationAPI_EPOSHBOOKING</RootNamespace>
+    <UserSecretsId>c79ae1ba-db5c-4ba4-a164-5b7e729193b1</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
