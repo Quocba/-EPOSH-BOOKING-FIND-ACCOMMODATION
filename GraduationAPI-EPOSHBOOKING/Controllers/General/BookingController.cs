@@ -112,6 +112,13 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             var response = repository.CountBookingHotel(hotelID);
             return StatusCode(response.StatusCode, response);
         }
+
+        [HttpGet("get-top-booking")]
+        public IActionResult Top5Booking()
+        {
+            var response = repository.Top5Booking();
+            return StatusCode(response.StatusCode, response);
+        }
     }
     
 }
