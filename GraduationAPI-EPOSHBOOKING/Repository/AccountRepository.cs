@@ -89,7 +89,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 var checkPhone = db.accounts.FirstOrDefault(x => x.Phone.Equals(phone));
                 if (checkPhone != null)
                 {
-                    return new ResponseMessage { Success = true, Data = phone, Message = "Successfully", StatusCode = (int)HttpStatusCode.AlreadyReported };
+                    return new ResponseMessage { Success = true, Data = phone, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                 }
                 else
                 {
@@ -270,7 +270,22 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                 Include(profile => profile.Profile)
                                 .Include(role => role.Role)
                                 .ToList();
-            return new ResponseMessage { Success = true, Data =  listAccount,Message = "Successfully",StatusCode = (int)HttpStatusCode.OK };
+            var result = listAccount.Select(account => new
+            {
+               AccountID = account.AccountID,
+               Email = account.Email,
+               Phone = account.Phone,
+               Role = account.Role,
+               IsActive = account.IsActive,
+               Profile = new Profile
+               {   ProfileID = account.Profile.ProfileID,
+                   Address = account.Profile.Address,
+                   BirthDay = account.Profile.BirthDay,
+                   fullName = account.Profile.fullName,
+                   Gender = account.Profile.Gender,
+               }
+            });
+            return new ResponseMessage { Success = true, Data =  result,Message = "Successfully",StatusCode = (int)HttpStatusCode.OK };
         }
             
         public ResponseMessage BlockedAccount(int accountID)
@@ -315,10 +330,27 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             var searchResult = db.accounts
                                  .Include(profile => profile.Profile)
+                                 .Include(Role => Role.Role)
                                  .Where(account => account.Profile.fullName.Contains(fullName))
                                  .ToList();
-    
-            return new ResponseMessage { Success = true, Data = searchResult, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            var result = searchResult.Select(account => new
+            {
+                AccountID = account.AccountID,
+                Email = account.Email,
+                Phone = account.Phone,
+                Role = account.Role,
+                IsActive = account.IsActive,
+                Profile = new Profile
+                {
+                    ProfileID = account.Profile.ProfileID,
+                    Address = account.Profile.Address,
+                    BirthDay = account.Profile.BirthDay,
+                    fullName = account.Profile.fullName,
+                    Gender = account.Profile.Gender,
+                }
+            });
+
+            return new ResponseMessage { Success = true, Data = result, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             
         }
     }
