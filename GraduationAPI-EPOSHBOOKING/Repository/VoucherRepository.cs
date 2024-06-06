@@ -207,7 +207,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage SearchVoucherName(string voucherName)
         {
-            var searchResult = db.voucher.Where(voucher => voucherName.Contains(voucherName)).ToList();
+            var searchResult = db.voucher.Where(voucher => voucher.VoucherName.Contains(voucherName)).ToList();
             return new ResponseMessage { Success = true, Data = searchResult, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK};
         }
 
