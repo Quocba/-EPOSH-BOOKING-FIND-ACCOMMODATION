@@ -1,6 +1,6 @@
 
 ﻿using GraduationAPI_EPOSHBOOKING.DataAccess;
-
+using Microsoft.Extensions.FileProviders;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using GraduationAPI_EPOSHBOOKING.DataAccess;
 using GraduationAPI_EPOSHBOOKING.IRepository;
@@ -11,6 +11,8 @@ using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Configuration;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using static GraduationAPI_EPOSHBOOKING.Ultils.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,7 @@ builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IReportFeedbackRepository, ReportFeedbackRepository>();
 builder.Services.AddScoped<Utils>();
 builder.Services.AddDbContext<DBContext>();
+
 //builder.Services.AddDbContext<DBContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("ZhostingConnection")));
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -55,9 +58,17 @@ builder.Services.AddControllers().AddJsonOptions(options =>
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         });
+
     app.UseCors("AllowAllOrigins");
     app.UseHttpsRedirection();
-    app.UseAuthentication();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+    Path.Combine(Directory.GetCurrentDirectory(), "images")),
+    RequestPath = "/images"
+});
+
+app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllers();
