@@ -35,7 +35,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 }
                 else
                 {
-                    return new ResponseMessage { Success = false, Message = "No blogs found", StatusCode = (int)HttpStatusCode.NotFound };
+                    return new ResponseMessage { Success = false, Message = "No blogs found",Data = new int[0], StatusCode = (int)HttpStatusCode.NotFound };
                 }
             }
             catch (Exception ex)
