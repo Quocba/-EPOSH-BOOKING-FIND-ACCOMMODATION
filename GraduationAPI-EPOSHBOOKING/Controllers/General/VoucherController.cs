@@ -72,6 +72,12 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             return StatusCode(response.StatusCode, response);
         }
 
+        [HttpGet("search-name")]
+        public IActionResult SearchVoucherName([FromQuery]String voucherName)
+        {
+            var response = _voucherRepository.SearchVoucherName(voucherName);
+            return StatusCode(response.StatusCode, response);
+        }
 
     }
 }

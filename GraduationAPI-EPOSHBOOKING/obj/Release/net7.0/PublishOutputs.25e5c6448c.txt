@@ -35,6 +35,7 @@ D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\Graduati
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\Microsoft.Win32.SystemEvents.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\Newtonsoft.Json.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\SixLabors.Fonts.dll
+D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\SkiaSharp.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\Swashbuckle.AspNetCore.Swagger.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\Swashbuckle.AspNetCore.SwaggerGen.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\Swashbuckle.AspNetCore.SwaggerUI.dll
@@ -56,6 +57,10 @@ D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\Graduati
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\runtimes\win\lib\net7.0\Microsoft.Win32.SystemEvents.dll
+D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\runtimes\osx\native\libSkiaSharp.dylib
+D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\runtimes\win-arm64\native\libSkiaSharp.dll
+D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\runtimes\win-x64\native\libSkiaSharp.dll
+D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\runtimes\win-x86\native\libSkiaSharp.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\runtimes\win\lib\net7.0\System.Drawing.Common.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\runtimes\win\lib\netstandard2.0\System.Runtime.Caching.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\runtimes\win\lib\net7.0\System.Security.Cryptography.Pkcs.dll

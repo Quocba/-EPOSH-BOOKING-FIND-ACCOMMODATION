@@ -75,7 +75,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetHotelByID(int id)
         {
-            var getHotel = db.hotel.Include(x => x.HotelImages)
+            var getHotel = db.hotel
+                .Include(x => x.HotelImages)
                 .Include(x => x.HotelAddress)
                 .Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices).Include(x => x.feedBacks)
                 .ThenInclude(booking => booking.Booking).ThenInclude(account => account.Account).ThenInclude(profile => profile.Profile)
@@ -657,7 +658,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 }
             }
 
-            var hotelStarCounts = hotelStandar.Select(h => new HotelStandar
+            var hotelStarCounts = hotelStandar.Select(h => new HotelStandarDTO
             {
                 Name = $"Hotel {h.Key}",
                 Value = h.Value

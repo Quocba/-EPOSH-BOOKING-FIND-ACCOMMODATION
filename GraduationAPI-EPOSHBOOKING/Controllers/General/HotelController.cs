@@ -89,7 +89,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpPost("hotel-registration")]
-        public IActionResult RegisterHotel([FromForm]HotelRegistrationModel registrationModel)
+        public IActionResult RegisterHotel([FromForm]HotelRegistrationDTO registrationModel)
         {
             var services = JsonConvert.DeserializeObject<List<ServiceType>>(registrationModel.Services);
 
@@ -125,7 +125,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
        
         [HttpPut("update-service")]
-        public IActionResult UpdateHotelService([FromBody] UpdateService update)
+        public IActionResult UpdateHotelService([FromBody] UpdateServiceDTO update)
         {
             var response = repository.UpdateHotelService(update.HotelID, update.Services);
             return StatusCode(response.StatusCode, response);
