@@ -1,6 +1,6 @@
 ﻿namespace GraduationAPI_EPOSHBOOKING.DTO
 {
-    public class HotelRegistrationModel
+    public class HotelRegistrationDTO
     {
         public string HotelName { get; set; }
         public int OpenedIn { get; set; }

@@ -2,11 +2,11 @@
 
 namespace GraduationAPI_EPOSHBOOKING.DTO
 {
-    public class UpdateRoomModel
+    public class AddRoomDTO
     {
-        public int RoomID { get; set; }
+        public int HotelID { get; set; }
         public Room Room { get; set; }
-        public String specialPrice { get; set; }
+        public string SpecialPrices { get; set; }
         public List<IFormFile> Images { get; set; }
         public string Services { get; set; }
     }
