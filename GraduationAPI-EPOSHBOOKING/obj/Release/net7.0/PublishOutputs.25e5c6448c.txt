@@ -8,6 +8,7 @@ D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\Graduati
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\Azure.Core.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\Azure.Identity.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\ClosedXML.dll
+D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\CloudinaryDotNet.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\DocumentFormat.OpenXml.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\EPPlus.dll
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\PubTmp\Out\EPPlus.Interfaces.dll

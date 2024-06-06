@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "rVWALYSHrfUbaitzUC3oWyuOdkDCG1dkVjHFx3fonbsAKpymbz/62klIcEgwyq0FwDHYK8RFCCLgCpqOJAziEQ==",
+  "dgSpecHash": "Z/mQWPkboQiPo0lfZGOjuf6Yo99edxOYsc+4jDfJJSZpca9C1sj9WKQbp6hqyFrjnwOfLkgXSbA+Wu3bDMrNAg==",
   "success": true,
   "projectFilePath": "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\UnitTestingAPI\\UnitTestingAPI.csproj",
   "expectedPackageFiles": [
@@ -8,6 +8,7 @@
     "C:\\Users\\Acer\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\castle.core\\5.1.1\\castle.core.5.1.1.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\closedxml\\0.102.2\\closedxml.0.102.2.nupkg.sha512",
+    "C:\\Users\\Acer\\.nuget\\packages\\cloudinarydotnet\\1.26.2\\cloudinarydotnet.1.26.2.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\coverlet.collector\\3.2.0\\coverlet.collector.3.2.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\documentformat.openxml\\2.16.0\\documentformat.openxml.2.16.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\epplus\\7.0.10\\epplus.7.0.10.nupkg.sha512",

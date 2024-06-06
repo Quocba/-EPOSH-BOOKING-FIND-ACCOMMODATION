@@ -14,10 +14,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
     public class BlogRepository : IBlogRepository
     {
         private readonly DBContext db;
-
-        public BlogRepository(DBContext dbContext)
+        private readonly IWebHostEnvironment environment;
+        public BlogRepository(DBContext dbContext, IWebHostEnvironment environment)
         {
             db = dbContext;
+            this.environment = environment;
         }
 
         public ResponseMessage GetAllBlogs()
@@ -35,7 +36,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 }
                 else
                 {
-                    return new ResponseMessage { Success = false, Message = "No blogs found", StatusCode = (int)HttpStatusCode.NotFound };
+                    return new ResponseMessage { Success = false, Message = "No blogs found",Data = new int[0], StatusCode = (int)HttpStatusCode.NotFound };
                 }
             }
             catch (Exception ex)
@@ -59,7 +60,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 }
                 else
                 {
-                    return new ResponseMessage { Success = false, Message = "Blog not found", StatusCode = (int)HttpStatusCode.NotFound };
+                    return new ResponseMessage { Success = false, Message = "Blog not found",Data = new int[0], StatusCode = (int)HttpStatusCode.NotFound };
                 }
             }
             catch (Exception ex)
@@ -99,17 +100,24 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Account = account
                 };
                 db.blog.Add(addBlog);
-                foreach (var convert in image)
+            foreach (var convert in image)
+            {
+                try
                 {
-                    byte[] imageDate = Ultils.Utils.ConvertIFormFileToByteArray(convert);
+                    string imageUrl = Utils.SaveImage(convert, environment);
                     BlogImage addImage = new BlogImage
                     {
                         Blog = addBlog,
-                        ImageData = imageDate,
+                        Image = imageUrl
                     };
                     db.blogImage.Add(addImage);
                 }
-                db.SaveChanges();
+                catch (Exception ex)
+                {
+                    return new ResponseMessage { Success = false, Message = $"Error saving image: {ex.Message}", StatusCode = (int)HttpStatusCode.InternalServerError };
+                }
+            }
+            db.SaveChanges();
                 var result = new
                 {
                     addBlog.BlogID,
@@ -120,7 +128,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     BlogImages = addBlog.BlogImage.Select(bi => new
                     {
                         bi.ImageID,
-                        bi.ImageData
+                        bi.Image
                     }),
                     Account = new
                     {
