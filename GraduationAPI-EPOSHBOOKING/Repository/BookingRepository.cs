@@ -100,10 +100,12 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var listBooking = db.booking.Include(room => room.Room)
                 .ThenInclude(room => room.RoomImages)
                 .Include(account => account.Account)
+                .ThenInclude(profile => profile.Profile)
                 .Include(voucher => voucher.Voucher)
                 .ToList();
             if (listBooking != null)
             {
+                
                 return new ResponseMessage { Success = true, Data = listBooking, Message = "Successfully", StatusCode= (int)HttpStatusCode.OK };
             }
             return new ResponseMessage { Success = false,Data = listBooking, Message = "No Data", StatusCode=(int)HttpStatusCode.NotFound };
@@ -570,6 +572,33 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }).ToList();
             return new ResponseMessage { Success = true, Data = result, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
 
+        }
+
+        public ResponseMessage Top5Booking()
+        {
+            var listBooking = db.booking
+                                .Include(account => account.Account)
+                                .ThenInclude(profile => profile.Profile)
+                                .Include(room => room.Room)
+                                .ThenInclude(hotel => hotel.Hotel)
+                                .ToList();
+            var top5Booking = listBooking.GroupBy(account => account.Account.AccountID)
+                                         .Select(group => new
+                                         {
+                                             AccountID = group.Key,
+                                             TotalBooking = group.Count(),
+                                             Spending = group.Sum(booking => booking.TotalPrice),
+                                             Account = group.First().Account
+                                         })
+                                         .OrderByDescending(spending => spending.Spending)
+                                         .Select(top => new Top5BookingDTO
+                                         {
+                                             avatar = top.Account.Profile.Avatar,
+                                             fullName = top.Account.Profile.fullName,
+                                             TotalBooking = top.TotalBooking,
+                                             Spending = top.Spending
+                                         }).ToList(); 
+            return new ResponseMessage { Success = true,Data = top5Booking, Message = "Top 5 Booking", StatusCode= (int)HttpStatusCode.OK };
         }
     }
 }
