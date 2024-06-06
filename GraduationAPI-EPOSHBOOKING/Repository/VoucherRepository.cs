@@ -28,7 +28,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Code = voucher.Code,
                     Description = voucher.Description,
                     Discount = voucher.Discount,
-                    QuantityUsed = voucher.QuantityUsed,
+                    QuantityUse = voucher.QuantityUse,
                     VoucherImage = Ultils.Utils.ConvertIFormFileToByteArray(voucherImage),
                     VoucherName = voucher.VoucherName
                 };
@@ -159,7 +159,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         VoucherID = voucher.VoucherID,
                         VoucherName = voucher.VoucherName,
                         Code = voucher.Code,
-                        QuantityUsed = voucher.QuantityUsed,
+                        QuantityUsed = voucher.QuantityUse,
                         Discount = voucher.Discount,
                         Description = voucher.Description
                     };
@@ -207,7 +207,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage SearchVoucherName(string voucherName)
         {
-            var searchResult = db.voucher.Where(voucher => voucherName.Contains(voucherName)).ToList();
+
+            var searchResult = db.voucher.Where(voucher =>voucher.VoucherName.Contains(voucherName)).ToList();
             return new ResponseMessage { Success = true, Data = searchResult, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK};
         }
 
@@ -223,7 +224,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 getVoucher.VoucherImage = Ultils.Utils.ConvertIFormFileToByteArray(image);
                 getVoucher.VoucherName = voucher.VoucherName;
                 getVoucher.Code = voucher.Code;
-                getVoucher.QuantityUsed = voucher.QuantityUsed;
+                getVoucher.QuantityUse = voucher.QuantityUse;
                 getVoucher.Discount = voucher.Discount;
                 getVoucher.Description = voucher.Description;
                 db.voucher.Update(getVoucher);
