@@ -75,7 +75,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetHotelByID(int id)
         {
-            var getHotel = db.hotel.Include(x => x.HotelImages)
+            var getHotel = db.hotel
+                .Include(x => x.HotelImages)
                 .Include(x => x.HotelAddress)
                 .Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices).Include(x => x.feedBacks)
                 .ThenInclude(booking => booking.Booking).ThenInclude(account => account.Account).ThenInclude(profile => profile.Profile)

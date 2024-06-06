@@ -5,11 +5,18 @@ namespace GraduationAPI_EPOSHBOOKING.DataAccess
 {
     public class DBContext : DbContext
     {
-
+        //public DBContext(DbContextOptions<DBContext> options) : base(options)
+        //{
+        //}
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=LAPTOP-3P8D5MG5;Initial Catalog=EposhBookingGraduation;Integrated Security=True;Trust Server Certificate=True");
-            //optionsBuilder.UseSqlServer("Data Source=eposhserver.database.windows.net;Initial Catalog=EPOSHGRADUATION;Persist Security Info=True;User ID=Admintrator;Password=Admin123@;Trust Server Certificate=True");
+
+            //optionsBuilder.UseSqlServer("Data Source=eposhserver.database.windows.net;Initial Catalog=EPOSHBOOKING;User ID=Admintrator;Password=Admin123@;Trust Server Certificate=True");
+            optionsBuilder.UseSqlServer("Data Source=SQL6032.site4now.net;Initial Catalog=db_aa9943_eposhbooking;User Id=db_aa9943_eposhbooking_admin;Password=Admin123@;Trust Server Certificate=True");
+            //optionsBuilder.UseSqlServer("Data Source=srv165150.zhost.vn\\MSSQLSERVER2019;Initial Catalog=EPOSHBOOKING;User ID=Administrator;Password=Admin123@;Trust Server Certificate=True");
+
+            //optionsBuilder.UseSqlServer("Data Source=LAPTOP-3P8D5MG5;Initial Catalog=EposhBookingGraduation;Integrated Security=True;Trust Server Certificate=True");
+
         }
         public DbSet<Account> accounts { get; set; }
         public DbSet<Role> roles { get; set; }

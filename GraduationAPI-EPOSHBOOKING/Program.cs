@@ -30,6 +30,8 @@ builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IReportFeedbackRepository, ReportFeedbackRepository>();
 builder.Services.AddScoped<Utils>();
 builder.Services.AddDbContext<DBContext>();
+//builder.Services.AddDbContext<DBContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("ZhostingConnection")));
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
@@ -47,20 +49,15 @@ builder.Services.AddControllers().AddJsonOptions(options =>
             });
     });
     var app = builder.Build();
-
-  
-
         app.UseDeveloperExceptionPage();
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         });
-    
-    app.UseHttpsRedirection();
-    // Enable CORS
     app.UseCors("AllowAllOrigins");
-
+    app.UseHttpsRedirection();
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllers();

@@ -11,6 +11,7 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("c79ae1ba-db5c-4ba4-a164-5b7e729193b1")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("GraduationAPI-EPOSHBOOKING")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
