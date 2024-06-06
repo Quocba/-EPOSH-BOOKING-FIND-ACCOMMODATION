@@ -121,7 +121,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     .ThenInclude(subService => subService.RoomSubServices)
                     .Include(specialPrice => specialPrice.SpecialPrice)
                     .FirstOrDefault(room => room.RoomID == RoomID);
-                var voucher = db.voucher.FirstOrDefault(voucher => voucher.VoucherID == voucherID && voucher.QuantityUsed > 0);
+                var voucher = db.voucher.FirstOrDefault(voucher => voucher.VoucherID == voucherID && voucher.QuantityUse > 0);
 
                 double unitPrice = room.Price;
                 var specialPrice = room.SpecialPrice
@@ -130,7 +130,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 {
                     unitPrice = specialPrice.Price;
                 };
-                if (voucher != null && voucher.QuantityUsed > 0)
+                if (voucher != null && voucher.QuantityUse > 0)
                 {
                     double totalPrice = unitPrice * booking.NumberOfRoom * (booking.CheckOutDate - booking.CheckInDate).Days;
                     double disscount = totalPrice * (voucher.Discount / 100);
@@ -150,12 +150,12 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         NumberOfRoom = booking.NumberOfRoom,
                         Status = "Wait For Check-In"
                     };
-                    voucher.QuantityUsed = voucher.QuantityUsed - 1;
+                    voucher.QuantityUse = voucher.QuantityUse - 1;
                     room.Quantity = room.Quantity - booking.NumberOfRoom;
                     db.voucher.Update(voucher);
                     db.booking.Add(createBookingWithVoucher);
                     db.room.Update(room);
-                    if (voucher.QuantityUsed == 0)
+                    if (voucher.QuantityUse == 0)
                     {
                         var myvoucher = db.myVoucher
                              .Include(account => account.Account)

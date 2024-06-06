@@ -633,7 +633,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<double>("Discount")
                         .HasColumnType("float");
 
-                    b.Property<int>("QuantityUsed")
+                    b.Property<int>("QuantityUse")
                         .HasColumnType("int");
 
                     b.Property<byte[]>("VoucherImage")

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduationAPI_EPOSHBOOKING.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20240605054843_newDB")]
-    partial class newDB
+    [Migration("20240606063310_changeVoucher")]
+    partial class changeVoucher
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -636,7 +636,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<double>("Discount")
                         .HasColumnType("float");
 
-                    b.Property<int>("QuantityUsed")
+                    b.Property<int>("QuantityUse")
                         .HasColumnType("int");
 
                     b.Property<byte[]>("VoucherImage")

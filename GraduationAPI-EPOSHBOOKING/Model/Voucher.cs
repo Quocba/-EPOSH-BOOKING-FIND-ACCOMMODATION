@@ -13,7 +13,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public string VoucherName { get; set;}
         [MaxLength(6)]
         public String Code { get;set;}
-        public int QuantityUsed { get; set;}
+        public int QuantityUse { get; set;}
         public double Discount { get; set;}
         public string Description { get; set;}
         public ICollection<MyVoucher>? MyVouchers { get; set; }
