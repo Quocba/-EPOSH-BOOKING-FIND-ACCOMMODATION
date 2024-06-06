@@ -6,11 +6,17 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Drawing;
 using ClosedXML.Excel;
+using CloudinaryDotNet;
+using Microsoft.Extensions.Options;
+using CloudinaryDotNet.Actions;
 
 namespace GraduationAPI_EPOSHBOOKING.Ultils
 {
     public class Utils
     {
+       
+      
+
         public static string HashPassword(string password)
         {
             using (MD5 md5 = MD5.Create())
@@ -28,7 +34,41 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
             }
         }
 
-       
+
+        public static string ConvertToBase64(IFormFile image)
+        {
+            using (var ms = new MemoryStream())
+            {
+                image.CopyTo(ms);
+                var fileBytes = ms.ToArray();
+                return Convert.ToBase64String(fileBytes);
+            }
+        }
+
+        public static string SaveImage(IFormFile image, IWebHostEnvironment environment)
+        {
+            if (image == null || environment == null)
+            {
+                throw new ArgumentNullException("Invalid image or environment settings.");
+            }
+
+            string uploadsFolder = Path.Combine(environment.ContentRootPath, "images");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(image.FileName);
+            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                image.CopyTo(fileStream);
+            }
+
+            return "/images/" + uniqueFileName;
+        }
+
         public static String sendMail(String toEmail)
         {
             Random random = new Random();

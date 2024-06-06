@@ -1,12 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "yjdLd3xixTu9yIu4pkXwCLiWxSatfMBt+TNrvSeobLNQSpwijgY7xO1vI7UOCT8Teod+WXah9Egehy7eKGCFUg==",
+  "dgSpecHash": "O58mlPCQkapwLhxWjcYH01VgDEO3QCP8+6CEkzNWRsNaTb0Ej8UOHp3wPCK57gG1MYZCXF39+vzlkE3e1vm1zg==",
   "success": true,
   "projectFilePath": "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\GraduationAPI-EPOSHBOOKING\\GraduationAPI-EPOSHBOOKING.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Acer\\.nuget\\packages\\azure.core\\1.24.0\\azure.core.1.24.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\azure.identity\\1.6.0\\azure.identity.1.6.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\closedxml\\0.102.2\\closedxml.0.102.2.nupkg.sha512",
+    "C:\\Users\\Acer\\.nuget\\packages\\cloudinarydotnet\\1.26.2\\cloudinarydotnet.1.26.2.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\documentformat.openxml\\2.16.0\\documentformat.openxml.2.16.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\epplus\\7.0.10\\epplus.7.0.10.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\epplus.interfaces\\6.1.1\\epplus.interfaces.6.1.1.nupkg.sha512",

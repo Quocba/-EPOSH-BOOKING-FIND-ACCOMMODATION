@@ -596,7 +596,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                              avatar = top.Account.Profile.Avatar,
                                              fullName = top.Account.Profile.fullName,
                                              TotalBooking = top.TotalBooking,
-                                             Spending = top.Spending
+                                             Spending = (int)top.Spending
                                          }).ToList(); 
             return new ResponseMessage { Success = true,Data = top5Booking, Message = "Top 5 Booking", StatusCode= (int)HttpStatusCode.OK };
         }

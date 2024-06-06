@@ -41,9 +41,9 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             return StatusCode(response.StatusCode, response);
         }
         [HttpPost("create-blog")]
-        public IActionResult CreateBlog([FromForm]Blog blog, [FromForm]int accountID, [FromForm]List<IFormFile> image)
+        public IActionResult CreateBlog([FromForm] Blog blog, [FromForm] int accountID, [FromForm] List<IFormFile> image)
         {
-            var response = _blogRepository.CreateBlog(blog, accountID, image); 
+            var response = _blogRepository.CreateBlog(blog, accountID, image);
             return StatusCode(response.StatusCode, response);
         }
         [HttpDelete("delete-blog")]
