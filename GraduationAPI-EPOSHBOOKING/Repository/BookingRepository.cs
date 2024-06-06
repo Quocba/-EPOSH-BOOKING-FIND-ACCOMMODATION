@@ -522,7 +522,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 "Jan", "Feb", "Mar", "Apr", "May", "Jun",
                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
             };
-            var result = QuantityBookingWithMonth.Select(qb => new BookingData
+            var result = QuantityBookingWithMonth.Select(qb => new BookingDataDTO
             {
                 Name = monthName[qb.Key - 1],
                 Data = qb.Value
@@ -563,7 +563,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 "Jan", "Feb", "Mar", "Apr", "May", "Jun",
                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
             };
-            var result = QuantityBookingWithMonth.Select(qb => new BookingData
+            var result = QuantityBookingWithMonth.Select(qb => new BookingDataDTO
             {
                 Name = monthName[qb.Key - 1],
                 Data = qb.Value

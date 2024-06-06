@@ -657,7 +657,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 }
             }
 
-            var hotelStarCounts = hotelStandar.Select(h => new HotelStandar
+            var hotelStarCounts = hotelStandar.Select(h => new HotelStandarDTO
             {
                 Name = $"Hotel {h.Key}",
                 Value = h.Value
