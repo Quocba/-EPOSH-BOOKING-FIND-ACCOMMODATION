@@ -49,20 +49,15 @@ builder.Services.AddControllers().AddJsonOptions(options =>
             });
     });
     var app = builder.Build();
-
-  
-
         app.UseDeveloperExceptionPage();
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         });
-    
-    app.UseHttpsRedirection();
-    // Enable CORS
     app.UseCors("AllowAllOrigins");
-
+    app.UseHttpsRedirection();
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllers();

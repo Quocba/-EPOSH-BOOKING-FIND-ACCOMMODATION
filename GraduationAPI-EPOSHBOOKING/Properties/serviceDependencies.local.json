@@ -3,10 +3,6 @@
     "apis1": {
       "ignored": "True",
       "type": "apis"
-    },
-    "secrets1": {
-      "type": "secrets.user",
-      "dynamicId": null
     }
   }
 }

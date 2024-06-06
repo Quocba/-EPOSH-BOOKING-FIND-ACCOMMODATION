@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <parameters>
-  <parameter name="IIS Web Application Name" description="" value="API-EPOSHBOOKING" tags="IisApp">
+  <parameter name="IIS Web Application Name" description="" value="eposhhotel-001-site1" tags="IisApp">
     <parameterEntry kind="ProviderPath" scope="IisApp" match="^D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\GraduationAPI-EPOSHBOOKING\\obj\\Release\\net7\.0\\PubTmp\\Out\\$" />
   </parameter>
 </parameters>
