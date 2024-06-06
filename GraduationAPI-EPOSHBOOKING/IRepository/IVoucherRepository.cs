@@ -12,5 +12,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage CreateVoucher(Voucher voucher, IFormFile voucherImage);
         public ResponseMessage DeleteVoucher(int voucherId);
         public ResponseMessage UpdateVoucher(int voucherID, Voucher voucher, IFormFile image);
+        public ResponseMessage SearchVoucherName(String  voucherName);
     }
 }

@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>GraduationAPI_EPOSHBOOKING</RootNamespace>
+    <UserSecretsId>c79ae1ba-db5c-4ba4-a164-5b7e729193b1</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +23,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="SkiaSharp" Version="2.88.8" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
@@ -29,7 +31,6 @@
     <Folder Include="Controllers\Admin\" />
     <Folder Include="Controllers\Customer\" />
     <Folder Include="Controllers\Partner\" />
-    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
