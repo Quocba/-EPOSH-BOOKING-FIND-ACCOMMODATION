@@ -108,8 +108,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<int>("BlogID")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("ImageData")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ImageID");
 
@@ -415,8 +416,8 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte[]>("Avatar")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("Avatar")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("BirthDay")
                         .HasColumnType("datetime2");

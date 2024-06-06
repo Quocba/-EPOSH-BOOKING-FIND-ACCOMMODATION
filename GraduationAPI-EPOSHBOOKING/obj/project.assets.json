@@ -68,6 +68,24 @@
           }
         }
       },
+      "CloudinaryDotNet/1.26.2": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.3",
+          "System.Net.Http": "4.3.4",
+          "System.Text.RegularExpressions": "4.3.1"
+        },
+        "compile": {
+          "lib/netstandard2.0/CloudinaryDotNet.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/CloudinaryDotNet.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "DocumentFormat.OpenXml/2.16.0": {
         "type": "package",
         "dependencies": {
@@ -2761,6 +2779,25 @@
         "lib/netstandard2.1/ClosedXML.dll",
         "lib/netstandard2.1/ClosedXML.xml",
         "nuget-logo.png"
+      ]
+    },
+    "CloudinaryDotNet/1.26.2": {
+      "sha512": "JUDOUKa7T+h0nmMhBdBxCkCldN4/DIZLOlh5p30KrcBX6Spral6vxTWhzk6OH2pGd8MGL5R379EsK7tJr/IQpw==",
+      "type": "package",
+      "path": "cloudinarydotnet/1.26.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "CloudinaryIcon.png",
+        "README.md",
+        "cloudinarydotnet.1.26.2.nupkg.sha512",
+        "cloudinarydotnet.nuspec",
+        "lib/net452/CloudinaryDotNet.dll",
+        "lib/net452/CloudinaryDotNet.xml",
+        "lib/netstandard1.3/CloudinaryDotNet.dll",
+        "lib/netstandard1.3/CloudinaryDotNet.xml",
+        "lib/netstandard2.0/CloudinaryDotNet.dll",
+        "lib/netstandard2.0/CloudinaryDotNet.xml"
       ]
     },
     "DocumentFormat.OpenXml/2.16.0": {
@@ -8578,6 +8615,7 @@
   "projectFileDependencyGroups": {
     "net7.0": [
       "ClosedXML >= 0.102.2",
+      "CloudinaryDotNet >= 1.26.2",
       "EPPlus >= 7.0.10",
       "Microsoft.AspNetCore.OpenApi >= 7.0.9",
       "Microsoft.EntityFrameworkCore >= 7.0.10",
@@ -8636,6 +8674,10 @@
           "ClosedXML": {
             "target": "Package",
             "version": "[0.102.2, )"
+          },
+          "CloudinaryDotNet": {
+            "target": "Package",
+            "version": "[1.26.2, )"
           },
           "EPPlus": {
             "target": "Package",

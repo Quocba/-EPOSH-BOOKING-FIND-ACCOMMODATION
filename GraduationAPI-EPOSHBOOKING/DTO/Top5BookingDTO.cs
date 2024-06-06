@@ -4,7 +4,7 @@ namespace GraduationAPI_EPOSHBOOKING.DTO
 {
     public class Top5BookingDTO
     {
-        public byte[] avatar { get; set; }
+        public String avatar { get; set; }
         public String fullName { get; set; }
         public int TotalBooking { get; set; }
         public int Spending { get; set; }

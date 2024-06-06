@@ -82,6 +82,19 @@
           }
         }
       },
+      "CloudinaryDotNet/1.26.2": {
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.3",
+          "System.Net.Http": "4.3.4",
+          "System.Text.RegularExpressions": "4.3.1"
+        },
+        "runtime": {
+          "lib/netstandard2.0/CloudinaryDotNet.dll": {
+            "assemblyVersion": "1.26.2.0",
+            "fileVersion": "1.26.2.0"
+          }
+        }
+      },
       "coverlet.collector/3.2.0": {},
       "DocumentFormat.OpenXml/2.16.0": {
         "dependencies": {
@@ -1488,6 +1501,7 @@
       "GraduationAPI-EPOSHBOOKING/1.0.0": {
         "dependencies": {
           "ClosedXML": "0.102.2",
+          "CloudinaryDotNet": "1.26.2",
           "EPPlus": "7.0.10",
           "Microsoft.AspNetCore.OpenApi": "7.0.9",
           "Microsoft.EntityFrameworkCore": "7.0.10",
@@ -1535,6 +1549,13 @@
       "sha512": "sha512-nsHmfPNPtWpr6vair857sQiN11OaFn80oiN2GIbTB1vDqnw9jhNMtlxS0/iYP/E+YGG5zLX2N6xeznuBuvezSQ==",
       "path": "closedxml/0.102.2",
       "hashPath": "closedxml.0.102.2.nupkg.sha512"
+    },
+    "CloudinaryDotNet/1.26.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-JUDOUKa7T+h0nmMhBdBxCkCldN4/DIZLOlh5p30KrcBX6Spral6vxTWhzk6OH2pGd8MGL5R379EsK7tJr/IQpw==",
+      "path": "cloudinarydotnet/1.26.2",
+      "hashPath": "cloudinarydotnet.1.26.2.nupkg.sha512"
     },
     "coverlet.collector/3.2.0": {
       "type": "package",
