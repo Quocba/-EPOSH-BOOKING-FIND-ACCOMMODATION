@@ -104,11 +104,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 try
                 {
-                    string imageUrl = Utils.SaveImage(convert, environment);
+
                     BlogImage addImage = new BlogImage
                     {
                         Blog = addBlog,
-                        Image = imageUrl
+                        Image = Ultils.Utils.SaveImage(convert, environment)
                     };
                     db.blogImage.Add(addImage);
                 }
