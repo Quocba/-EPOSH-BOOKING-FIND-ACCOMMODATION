@@ -10,7 +10,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ImageID { get; set; }
         public String Title { get; set; }
-        public byte[]? ImageData { get; set; }
+        public String Image { get; set; }
         
         [ForeignKey("HotelID")]
         public Hotel Hotel { get; set; }

@@ -11,9 +11,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
     public class RoomRepository : IRoomRepository
     {
         private readonly DBContext db;
-        public RoomRepository(DBContext _db)
+        private readonly IWebHostEnvironment environment;
+        public RoomRepository(DBContext _db, IWebHostEnvironment environment)
         {
             this.db = _db;
+            this.environment = environment;
         }
 
         public ResponseMessage GetRoomDetail(int roomID)
@@ -81,10 +83,10 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
             foreach (var image in images)
             {
-                byte[] ImageData = Ultils.Utils.ConvertIFormFileToByteArray(image);
+                
                 RoomImage addImage = new RoomImage
                 {
-                    Image = ImageData,
+                    Image = Ultils.Utils.SaveImage(image,environment),
                     Room = createRoom
                 };
                 db.roomImage.Add(addImage);
@@ -213,7 +215,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     byte[]imgData = Ultils.Utils.ConvertIFormFileToByteArray(img);
                     RoomImage updateNewImage = new RoomImage
                     {
-                        Image = imgData,
+                        Image = Ultils.Utils.SaveImage(img,environment),
                         Room = getRoom
                     };
                     db.roomImage.Add(updateNewImage);

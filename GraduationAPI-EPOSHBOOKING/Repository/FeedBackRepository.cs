@@ -11,16 +11,18 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
     public class FeedBackRepository : IFeedbackRepository
     {
         private readonly DBContext db;
-        public FeedBackRepository(DBContext _db)
+        private readonly IWebHostEnvironment environment;
+        public FeedBackRepository(DBContext _db, IWebHostEnvironment environment)
         {
             this.db = _db;
+            this.environment = environment;
         }
         public ResponseMessage CreateFeedBack(int BookingID, FeedBack feedBack, IFormFile Image)
         {
             try
             {
 
-                byte[] feedBackImage = Ultils.Utils.ConvertIFormFileToByteArray(Image);
+                
                 var booking = db.booking.Include(room => room.Room).ThenInclude(hotel => hotel.Hotel).Include(account => account.Account)
                     .FirstOrDefault(booking => booking.BookingID == BookingID);
                 FeedBack addFeedBack = new FeedBack
@@ -30,7 +32,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Rating = feedBack.Rating,
                     Description = feedBack.Description,
                     Hotel = booking.Room.Hotel,
-                    Image = feedBackImage,
+                    Image = Ultils.Utils.SaveImage(Image,environment),
                     isDeleted = false
                 };
 

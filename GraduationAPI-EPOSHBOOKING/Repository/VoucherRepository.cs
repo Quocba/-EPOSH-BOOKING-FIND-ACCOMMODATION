@@ -12,10 +12,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
     {
         private readonly DBContext db;
-
-        public VoucherRepository(DBContext _db)
+        private readonly IWebHostEnvironment environment;
+        public VoucherRepository(DBContext _db, IWebHostEnvironment environment)
         {
             this.db = _db;
+            this.environment = environment;
         }
 
         public ResponseMessage CreateVoucher(Voucher voucher,IFormFile voucherImage)
@@ -29,7 +30,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Description = voucher.Description,
                     Discount = voucher.Discount,
                     QuantityUse = voucher.QuantityUse,
-                    VoucherImage = Ultils.Utils.ConvertIFormFileToByteArray(voucherImage),
+                    VoucherImage = Ultils.Utils.SaveImage(voucherImage,environment),
                     VoucherName = voucher.VoucherName
                 };
                 db.voucher.Add(createVouvhcer);
@@ -221,7 +222,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
             else
             {
-                getVoucher.VoucherImage = Ultils.Utils.ConvertIFormFileToByteArray(image);
+                getVoucher.VoucherImage = Ultils.Utils.SaveImage(image,environment);
                 getVoucher.VoucherName = voucher.VoucherName;
                 getVoucher.Code = voucher.Code;
                 getVoucher.QuantityUse = voucher.QuantityUse;
