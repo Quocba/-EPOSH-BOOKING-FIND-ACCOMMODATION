@@ -9,7 +9,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int VoucherID { get; set; }
-        public byte[]? VoucherImage { get; set; }
+        public String VoucherImage { get; set; }
         public string VoucherName { get; set;}
         [MaxLength(6)]
         public String Code { get;set;}

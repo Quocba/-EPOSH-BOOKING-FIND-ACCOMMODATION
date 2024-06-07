@@ -225,8 +225,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<int?>("HotelID")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("Image")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Rating")
                         .HasColumnType("int");
@@ -266,8 +267,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<int>("HotelStandar")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("MainImage")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("MainImage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -329,8 +331,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<int>("HotelID")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("ImageData")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -529,9 +532,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ImageID"));
 
-                    b.Property<byte[]>("Image")
+                    b.Property<string>("Image")
                         .IsRequired()
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RoomID")
                         .HasColumnType("int");
@@ -637,8 +640,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Property<int>("QuantityUse")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("VoucherImage")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("VoucherImage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("VoucherName")
                         .IsRequired()
