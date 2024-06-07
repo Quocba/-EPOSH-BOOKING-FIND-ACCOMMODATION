@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GraduationAPI_EPOSHBOOKING.Migrations
 {
     /// <inheritdoc />
-    public partial class createNewDatabase : Migration
+    public partial class createDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
