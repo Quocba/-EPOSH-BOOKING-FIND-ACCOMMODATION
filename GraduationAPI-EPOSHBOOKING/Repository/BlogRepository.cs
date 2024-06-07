@@ -30,14 +30,9 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     .Include(b => b.BlogImage)
                     .ToList();
 
-                if (blogs != null && blogs.Any())
-                {
-                    return new ResponseMessage { Success = true, Message = "Successfully", Data = blogs, StatusCode = (int)HttpStatusCode.OK };
-                }
-                else
-                {
-                    return new ResponseMessage { Success = false, Message = "No blogs found",Data = new int[0], StatusCode = (int)HttpStatusCode.NotFound };
-                }
+             return new ResponseMessage { Success = true, Message = "Successfully", Data = blogs, StatusCode = (int)HttpStatusCode.OK };
+
+
             }
             catch (Exception ex)
             {
