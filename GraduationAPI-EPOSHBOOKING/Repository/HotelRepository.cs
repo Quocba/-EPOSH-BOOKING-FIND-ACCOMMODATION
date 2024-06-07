@@ -20,10 +20,12 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
     {
         private readonly DBContext db;
         private readonly Utils ultils;
-        public HotelRepository(DBContext _db, Utils _ultils)
+        private readonly IWebHostEnvironment environment;
+        public HotelRepository(DBContext _db, Utils _ultils, IWebHostEnvironment environment)
         {
             this.db = _db;
             this.ultils = _ultils;
+            this.environment = environment;
         }
 
         public ResponseMessage GetAllHotel()
@@ -337,7 +339,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 Name = hotelName,
                 OpenedIn = openedIn,
-                MainImage = Ultils.Utils.ConvertIFormFileToByteArray(mainImage),
+                MainImage = Utils.SaveImage(mainImage,environment),
                 Description = description,
                 HotelAddress = addAddress,
                 Status = false,
@@ -379,7 +381,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 var addImage = new HotelImage
                 {
-                    ImageData = Ultils.Utils.ConvertIFormFileToByteArray(img),
+                    Image = Ultils.Utils.SaveImage(img, environment),
                     Hotel = addHotel,
                     Title = "Hotel View"
                 };
@@ -411,7 +413,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 getHotel.HotelAddress.latitude = latitude;
                 getHotel.HotelAddress.longitude = longitude;
                 getHotel.HotelAddress.City = city;
-                getHotel.MainImage = Ultils.Utils.ConvertIFormFileToByteArray(mainImage);
+                getHotel.MainImage = Utils.SaveImage(mainImage, environment);
                 db.hotel.Update(getHotel);
                 db.SaveChanges();
                 return new ResponseMessage { Success = true, Data = getHotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
@@ -510,7 +512,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 HotelImage addImage = new HotelImage
                 {
                     Title = title,
-                    ImageData = Ultils.Utils.ConvertIFormFileToByteArray(images)
+                    Image = Ultils.Utils.SaveImage(images,environment)
                 };
                 db.hotelImage.Add(addImage);
                 db.SaveChanges();
