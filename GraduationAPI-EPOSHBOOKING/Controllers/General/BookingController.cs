@@ -64,7 +64,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             }
 
         }
-        [HttpGet("export-all-bookings")]
+        [HttpGet("export-all-bookings-total-revenue")]
         public IActionResult ExportAllBookings()
         {
             var response = repository.ExportAllBookings();
@@ -117,6 +117,13 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         public IActionResult Top5Booking()
         {
             var response = repository.Top5Booking();
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("get-booking-hotel")]
+        public IActionResult GetBookingByHotel([FromQuery]int hotelID)
+        {
+            var response = repository.GetBookingByHotel(hotelID);
             return StatusCode(response.StatusCode, response);
         }
     }
