@@ -26,11 +26,33 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             try
             {
                 var blogs = db.blog
+                    .Include(account => account.Account)
+                    .ThenInclude(profile => profile.Profile)
                     .Include(b => b.Comment)
                     .Include(b => b.BlogImage)
                     .ToList();
-
-             return new ResponseMessage { Success = true, Message = "Successfully", Data = blogs, StatusCode = (int)HttpStatusCode.OK };
+                var result = blogs.Select(blog => new
+                {
+                    BlogID = blog.BlogID,
+                    Title = blog.Title,
+                    Description = blog.Description,
+                    Location = blog.Location,
+                    PublishDate = blog.PublishDate,
+                    ReasonReject = blog.ReasonReject,
+                    Status = blog.Status,
+                    BlogImages = blog.BlogImage.Select(bi => new
+                    {
+                        bi.ImageID,
+                        bi.Image
+                    }),
+                    Account = new
+                    {
+                        blog.Account.Profile.fullName,
+                        blog.Account.Email
+                    }
+                   
+                });
+             return new ResponseMessage { Success = true, Message = "Successfully", Data = result, StatusCode = (int)HttpStatusCode.OK };
 
 
             }
@@ -76,67 +98,112 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = false, Data = getBlog, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
 
-            public ResponseMessage CreateBlog(Blog blog, int accountId, List<IFormFile> image)
+        public ResponseMessage CreateBlog(Blog blog, int accountId, List<IFormFile> images)
+        {
+            var account = db.accounts
+                            .Include(profile => profile.Profile)
+                            .FirstOrDefault(a => a.AccountID == accountId);
+
+            if (account == null)
             {
-                var account = db.accounts
-                                .Include(profile => profile.Profile)
-                                .FirstOrDefault(a => a.AccountID == accountId);
-                if (account == null)
+                return new ResponseMessage
                 {
-                    return new ResponseMessage { Success = false, Data = accountId, Message = "Account not found", StatusCode = (int)HttpStatusCode.NotFound };
-                }
-                Blog addBlog = new Blog
-                {
-                    Title = blog.Title,
-                    Description = blog.Description,
-                    Location = blog.Location,
-                    Status = "Awaiting Approval",
-                    PublishDate = DateTime.Now,
-                    Account = account
+                    Success = false,
+                    Data = accountId,
+                    Message = "Account not found",
+                    StatusCode = (int)HttpStatusCode.NotFound
                 };
-                db.blog.Add(addBlog);
-            foreach (var convert in image)
+            }
+
+            if (images == null || images.Count == 0)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Message = "No images provided",
+                    StatusCode = (int)HttpStatusCode.BadRequest
+                };
+            }
+
+            Blog addBlog = new Blog
+            {
+                Title = blog.Title,
+                Description = blog.Description,
+                Location = blog.Location,
+                Status = "Awaiting Approval",
+                PublishDate = DateTime.Now,
+                Account = account
+            };
+
+            db.blog.Add(addBlog);
+
+            foreach (var image in images)
             {
                 try
                 {
-
-                    BlogImage addImage = new BlogImage
+                    if (image != null && environment != null)
                     {
-                        Blog = addBlog,
-                        Image = Ultils.Utils.SaveImage(convert, environment)
-                    };
-                    db.blogImage.Add(addImage);
+                        BlogImage addImage = new BlogImage
+                        {
+                            Blog = addBlog,
+                            Image = Ultils.Utils.SaveImage(image, environment)
+                        };
+                        db.blogImage.Add(addImage);
+                    }
+                    else
+                    {
+                        return new ResponseMessage
+                        {
+                            Success = false,
+                            Message = "Invalid image or environment settings",
+                            StatusCode = (int)HttpStatusCode.InternalServerError
+                        };
+                    }
                 }
                 catch (Exception ex)
                 {
-                    return new ResponseMessage { Success = false, Message = $"Error saving image: {ex.Message}", StatusCode = (int)HttpStatusCode.InternalServerError };
+                    return new ResponseMessage
+                    {
+                        Success = false,
+                        Message = $"Exception: {ex.Message}",
+                        StatusCode = (int)HttpStatusCode.InternalServerError
+                    };
                 }
             }
-            db.SaveChanges();
-                var result = new
-                {
-                    addBlog.BlogID,
-                    addBlog.Title,
-                    addBlog.Description,
-                    addBlog.Location,
-                    addBlog.Status,
-                    BlogImages = addBlog.BlogImage.Select(bi => new
-                    {
-                        bi.ImageID,
-                        bi.Image
-                    }),
-                    Account = new
-                    {
-                        addBlog.Account.AccountID,
-                        addBlog.Account.Email,
-                        addBlog.Account.Phone,
-                        addBlog.Account.Profile.fullName
-                    }
-                };
-                return new ResponseMessage { Success = true, Data = result, Message = "Blog created successfully", StatusCode = (int)HttpStatusCode.OK };
-            }
 
-        public ResponseMessage CommentBlog(int blogId, int accountId, string description)
+            db.SaveChanges();
+
+            var result = new
+            {
+                addBlog.BlogID,
+                addBlog.Title,
+                addBlog.Description,
+                addBlog.Location,
+                addBlog.Status,
+                BlogImages = addBlog.BlogImage.Select(bi => new
+                {
+                    bi.ImageID,
+                    bi.Image
+                }),
+                Account = new
+                {
+                    addBlog.Account.AccountID,
+                    addBlog.Account.Email,
+                    addBlog.Account.Phone,
+                    addBlog.Account.Profile.fullName
+                }
+            };
+
+            return new ResponseMessage
+            {
+                Success = true,
+                Data = result,
+                Message = "Blog created successfully",
+                StatusCode = (int)HttpStatusCode.OK
+            };
+        }
+
+            public ResponseMessage CommentBlog(int blogId, int accountId, string description)
         {
             var blog = db.blog
                 .FirstOrDefault(b => b.BlogID == blogId);
