@@ -66,7 +66,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpPut("update-voucher")]
-        public IActionResult UpdateVoucher([FromForm]int voucherID, [FromForm]Voucher voucher ,[FromForm]IFormFile image)
+        public IActionResult UpdateVoucher([FromForm]int voucherID, [FromForm]Voucher voucher ,[FromForm]IFormFile? image)
         {
             var response = _voucherRepository.UpdateVoucher(voucherID, voucher , image);
             return StatusCode(response.StatusCode, response);

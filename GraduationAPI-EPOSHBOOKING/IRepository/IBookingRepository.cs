@@ -21,5 +21,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage CountBookingSystem();
         public ResponseMessage CountBookingHotel(int hotelID);
         public ResponseMessage Top5Booking();
+        public ResponseMessage GetBookingByHotel(int hotelID);
     }
 }

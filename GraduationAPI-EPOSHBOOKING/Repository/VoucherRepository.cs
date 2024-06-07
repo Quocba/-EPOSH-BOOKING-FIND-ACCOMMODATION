@@ -222,6 +222,10 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
             else
             {
+                if (image != null)
+                {
+                    getVoucher.VoucherImage = Ultils.Utils.SaveImage(image, environment);
+                }
                 getVoucher.VoucherImage = Ultils.Utils.SaveImage(image,environment);
                 getVoucher.VoucherName = voucher.VoucherName;
                 getVoucher.Code = voucher.Code;
