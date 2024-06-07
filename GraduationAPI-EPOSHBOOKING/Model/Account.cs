@@ -12,6 +12,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int AccountID { get; set; }
         public String? Email { get; set; }
+       
         public String? Password { get; set; }
         [MaxLength(10)]
         public String? Phone {  get; set; }

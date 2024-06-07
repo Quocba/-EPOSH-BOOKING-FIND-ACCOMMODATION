@@ -12,10 +12,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
     {
         private readonly DBContext db;
-
-        public VoucherRepository(DBContext _db)
+        private readonly IWebHostEnvironment environment;
+        public VoucherRepository(DBContext _db, IWebHostEnvironment environment)
         {
             this.db = _db;
+            this.environment = environment;
         }
 
         public ResponseMessage CreateVoucher(Voucher voucher,IFormFile voucherImage)
@@ -28,8 +29,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Code = voucher.Code,
                     Description = voucher.Description,
                     Discount = voucher.Discount,
-                    QuantityUsed = voucher.QuantityUsed,
-                    VoucherImage = Ultils.Utils.ConvertIFormFileToByteArray(voucherImage),
+                    QuantityUse = voucher.QuantityUse,
+                    VoucherImage = Ultils.Utils.SaveImage(voucherImage,environment),
                     VoucherName = voucher.VoucherName
                 };
                 db.voucher.Add(createVouvhcer);
@@ -159,7 +160,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         VoucherID = voucher.VoucherID,
                         VoucherName = voucher.VoucherName,
                         Code = voucher.Code,
-                        QuantityUsed = voucher.QuantityUsed,
+                        QuantityUsed = voucher.QuantityUse,
                         Discount = voucher.Discount,
                         Description = voucher.Description
                     };
@@ -207,7 +208,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage SearchVoucherName(string voucherName)
         {
-            var searchResult = db.voucher.Where(voucher => voucher.VoucherName.Contains(voucherName)).ToList();
+
+            var searchResult = db.voucher.Where(voucher =>voucher.VoucherName.Contains(voucherName)).ToList();
             return new ResponseMessage { Success = true, Data = searchResult, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK};
         }
 
@@ -220,10 +222,10 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
             else
             {
-                getVoucher.VoucherImage = Ultils.Utils.ConvertIFormFileToByteArray(image);
+                getVoucher.VoucherImage = Ultils.Utils.SaveImage(image,environment);
                 getVoucher.VoucherName = voucher.VoucherName;
                 getVoucher.Code = voucher.Code;
-                getVoucher.QuantityUsed = voucher.QuantityUsed;
+                getVoucher.QuantityUse = voucher.QuantityUse;
                 getVoucher.Discount = voucher.Discount;
                 getVoucher.Description = voucher.Description;
                 db.voucher.Update(getVoucher);

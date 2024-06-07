@@ -72,7 +72,7 @@ namespace UnitTestingAPI
                 TypeOfBed = "King",
                 RoomImages = new List<RoomImage>
         {
-            new RoomImage { ImageID = 1, Image = new byte[] { 0x20, 0x20 } }
+            new RoomImage { ImageID = 1, Image ="/images/1cd30da4-9dab-4f69-8edd-98e26fa01878_meme.jpg"}
         },
                 RoomService = new List<RoomService>
         {
@@ -103,7 +103,7 @@ namespace UnitTestingAPI
                 TypeOfBed = "Queen",
                 RoomImages = new List<RoomImage>
         {
-            new RoomImage { ImageID = 2, Image = new byte[] { 0x21, 0x21 } }
+            new RoomImage { ImageID = 2, Image = "/images/1cd30da4-9dab-4f69-8edd-98e26fa01878_meme.jpg" }
         },
                 RoomService = new List<RoomService>
         {
@@ -148,7 +148,7 @@ namespace UnitTestingAPI
                     TypeOfBed = "King",
                     RoomImages = new List<RoomImage>
                     {
-                        new RoomImage { ImageID = 3, Image = new byte[] { 0x22, 0x22 } }
+                        new RoomImage { ImageID = 3, Image = "/images/1cd30da4-9dab-4f69-8edd-98e26fa01878_meme.jpg" }
                     },
                     RoomService = new List<RoomService>
                     {
