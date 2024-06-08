@@ -278,16 +278,78 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetByRating(int rating)
         {
-            var listHotel = db.hotel.Include(x => x.HotelImages).Include(x => x.HotelAddress).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices)
-                .Include(x => x.feedBacks).Include(x => x.rooms).ThenInclude(x => x.SpecialPrice)
-                .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved")).ToList();
-            var filterHotelWithRating = listHotel.OrderByDescending(hotel => hotel.HotelStandar).Select(hotel => new
-            {
-                Hotel = hotel,
-                AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(fb => fb.Rating), 2) : 0
-            });
+            var currentDate = DateTime.Now;
+            var listHotel = db.hotel.Include(x => x.HotelImages)
+                                    .Include(x => x.HotelAddress)
+                                    .Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices)
+                                    .Include(x => x.feedBacks)
+                                    .Include(x => x.rooms).ThenInclude(x => x.SpecialPrice)
+                                    .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved"))
+                                    .ToList();
 
-            var getHotelWithRating = filterHotelWithRating.Where(rt => rt.AvgRating <= rating && rating <= 5).OrderByDescending(rt => rt.AvgRating).ToList();
+            // Tính trung bình đánh giá cho từng khách sạn và lọc theo đánh giá
+            var filterHotelWithRating = listHotel.OrderByDescending(hotel => hotel.HotelStandar)
+                                                  .Select(hotel => new
+                                                  {
+                                                      HotelID = hotel.HotelID,
+                                                      Name = hotel.Name,
+                                                      Description = hotel.Description,
+                                                      HotelAddress = new
+                                                      {
+                                                          hotel.HotelAddress.AddressID,
+                                                          hotel.HotelAddress.Address,
+                                                          hotel.HotelAddress.City,
+                                                          hotel.HotelAddress.latitude,
+                                                          hotel.HotelAddress.longitude
+                                                      },
+                                                      HotelStandar = hotel.HotelStandar,
+                                                      MainImage = hotel.MainImage,
+                                                      OpenedIn = hotel.OpenedIn,
+                                                      HotelImages = hotel.HotelImages.Select(img => new
+                                                      {
+                                                          img.ImageID,
+                                                          img.Image
+                                                       
+                                                      }).ToList(),
+                                                      HotelServices = hotel.HotelServices.Select(service => new
+                                                      {
+                                                          service.ServiceID,
+                                                          service.Type,
+                                                          HotelSubServices = service.HotelSubServices.Select(subService => new
+                                                          {
+                                                              subService.SubServiceID,
+                                                              subService.SubServiceName
+                                                          }).ToList()
+                                                      }).ToList(),
+                                                      Rooms = hotel.rooms.Select(room =>
+                                                      {
+                                                          var specialPrice = room.SpecialPrice
+                                                              .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                                                          return new
+                                                          {
+                                                              RoomID = room.RoomID,
+                                                              TypeOfRoom = room.TypeOfRoom,
+                                                              NumberCapacity = room.NumberCapacity,
+                                                              Price = specialPrice?.Price ?? room.Price,
+                                                              Quantity = room.Quantity,
+                                                              SizeOfRoom = room.SizeOfRoom,
+                                                              TypeOfBed = room.TypeOfBed,
+                                                              SpecialPrice = room.SpecialPrice.Select(sp => new
+                                                              {
+                                                                  sp.SpecialPriceID,
+                                                                  sp.StartDate,
+                                                                  sp.EndDate,
+                                                                  sp.Price
+                                                              }).ToList()
+                                                          };
+                                                      }).ToList(),
+                                                      AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(fb => fb.Rating), 2) : 0
+                                                  });
+
+            var getHotelWithRating = filterHotelWithRating.Where(rt => rt.AvgRating <= rating && rating <= 5)
+                                                          .OrderByDescending(rt => rt.AvgRating)
+                                                          .ToList();
+
             if (getHotelWithRating.Any())
             {
                 return new ResponseMessage { Success = true, Data = getHotelWithRating, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
@@ -298,42 +360,104 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
+
         public ResponseMessage GetByService(List<String> services)
         {
             var currentDate = DateTime.Now;
             if (services.Any())
             {
-                var listHotel = db.hotel.Include(x => x.HotelImages).Include(x => x.HotelAddress).Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices)
-                .Include(x => x.feedBacks).Include(x => x.rooms).ThenInclude(special => special.SpecialPrice)
-                .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved")).ToList();
+                var listHotel = db.hotel.Include(x => x.HotelImages)
+                                        .Include(x => x.HotelAddress)
+                                        .Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices)
+                                        .Include(x => x.feedBacks)
+                                        .Include(x => x.rooms).ThenInclude(special => special.SpecialPrice)
+                                        .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved"))
+                                        .ToList();
 
-                var listHotelWithService = listHotel.Where(hotel => hotel.HotelServices.Any(service => services.Contains(service.Type))).OrderByDescending(hotel => hotel.HotelStandar).ToList();
+              
+                var listHotelWithService = listHotel.Where(hotel => hotel.HotelServices.Any(service => services.Contains(service.Type)))
+                                                    .OrderByDescending(hotel => hotel.HotelStandar)
+                                                    .ToList();
+
+                
                 var result = listHotelWithService.Select(hotel => new
                 {
-                    HotelId = hotel,
-                    RoomSpecialPrice = hotel.rooms
-                    .Where(room => room.SpecialPrice.Any(sp => sp.StartDate <= currentDate && sp.EndDate >= currentDate))
-                    .Select(room => new
+                    HotelID = hotel.HotelID,
+                    Name = hotel.Name,
+                    Description = hotel.Description,
+                    HotelAddress = new
                     {
-                        room.RoomID,
-                        Price = room.SpecialPrice
-                        .Where(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate)
-                        .Select(sp => sp.Price)
-                        .FirstOrDefault()
-
+                        hotel.HotelAddress.AddressID,
+                        hotel.HotelAddress.Address,
+                        hotel.HotelAddress.City,
+                        hotel.HotelAddress.latitude,
+                        hotel.HotelAddress.longitude
+                    },
+                    HotelStandar = hotel.HotelStandar,
+                    MainImage = hotel.MainImage,
+                    OpenedIn = hotel.OpenedIn,
+                    HotelImages = hotel.HotelImages.Select(img => new
+                    {
+                        img.ImageID,
+                        img.Image,
+                       
                     }).ToList(),
+                    HotelServices = hotel.HotelServices.Select(service => new
+                    {
+                        service.ServiceID,
+                        service.Type,
+                        HotelSubServices = service.HotelSubServices.Select(subService => new
+                        {
+                            subService.SubServiceID,
+                            subService.SubServiceName
+                        }).ToList()
+                    }).ToList(),
+                    FeedBacks = hotel.feedBacks.Select(feedback => new
+                    {
+                        feedback.FeedBackID,
+                        feedback.Rating,
+                        feedback.Image,
+                        feedback.Description,
+                        feedback.isDeleted,
+                        feedback.Account
+                    }).ToList(),
+                    Rooms = hotel.rooms.Select(room =>
+                    {
+                        var specialPrice = room.SpecialPrice
+                            .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                        return new
+                        {
+                            RoomID = room.RoomID,
+                            TypeOfRoom = room.TypeOfRoom,
+                            NumberCapacity = room.NumberCapacity,
+                            Price = specialPrice?.Price ?? room.Price,
+                            Quantity = room.Quantity,
+                            SizeOfRoom = room.SizeOfRoom,
+                            TypeOfBed = room.TypeOfBed,
+                            SpecialPrice = room.SpecialPrice.Select(sp => new
+                            {
+                                sp.SpecialPriceID,
+                                sp.StartDate,
+                                sp.EndDate,
+                                sp.Price
+                            }).ToList()
+                        };
+                    }).ToList()
                 }).ToList();
+
                 if (result.Any())
                 {
                     return new ResponseMessage { Success = true, Data = result, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                 }
                 else
                 {
-                    return new ResponseMessage { Success = false, Data = result, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+                    return new ResponseMessage { Success = false, Data = null, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
                 }
             }
-
-            return new ResponseMessage { Success = false, Data = null, Message = "Service cannot be empty", StatusCode = (int)HttpStatusCode.BadRequest };
+            else
+            {
+                return new ResponseMessage { Success = false, Data = null, Message = "No services provided", StatusCode = (int)HttpStatusCode.BadRequest };
+            }
         }
 
 
@@ -365,12 +489,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
-        public class ServiceWithSubServices
-        {
-            public string Type { get; set; }
-            public List<string> SubServiceNames { get; set; }
-        }
-        //Chức năng chưa hoàn thiện
+     
+        
         public ResponseMessage SearchHotel(String city, DateTime? checkInDate, DateTime? checkOutDate, int? numberCapacity, int? quantity)
         {
             var listHotel = db.hotel.Include(address => address.HotelAddress)
@@ -733,7 +853,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 getAccount.IsActive = true;
                 db.hotel.Update(getHotel);
                 db.SaveChanges();
-                String mailContent = "Bạn đã được duyệt để trở thành đối tác của chúng tôi.Vui lòng đăng nhập vào hệ thống và thực hiện các hoạt động.";
+                String mailContent = "You have been approved to become our partner. Please log in to the system and perform activities.";
                 Ultils.Utils.SendMailRegistration(getAccount.Email,mailContent);
                 return new ResponseMessage { Success = true, Data = getHotel, Message = "Sucessfully", StatusCode = (int)HttpStatusCode.OK };
             }
