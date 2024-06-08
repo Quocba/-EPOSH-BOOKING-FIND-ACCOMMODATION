@@ -11,6 +11,7 @@ using Azure;
 using static System.Net.Mime.MediaTypeNames;
 using GraduationAPI_EPOSHBOOKING.DTO;
 using DocumentFormat.OpenXml.Office2013.Excel;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 
 
 #pragma warning disable // tắt cảnh báo để code sạch hơn
@@ -33,13 +34,65 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var listHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.feedBacks)
                 .Include(room => room.rooms).ThenInclude(x => x.SpecialPrice).OrderByDescending(hotel => hotel.HotelStandar)
                 .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved")).ToList();
+
             if (listHotel.Any())
             {
                 var listHotelWithAvgRating = listHotel.Select(hotel => new
                 {
-                    Hotel = hotel,
-                    AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0
-
+                    HotelID = hotel.HotelID,
+                    MainImage = hotel.MainImage,
+                    OpenedIn = hotel.OpenedIn,
+                    Description = hotel.Description,
+                    HotelStandar = hotel.HotelStandar,
+                    IsRegister = hotel.isRegister,
+                    Status = hotel.Status,
+                    HotelAddress = new
+                    {
+                        hotel.HotelAddress.AddressID,
+                        hotel.HotelAddress.Address,
+                        hotel.HotelAddress.City,
+                        hotel.HotelAddress.latitude,
+                        hotel.HotelAddress.longitude
+                    },
+                    Rooms = hotel.rooms
+                        .Where(room => room != null) // Lọc giá trị null trong rooms
+                        .Select(room =>
+                        {
+                            var currentDate = DateTime.Now;
+                            var specialPrice = room.SpecialPrice
+                                .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                            if (specialPrice != null)
+                            {
+                                room.Price = specialPrice.Price;
+                            }
+                            return new
+                            {
+                                RoomID = room.RoomID,
+                                TypeOfRoom = room.TypeOfRoom,
+                                NumberCapacity = room.NumberCapacity,
+                                Price = room.Price,
+                                Quantity = room.Quantity,
+                                SizeOfRoom = room.SizeOfRoom,
+                                TypeOfBed = room.TypeOfBed,
+                                SpecialPrice = room.SpecialPrice.Select(sp => new
+                                {
+                                    SpecialPriceID = sp.SpecialPriceID,
+                                    StartDate = sp.StartDate,
+                                    EndDate = sp.EndDate,
+                                    Price = sp.Price
+                                }).ToList(),
+                            };
+                        }).ToList(),
+                    FeedBack = hotel.feedBacks.Select(feedback => new
+                    {
+                        FeedBackID = feedback.FeedBackID,
+                        Rating = feedback.Rating,
+                        Image = feedback.Image,
+                        Description = feedback.Description,
+                        isDelete = feedback.isDeleted,
+                        Account = feedback.Account
+                    }).ToList(),
+                    AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0,
                 }).ToList();
 
 
@@ -64,9 +117,56 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 var listHotelWithAvgRating = getListHotel.Select(hotel => new
                 {
                     Hotel = hotel,
-                    Avgrating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(feedBack => feedBack.Rating) : 0
-                });
-
+                    Avgrating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(feedBack => feedBack.Rating) : 0,
+                    Room = hotel.rooms.Select(room =>
+                    {
+                        var currentDate = DateTime.Now;
+                        var specialPrice = room.SpecialPrice
+                                               .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                        if (specialPrice != null)
+                        {
+                            room.Price = specialPrice.Price;
+                        }
+                        return new
+                        {
+                            RoomID = room.RoomID,
+                            TypeOfRoom = room.TypeOfRoom,
+                            NumberCapacity = room.NumberCapacity,
+                            Price = room.Price,
+                            Quantity = room.Quantity,
+                            SizeOfRoom = room.SizeOfRoom,
+                            TypeOfBed = room.TypeOfBed,
+                            SpecialPrice = room.SpecialPrice.Select(sp => new
+                            {
+                                SpecialPriceID = sp.SpecialPriceID,
+                                StartDate = sp.StartDate,
+                                EndDate = sp.EndDate,
+                                Price = sp.Price
+                            }).ToList()
+                        };
+                    }).ToList()
+                }).Select(hotel => new
+                {
+                    HotelID = hotel.Hotel.HotelID,
+                    MainImage = hotel.Hotel.MainImage,
+                    OpenedIn = hotel.Hotel.OpenedIn,
+                    Description = hotel.Hotel.Description,
+                    HotelStandar = hotel.Hotel.HotelStandar,
+                    IsRegister = hotel.Hotel.isRegister,
+                    Status = hotel.Hotel.Status,
+                    HotelAddress = hotel.Hotel.HotelAddress,
+                    FeedBack = hotel.Hotel.feedBacks.Select(feedback => new
+                    {
+                        FeedBackID = feedback.FeedBackID,
+                        Rating = feedback.Rating,
+                        Image = feedback.Image,
+                        Description = feedback.Description,
+                        isDelete = feedback.isDeleted,
+                        Account = feedback.Account
+                    }),
+                    Rooms = hotel.Room,
+                    AvgRating = hotel.Avgrating
+                }).ToList();
                 return new ResponseMessage { Success = true, Data = listHotelWithAvgRating, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             else
@@ -87,6 +187,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             if (getHotel != null)
             {
                 double avgRating = getHotel.feedBacks.Any() ? Math.Round(getHotel.feedBacks.Average(feedBack => feedBack.Rating), 2) : 0;
+            
                 return new ResponseMessage { Success = true, Data = new { hotel = getHotel, avgRating = avgRating }, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             else
@@ -100,26 +201,72 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetHotelByPrice(double minPrice, double maxPrice)
         {
             var currentDate = DateTime.Now;
-            var getHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.feedBacks).Include(x => x.rooms)
-                .ThenInclude(x => x.SpecialPrice).OrderByDescending(hotel => hotel.HotelStandar).Select(hotel => new Hotel
+            var getHotel = db.hotel
+                             .Include(x => x.HotelAddress)
+                             .Include(x => x.feedBacks)
+                             .Include(x => x.rooms)
+                             .ThenInclude(x => x.SpecialPrice)
+                             .OrderByDescending(hotel => hotel.HotelStandar)
+                             .ToList();
+            var filterHotel = getHotel.Select(hotel => new
+            {
+                HotelID = hotel.HotelID,
+                Name = hotel.Name,
+                Description = hotel.Description,
+                HotelStandar = hotel.HotelStandar,
+                MainImage = hotel.MainImage,
+                OpenedIn = hotel.OpenedIn,
+                HotelAddress = new
                 {
-                    HotelID = hotel.HotelID,
-                    Name = hotel.Name,
-                    Description = hotel.Description,
-                    HotelAddress = hotel.HotelAddress,
-                    HotelStandar = hotel.HotelStandar,
-                    MainImage = hotel.MainImage,
-                    OpenedIn = hotel.OpenedIn,
-                    rooms = hotel.rooms.Where(room => room.Price >= minPrice && room.Price <= maxPrice || room.SpecialPrice.Any(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate
-                    && sp.Price >= minPrice && sp.Price <= maxPrice)).ToList(),
-                    feedBacks = hotel.feedBacks.ToList(),
-                }).ToList();
+                    hotel.HotelAddress.AddressID,
+                    hotel.HotelAddress.Address,
+                    hotel.HotelAddress.City,
+                    hotel.HotelAddress.latitude,
+                    hotel.HotelAddress.longitude
+                },
+                Rooms = hotel.rooms.Select(room =>
+                {
+                    var finalPrice = room.Price;
+                    var specialPrice = room.SpecialPrice
+                        .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                    if (specialPrice != null)
+                    {
+                        finalPrice = specialPrice.Price;
+                    }
+                    return new
+                    {
+                        RoomID = room.RoomID,
+                        TypeOfRoom = room.TypeOfRoom,
+                        NumberCapacity = room.NumberCapacity,
+                        Price = finalPrice,
+                        Quantity = room.Quantity,
+                        SizeOfRoom = room.SizeOfRoom,
+                        TypeOfBed = room.TypeOfBed,
+                        SpecialPrice = room.SpecialPrice.Select(sp => new
+                        {
+                            SpecialPriceID = sp.SpecialPriceID,
+                            StartDate = sp.StartDate,
+                            EndDate = sp.EndDate,
+                            Price = sp.Price
+                        }).ToList()
+                    };
+                }).Where(room => room.Price >= minPrice && room.Price <= maxPrice).ToList(),
+                FeedBacks = hotel.feedBacks.Select(feedback => new
+                {
+                    FeedBackID = feedback.FeedBackID,
+                    Rating = feedback.Rating,
+                    Image = feedback.Image,
+                    Description = feedback.Description,
+                    isDelete = feedback.isDeleted,
+                    Account = feedback.Account
+                }).ToList()
+            }).Where(hotel => hotel.Rooms.Any()).ToList();
 
-            var filterHotel = getHotel.Where(hotel => hotel.rooms.Any());
+
             var listHotelWithRating = filterHotel.Select(hotel => new
             {
                 Hotel = hotel,
-                AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0
+                AvgRating = hotel.FeedBacks.Any() ? Math.Round(hotel.FeedBacks.Average(feedback => feedback.Rating), 2) : 0
             });
 
             if (listHotelWithRating.Any())
@@ -238,7 +385,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Hotel = hotel,
                     AvgRating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(rating => rating.Rating) : 0,
                     CountReview = hotel.feedBacks.Any() ? hotel.feedBacks.Count() : 0
-
+                    
                 });
                 return new ResponseMessage { Success = true, Data = searchCity, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
@@ -399,7 +546,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             };
         }
 
-        public ResponseMessage UpdateBasicInfomation(int hotelID, string hotelName, int openedIn, string description,
+        public ResponseMessage UpdateBasicInformation(int hotelID, string hotelName, int openedIn, string description,
             string hotelAddress, string city, double latitude, double longitude, IFormFile mainImage)
         {
             var getHotel = db.hotel.Include(address => address.HotelAddress).FirstOrDefault(hotel => hotel.HotelID == hotelID);
