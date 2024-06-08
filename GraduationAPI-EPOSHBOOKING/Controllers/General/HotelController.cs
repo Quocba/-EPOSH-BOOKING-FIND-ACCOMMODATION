@@ -25,7 +25,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
 
      
 
-        [HttpGet("get-all")]
+      [HttpGet("get-all")]
       public IActionResult GetAllHotel()
         {
             var respone = repository.GetAllHotel();
@@ -120,7 +120,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
                                             [FromForm] double longitude,
                                             [FromForm] IFormFile mainImage)
         {
-            var response = repository.UpdateBasicInfomation(hotelID, hotelName, openedIn, description, hotelAddress, city, latitude, longitude,mainImage);
+            var response = repository.UpdateBasicInformation(hotelID, hotelName, openedIn, description, hotelAddress, city, latitude, longitude,mainImage);
             return StatusCode(response.StatusCode, response);
         }
        
@@ -164,12 +164,12 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             var response = repository.ConfirmRegistration(hotelID);
             return StatusCode(response.StatusCode, response);
         }
-        [HttpGet("filter-status")]
-        public IActionResult FilterHotelByStatus([FromQuery]bool status)
-        {
-            var response= repository.FilterHotelByStatus(status);
-            return StatusCode(response.StatusCode, response);
-        }
+        //[HttpGet("filter-status")]
+        //public IActionResult FilterHotelByStatus([FromQuery]bool status)
+        //{
+        //    var response= repository.FilterHotelByStatus(status);
+        //    return StatusCode(response.StatusCode, response);
+        //}
         [HttpPut("reject-registration")]
         public IActionResult RejectRegistration([FromForm]int hotelID, [FromForm]String reasonReject)
         {

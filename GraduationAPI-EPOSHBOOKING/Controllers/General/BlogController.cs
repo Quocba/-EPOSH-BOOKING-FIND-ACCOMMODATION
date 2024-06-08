@@ -71,9 +71,9 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             return StatusCode(response.StatusCode, response);
         }
         [HttpPut("reject-blog")]
-        public IActionResult RejectBlog([FromForm] int blogId, [FromForm] string status, [FromForm] string reasonReject)
+        public IActionResult RejectBlog([FromForm] int blogId, [FromForm] string reasonReject)
         {
-            var response = _blogRepository.RejectBlog(blogId, status, reasonReject);
+            var response = _blogRepository.RejectBlog(blogId, reasonReject);
             return StatusCode(response.StatusCode, response);
         }
     }

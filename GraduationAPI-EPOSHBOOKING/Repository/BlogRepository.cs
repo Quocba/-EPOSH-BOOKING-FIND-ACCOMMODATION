@@ -326,7 +326,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
-        public ResponseMessage RejectBlog(int blogId, string status, string reasonReject)
+        public ResponseMessage RejectBlog(int blogId,string reasonReject)
         {
             var existingBlog = db.blog.FirstOrDefault(b => b.BlogID == blogId);
             if (existingBlog == null)
