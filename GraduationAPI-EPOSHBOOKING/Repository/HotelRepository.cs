@@ -38,8 +38,18 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 var listHotelWithAvgRating = listHotel.Select(hotel => new
                 {
                     Hotel = hotel,
-                    AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0
-
+                    AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0,
+                    Room = hotel.rooms.Select(room =>
+                    {
+                        var currentDate = DateTime.Now;
+                        var specialPrice = room.SpecialPrice
+                                               .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                        if (specialPrice != null)
+                        {
+                            room.Price = specialPrice.Price;
+                        }
+                        return room;
+                    }).ToList()
                 }).ToList();
 
 
@@ -64,7 +74,18 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 var listHotelWithAvgRating = getListHotel.Select(hotel => new
                 {
                     Hotel = hotel,
-                    Avgrating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(feedBack => feedBack.Rating) : 0
+                    Avgrating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(feedBack => feedBack.Rating) : 0,
+                    Room = hotel.rooms.Select(room =>
+                    {
+                        var currentDate = DateTime.Now;
+                        var specialPrice = room.SpecialPrice
+                                               .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                        if (specialPrice != null)
+                        {
+                            room.Price = specialPrice.Price;
+                        }
+                        return room;
+                    }).ToList()
                 });
 
                 return new ResponseMessage { Success = true, Data = listHotelWithAvgRating, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
@@ -87,6 +108,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             if (getHotel != null)
             {
                 double avgRating = getHotel.feedBacks.Any() ? Math.Round(getHotel.feedBacks.Average(feedBack => feedBack.Rating), 2) : 0;
+            
                 return new ResponseMessage { Success = true, Data = new { hotel = getHotel, avgRating = avgRating }, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             else
