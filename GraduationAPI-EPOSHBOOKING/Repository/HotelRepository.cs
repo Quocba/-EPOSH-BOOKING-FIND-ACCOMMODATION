@@ -201,26 +201,72 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetHotelByPrice(double minPrice, double maxPrice)
         {
             var currentDate = DateTime.Now;
-            var getHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.feedBacks).Include(x => x.rooms)
-                .ThenInclude(x => x.SpecialPrice).OrderByDescending(hotel => hotel.HotelStandar).Select(hotel => new Hotel
+            var getHotel = db.hotel
+                             .Include(x => x.HotelAddress)
+                             .Include(x => x.feedBacks)
+                             .Include(x => x.rooms)
+                             .ThenInclude(x => x.SpecialPrice)
+                             .OrderByDescending(hotel => hotel.HotelStandar)
+                             .ToList();
+            var filterHotel = getHotel.Select(hotel => new
+            {
+                HotelID = hotel.HotelID,
+                Name = hotel.Name,
+                Description = hotel.Description,
+                HotelStandar = hotel.HotelStandar,
+                MainImage = hotel.MainImage,
+                OpenedIn = hotel.OpenedIn,
+                HotelAddress = new
                 {
-                    HotelID = hotel.HotelID,
-                    Name = hotel.Name,
-                    Description = hotel.Description,
-                    HotelAddress = hotel.HotelAddress,
-                    HotelStandar = hotel.HotelStandar,
-                    MainImage = hotel.MainImage,
-                    OpenedIn = hotel.OpenedIn,
-                    rooms = hotel.rooms.Where(room => room.Price >= minPrice && room.Price <= maxPrice || room.SpecialPrice.Any(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate
-                    && sp.Price >= minPrice && sp.Price <= maxPrice)).ToList(),
-                    feedBacks = hotel.feedBacks.ToList(),
-                }).ToList();
+                    hotel.HotelAddress.AddressID,
+                    hotel.HotelAddress.Address,
+                    hotel.HotelAddress.City,
+                    hotel.HotelAddress.latitude,
+                    hotel.HotelAddress.longitude
+                },
+                Rooms = hotel.rooms.Select(room =>
+                {
+                    var finalPrice = room.Price;
+                    var specialPrice = room.SpecialPrice
+                        .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                    if (specialPrice != null)
+                    {
+                        finalPrice = specialPrice.Price;
+                    }
+                    return new
+                    {
+                        RoomID = room.RoomID,
+                        TypeOfRoom = room.TypeOfRoom,
+                        NumberCapacity = room.NumberCapacity,
+                        Price = finalPrice,
+                        Quantity = room.Quantity,
+                        SizeOfRoom = room.SizeOfRoom,
+                        TypeOfBed = room.TypeOfBed,
+                        SpecialPrice = room.SpecialPrice.Select(sp => new
+                        {
+                            SpecialPriceID = sp.SpecialPriceID,
+                            StartDate = sp.StartDate,
+                            EndDate = sp.EndDate,
+                            Price = sp.Price
+                        }).ToList()
+                    };
+                }).Where(room => room.Price >= minPrice && room.Price <= maxPrice).ToList(),
+                FeedBacks = hotel.feedBacks.Select(feedback => new
+                {
+                    FeedBackID = feedback.FeedBackID,
+                    Rating = feedback.Rating,
+                    Image = feedback.Image,
+                    Description = feedback.Description,
+                    isDelete = feedback.isDeleted,
+                    Account = feedback.Account
+                }).ToList()
+            }).Where(hotel => hotel.Rooms.Any()).ToList();
 
-            var filterHotel = getHotel.Where(hotel => hotel.rooms.Any());
+
             var listHotelWithRating = filterHotel.Select(hotel => new
             {
                 Hotel = hotel,
-                AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0
+                AvgRating = hotel.FeedBacks.Any() ? Math.Round(hotel.FeedBacks.Average(feedback => feedback.Rating), 2) : 0
             });
 
             if (listHotelWithRating.Any())
