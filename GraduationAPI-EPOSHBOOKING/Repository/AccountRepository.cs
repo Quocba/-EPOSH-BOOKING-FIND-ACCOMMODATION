@@ -292,8 +292,9 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = true, Data =  result,Message = "Successfully",StatusCode = (int)HttpStatusCode.OK };
         }
             
-        public ResponseMessage BlockedAccount(int accountID)
+        public ResponseMessage BlockedAccount(int accountID, String reasonBlock)
         {
+            String reason = "Your EPOSH BOOKING account has been locked because " + reasonBlock;
             var getAccount = db.accounts.FirstOrDefault(account => account.AccountID == accountID);
             var getHotel = db.hotel.FirstOrDefault(hotel => hotel.Account.AccountID == accountID);
             if (getAccount != null && getHotel == null)
@@ -301,6 +302,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 getAccount.IsActive = false;
                 db.accounts.Update(getAccount);
                 db.SaveChanges();
+                Ultils.Utils.SendMailRegistration(getAccount.Email, reason);
                 return new ResponseMessage { Success = true, Data = getAccount, Message = "Blocked Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             if (getAccount != null && getHotel != null)
@@ -311,6 +313,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 db.accounts.Update(getAccount);
                 db.hotel.Update(getHotel);
                 db.SaveChanges();
+                Ultils.Utils.SendMailRegistration(getAccount.Email, reason);
+
                 return new ResponseMessage { Success = true,Message = "Blocked Successfully", Data = new { account = getAccount, hotel = getHotel }, StatusCode = (int)HttpStatusCode.OK };
             }
 

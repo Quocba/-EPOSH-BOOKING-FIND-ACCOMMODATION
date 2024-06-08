@@ -38,9 +38,9 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpPut("blocked-account")]
-        public IActionResult BlockedAccount([FromQuery] int accountId)
+        public IActionResult BlockedAccount([FromForm] int accountId, [FromForm]String reasonBlock)
         {
-            var response = repository.BlockedAccount(accountId);
+            var response = repository.BlockedAccount(accountId,reasonBlock);
             return StatusCode(response.StatusCode, response);
         }
 
