@@ -12,7 +12,7 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage CommentBlog(int blogId, int accountId, string description);
         public ResponseMessage FilterBlogwithStatus(String status);
         public ResponseMessage ConfirmBlog(int blogId);
-        public ResponseMessage RejectBlog(int blogId, string status, string reasonReject);
+        public ResponseMessage RejectBlog(int blogId,string reasonReject);
 
     }
 }
