@@ -67,6 +67,13 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
             return StatusCode(response.StatusCode, response);
         }
 
- 
+        [HttpPut("update-profile")]
+        public IActionResult UpdateProfileByAccount([FromForm] int accountID, [FromForm] Profile profile, [FromForm] IFormFile Avatar)
+        {
+            var response = repository.UpdateProfileByAccount(accountID, profile, Avatar);
+            return StatusCode(response.StatusCode, response);
+        }
+
+
     }
 }

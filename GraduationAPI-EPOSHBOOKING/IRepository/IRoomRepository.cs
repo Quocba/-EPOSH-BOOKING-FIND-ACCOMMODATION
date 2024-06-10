@@ -9,5 +9,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         ResponseMessage DeleteRoom(int roomID);
         ResponseMessage AddRoom(int hotelID,Room room,List<SpecialPrice>specialPrices, List<IFormFile>images,List<ServiceType>services);
         ResponseMessage UpdateRoom(int roomID,Room room,List<SpecialPrice> specialPrices, List<IFormFile>image,List<ServiceType>services);
+        ResponseMessage GetRoomByHotel(int hotelID);
     }
 }
