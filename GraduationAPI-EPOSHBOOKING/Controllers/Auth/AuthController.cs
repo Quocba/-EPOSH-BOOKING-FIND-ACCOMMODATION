@@ -20,7 +20,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         }
 
         [HttpPost("partner-register")]
-        public IActionResult PartnerRegister([FromForm]Account account, [FromForm]String fullName)
+        public IActionResult RegisterPartnerAccount([FromForm]Account account, [FromForm]String fullName)
         {
             var response = repository.RegisterPartnerAccount(account, fullName);
             return StatusCode(response.StatusCode,response);    
@@ -38,8 +38,6 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
             var response = repository.ActiveAccount(email);
             return StatusCode(response.StatusCode,response);
         }
-
-
 
         [HttpPost("register-customer")]
         public IActionResult Register([FromBody] RegisterDTO register)
