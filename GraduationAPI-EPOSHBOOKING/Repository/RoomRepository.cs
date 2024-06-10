@@ -295,7 +295,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetRoomByHotel(int hotelID)
         {
-            var currentDate = DateTime.Now;
+            var currentDate = DateTime.UtcNow.AddDays(-1);
             var listRoomWithHotel = db.room
                                       .Include(hotel => hotel.Hotel)
                                       .Include(roomService => roomService.RoomService)
