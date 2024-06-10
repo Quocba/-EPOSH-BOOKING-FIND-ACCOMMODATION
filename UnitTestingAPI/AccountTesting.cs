@@ -178,7 +178,7 @@ namespace UnitTestingAPI
             String fullName = "Nguyen Van A";
             _mockRepository.Setup(repo => repo.RegisterPartnerAccount(account, fullName))
                     .Returns(new ResponseMessage { Success = true, Data = account, StatusCode = (int)HttpStatusCode.OK });
-            var result = authController.PartnerRegister(account, fullName) as ObjectResult;
+            var result = authController.RegisterPartnerAccount(account, fullName) as ObjectResult;
             Assert.AreEqual(200, result.StatusCode);
 
         }
@@ -195,7 +195,7 @@ namespace UnitTestingAPI
             String fullName = "";
             _mockRepository.Setup(repo => repo.RegisterPartnerAccount(account, fullName))
                     .Returns(new ResponseMessage { Success = false, Data = account, StatusCode = (int)HttpStatusCode.BadRequest });
-            var result = authController.PartnerRegister(account, fullName) as ObjectResult;
+            var result = authController.RegisterPartnerAccount(account, fullName) as ObjectResult;
             Assert.AreEqual(400, result.StatusCode);
         }
         [Test]
@@ -209,7 +209,7 @@ namespace UnitTestingAPI
             String fullName = "";
             _mockRepository.Setup(repo => repo.RegisterPartnerAccount(account, fullName))
                     .Returns(new ResponseMessage { Success = false, Data = account, StatusCode = (int)HttpStatusCode.AlreadyReported });
-            var result = authController.PartnerRegister(account, fullName) as ObjectResult;
+            var result = authController.RegisterPartnerAccount(account, fullName) as ObjectResult;
             Assert.AreEqual(208, result.StatusCode);
         }
         [Test]
@@ -222,7 +222,7 @@ namespace UnitTestingAPI
             String fullName = "";
             _mockRepository.Setup(repo => repo.RegisterPartnerAccount(account, fullName))
                     .Returns(new ResponseMessage { Success = false, Data = account, StatusCode = (int)HttpStatusCode.NotFound });
-            var result = authController.PartnerRegister(account, fullName) as ObjectResult;
+            var result = authController.RegisterPartnerAccount(account, fullName) as ObjectResult;
             Assert.AreEqual(404, result.StatusCode);
         }
 

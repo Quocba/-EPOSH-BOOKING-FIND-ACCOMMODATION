@@ -293,8 +293,59 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
-     
+        public ResponseMessage GetRoomByHotel(int hotelID)
+        {
+            var currentDate = DateTime.UtcNow.AddDays(-1);
+            var listRoomWithHotel = db.room
+                                      .Include(hotel => hotel.Hotel)
+                                      .Include(roomService => roomService.RoomService)
+                                      .ThenInclude(roomSbuService => roomSbuService.RoomSubServices)
+                                      .Include(roomImage => roomImage.RoomImages)
+                                      .Include(specialPrice => specialPrice.SpecialPrice)
+                                      .Where(x => x.Hotel.HotelID == hotelID)
+                                      .ToList();
+            var updatedRoomList = listRoomWithHotel.Select(room =>
+            {
+                var specialPrice = room.SpecialPrice
+                                       .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                var adjustedPrice = specialPrice != null ? specialPrice.Price : room.Price;
+
+                return new
+                {
+                    RoomID = room.RoomID,
+                    TypeOfRoom = room.TypeOfRoom,
+                    NumberCapacity = room.NumberCapacity,
+                    Price = adjustedPrice,
+                    Quantity = room.Quantity,
+                    SizeOfRoom = room.SizeOfRoom,
+                    TypeOfBed = room.TypeOfBed,
+                    RoomServices = room.RoomService.Select(rs => new
+                    {
+                        rs.RoomServiceID,
+                        rs.Type,
+                        RoomSubServices = rs.RoomSubServices.Select(rss => new
+                        {
+                            rss.SubServiceID,
+                            rss.SubName
+                        }).ToList()
+                    }).ToList(),
+                    RoomImages = room.RoomImages.Select(img => new
+                    {
+                        img.ImageID,
+                        img.Image
+                    }).ToList(),
+                    SpecialPrice = room.SpecialPrice.Select(sp => new
+                    {
+                        sp.SpecialPriceID,
+                        sp.StartDate,
+                        sp.EndDate,
+                        sp.Price
+                    }).ToList()
+                };
+            }).ToList();
 
 
+            return new ResponseMessage { Success = true, Data = updatedRoomList, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+        }
     }
 }

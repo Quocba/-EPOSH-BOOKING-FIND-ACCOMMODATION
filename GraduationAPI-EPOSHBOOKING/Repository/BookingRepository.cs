@@ -96,21 +96,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         }
 
 
-        public ResponseMessage GetAllBooking()
-        {
-            var listBooking = db.booking.Include(room => room.Room)
-                .ThenInclude(room => room.RoomImages)
-                .Include(account => account.Account)
-                .ThenInclude(profile => profile.Profile)
-                .Include(voucher => voucher.Voucher)
-                .ToList();
-            if (listBooking != null)
-            {
-                
-                return new ResponseMessage { Success = true, Data = listBooking, Message = "Successfully", StatusCode= (int)HttpStatusCode.OK };
-            }
-            return new ResponseMessage { Success = false,Data = listBooking, Message = "No Data", StatusCode=(int)HttpStatusCode.NotFound };
-        }
+
 
         public ResponseMessage CreateBooking(int accountID, int voucherID, int RoomID, Booking? booking)
         {
@@ -120,8 +106,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                .Include(profile => profile.Profile)
                .FirstOrDefault(account => account.AccountID == accountID);
                 var room = db.room.Include(hotel => hotel.Hotel)
-                    .Include(service => service.RoomService)
-                    .ThenInclude(subService => subService.RoomSubServices)
                     .Include(specialPrice => specialPrice.SpecialPrice)
                     .FirstOrDefault(room => room.RoomID == RoomID);
                 var voucher = db.voucher.FirstOrDefault(voucher => voucher.VoucherID == voucherID && voucher.QuantityUse > 0);
@@ -208,13 +192,140 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = true, Data = ex, Message = "Internal Server Error", StatusCode = (int)HttpStatusCode.InternalServerError };
             }
         }
-        public ResponseMessage GetAllBookings()
+
+        public ResponseMessage ExportBookingbyHotelID(int hotelID)
+        {
+            var bookings = db.booking
+                 .Include(b => b.Room)
+                 .ThenInclude(r => r.Hotel)
+                 .Include(b => b.Account)
+                 .ThenInclude(a => a.Profile)
+                 .Where(b => b.Room.Hotel.HotelID == hotelID)
+                 .ToList();
+            if (bookings.Count == 0)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Data = null,
+                    Message = "No bookings found for this hotel.",
+                    StatusCode = (int)HttpStatusCode.NotFound
+                };
+            }
+            ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+            using (var pck = new ExcelPackage())
+            {
+                var ws = pck.Workbook.Worksheets.Add("Booking List by Hotel");
+                // Header row data
+                string[] headers = {
+            "Booking ID", "Check-in Date", "Check-out Date", "Total Price", "Unit Price",
+            "Taxes Price", "Number of Rooms", "Number of Guests", "Cancellation Reason",
+            "Status", "Hotel Name", "Room Type", "Account Email", "Account Full Name"
+        };
+                // Add and format header row
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    ws.Cells[1, i + 1].Value = headers[i];
+                }
+                ws.Cells[1, 1, 1, headers.Length].Style.Font.Bold = true;
+                ws.Cells[1, 1, 1, headers.Length].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                ws.Cells[1, 1, 1, headers.Length].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                ws.Cells[1, 1, 1, headers.Length].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+                // Add data rows
+                int row = 2;
+                foreach (var booking in bookings)
+                {
+                    ws.Cells[row, 1].Value = booking.BookingID;
+                    ws.Cells[row, 2].Value = booking.CheckInDate.ToString("dd-MM-yyyy");
+                    ws.Cells[row, 3].Value = booking.CheckOutDate.ToString("dd-MM-yyyy");
+                    ws.Cells[row, 4].Value = booking.TotalPrice + " " + "VND";
+                    ws.Cells[row, 5].Value = booking.UnitPrice + " " + "VND";
+                    ws.Cells[row, 6].Value = booking.TaxesPrice + " " + "VND";
+                    ws.Cells[row, 7].Value = booking.NumberOfRoom;
+                    ws.Cells[row, 8].Value = booking.NumberGuest;
+                    ws.Cells[row, 9].Value = booking.ReasonCancle;
+                    ws.Cells[row, 10].Value = booking.Status;
+                    ws.Cells[row, 11].Value = booking.Room?.Hotel?.Name;
+                    ws.Cells[row, 12].Value = booking.Room?.TypeOfRoom;
+                    ws.Cells[row, 13].Value = booking.Account?.Email;
+                    ws.Cells[row, 14].Value = booking.Account?.Profile?.fullName;
+                    row++;
+
+                }
+                // Định dạng dữ liệu
+                ws.Cells[2, 1, ws.Dimension.End.Row, 14].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                ws.Cells.AutoFitColumns();
+                var listBookingWithMonth = db.booking
+                    .Where(booking => booking.Room.Hotel.HotelID == hotelID)
+                    .GroupBy(booking => new
+                    {
+                        CheckInMonth = booking.CheckInDate.Month,
+                        CheckOutMonth = booking.CheckOutDate.Month,
+                        CheckInYear = booking.CheckInDate.Year
+                    }).ToList();
+                var totalWithMonth = new Dictionary<string, double>();
+                foreach (var months in listBookingWithMonth)
+                {
+                    var checkInMonth = months.Key.CheckInMonth;
+                    var checkInYear = months.Key.CheckInYear;
+                    var totalRevenueForMonth = 0.0;
+                    foreach (var booking in months)
+                    {
+                        totalRevenueForMonth += booking.TotalPrice;
+                    }
+                    var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(checkInMonth);
+                    var monthYear = $"{monthName}/{checkInYear}";
+                    if (!totalWithMonth.ContainsKey(monthYear))
+                    {
+                        totalWithMonth.Add(monthYear, totalRevenueForMonth);
+                    }
+                    else
+                    {
+                        totalWithMonth[monthYear] += totalRevenueForMonth;
+                    }
+                }
+                var result = totalWithMonth.Select(booking => new BookingRevenuesData
+                {
+                    Name = booking.Key,
+                    Data = booking.Value
+                });
+                var ws2 = pck.Workbook.Worksheets.Add("Booking Revenues by Hotel");
+                ws2.Cells[1, 1].Value = "Month";
+                ws2.Cells[1, 2].Value = "Total Revenue";
+                int row2 = 2;
+                foreach (var booking in result)
+                {
+                    ws2.Cells[row2, 1].Value = booking.Name;
+                    ws2.Cells[row2, 2].Value = booking.Data + " " + "VND";
+                    row2++;
+                }
+                ws2.Cells[1, 1, 1, 2].Style.Font.Bold = true;
+                ws2.Cells[1, 1, 1, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                ws2.Cells[1, 1, 1, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
+                ws2.Cells[1, 1, 1, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                ws2.Cells[2, 1, ws2.Dimension.End.Row, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                ws2.Cells.AutoFitColumns();
+                // Save to memory stream    
+                MemoryStream stream = new MemoryStream();
+                pck.SaveAs(stream);
+                return new ResponseMessage
+                {
+                    Success = true,
+                    Data = stream.ToArray(),
+                    Message = "Excel file generated successfully.",
+                    StatusCode = (int)HttpStatusCode.OK
+                };
+            }
+        }
+        public ResponseMessage GetAllBooking()
         {
             try
             {
                 var bookings = db.booking
                                   .Include(b => b.Room)
+                                  .ThenInclude(hotel => hotel.Hotel)
                                   .Include(b => b.Account)
+                                  .ThenInclude(profile => profile.Profile)
                                   .ToList();
 
                 return new ResponseMessage { Success = true, Data = bookings, Message = "Successfully retrieved all bookings.", StatusCode = (int)HttpStatusCode.OK };
@@ -385,6 +496,108 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     // Định dạng dữ liệu
                     ws.Cells[2, 1, ws.Dimension.End.Row, 14].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     ws.Cells.AutoFitColumns();
+                    var listBookingWithMonth = db.booking
+                        .GroupBy(booking => new
+                        {
+                            CheckInMonth = booking.CheckInDate.Month,
+                            CheckOutMonth = booking.CheckOutDate.Month,
+                            CheckInYear = booking.CheckInDate.Year
+                        }).ToList();
+                    var totalWithMonth = new Dictionary<string, double>();
+                    foreach (var months in listBookingWithMonth)
+                    {
+                        var checkInMonth = months.Key.CheckInMonth;
+                        var checkInYear = months.Key.CheckInYear;
+                        var totalRevenueForMonth = 0.0;
+                        foreach (var booking in months)
+                        {
+                            totalRevenueForMonth += booking.TotalPrice;
+                        }
+                        var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(checkInMonth);
+                        var monthYear = $"{monthName}/{checkInYear}";
+                        if (!totalWithMonth.ContainsKey(monthYear))
+                        {
+                            totalWithMonth.Add(monthYear, totalRevenueForMonth);
+                        }
+                        else
+                        {
+                            totalWithMonth[monthYear] += totalRevenueForMonth;
+                        }
+                    }
+                    var result = totalWithMonth.Select(booking => new BookingRevenuesData
+                    {
+                        Name = booking.Key,
+                        Data = booking.Value
+                    });
+                    var ws2 = pck.Workbook.Worksheets.Add("Booking Revenues");
+                    ws2.Cells[1, 1].Value = "Month";
+                    ws2.Cells[1, 2].Value = "Total Revenue";
+                    int row2 = 2;
+                    foreach (var booking in result)
+                    {
+                        ws2.Cells[row2, 1].Value = booking.Name;
+                        ws2.Cells[row2, 2].Value = booking.Data + " " + "VND";
+                        row2++;
+                    }
+                    ws2.Cells[1, 1, 1, 2].Style.Font.Bold = true;
+                    ws2.Cells[1, 1, 1, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    ws2.Cells[1, 1, 1, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
+                    ws2.Cells[1, 1, 1, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    ws2.Cells[2, 1, ws2.Dimension.End.Row, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    ws2.Cells.AutoFitColumns();
+                    // Save to memory stream
+                    MemoryStream stream = new MemoryStream();
+                    pck.SaveAs(stream);
+
+                    return new ResponseMessage
+                    {
+                        Success = true,
+                        Data = stream.ToArray(),
+                        Message = "Excel file generated successfully.",
+                        StatusCode = (int)HttpStatusCode.OK
+                    };
+                }
+            }
+
+            catch (Exception ex)
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Data = null,
+                    Message = "Error generating Excel file.",
+                    StatusCode = (int)HttpStatusCode.InternalServerError
+                };
+            }
+        }
+
+        public ResponseMessage ExportRevenues()
+        {
+            try
+            {
+                var bookings = db.booking
+                    .Include(b => b.Room)
+                    .ThenInclude(r => r.Hotel)
+                    .Include(b => b.Account)
+                    .ThenInclude(a => a.Profile)
+                    .ToList();
+
+                if (bookings.Count == 0)
+                {
+                    return new ResponseMessage
+                    {
+                        Success = false,
+                        Data = null,
+                        Message = "No bookings found.",
+                        StatusCode = (int)HttpStatusCode.NotFound
+                    };
+                }
+
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+
+                using (var pck = new ExcelPackage())
+                {
+
                     var listBookingWithMonth = db.booking
                         .GroupBy(booking => new
                         {
@@ -658,6 +871,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                 .ThenInclude(profile => profile.Profile)
                                 .Include(room => room.Room)
                                 .ThenInclude(roomImage => roomImage.RoomImages)
+                                .Include(service => service.Room.RoomService)
+                                .ThenInclude(subService => subService.RoomSubServices)
                                 .Include(hotel => hotel.Room.Hotel)
                                 .Where(h => h.Room.Hotel.HotelID == hotelID)
                                 .ToList().Select(booking => new
@@ -682,8 +897,17 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                        RoomImage = booking.Room.RoomImages.Select(img => new
                                        {
                                            Image = img.Image
-                                       }).ToList()
+                                       }).ToList(),
+                                        RoomService = booking.Room.RoomService.Select(service => new
+                                        {
+                                            ServiceName = service.Type,
+                                            RoomSubServices = service.RoomSubServices.Select(subService => new
+                                            {
+                                                SubServiceName = subService.SubName
+                                            }).ToList()
+                                        }).ToList()
                                     },
+                                   
                                     Account = new
                                     {
                                         Email  = booking.Account.Email,

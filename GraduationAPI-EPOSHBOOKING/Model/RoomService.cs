@@ -10,7 +10,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int RoomServiceID { get; set; }
         public String Type { get; set; }
-        [ForeignKey("RoomID")]
+        [ForeignKey("RoomID")]  
         public Room Room { get; set; }
         public ICollection<RoomSubService> RoomSubServices { get; set; }
     }
