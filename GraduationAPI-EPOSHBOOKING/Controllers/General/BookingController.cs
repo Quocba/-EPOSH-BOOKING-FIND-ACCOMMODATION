@@ -37,7 +37,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpGet("get-all-bookings")]
-        public IActionResult GetAllBookings()
+        public IActionResult GetAllBooking()
         {
             var response = repository.GetAllBooking();
             return StatusCode(response.StatusCode, response);
@@ -48,7 +48,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         {
             var response = repository.ChangeStatusWaitForPayment(bookingID);
             return StatusCode(response.StatusCode, response);
-        }
+        }   
         [HttpGet("export-bookings-by-accountID")]
         public IActionResult ExportBookingsByAccountID([FromQuery] int accountID)
         {
@@ -78,7 +78,21 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
                 return StatusCode(response.StatusCode, response);
             }
         }
-        [HttpPut("change-complete")]
+        [HttpGet("export-revenues")]
+        public IActionResult ExportRevenues()
+        {
+            var response = repository.ExportRevenues();
+
+            if (response.Success)
+            {
+                return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Revenues.xlsx");
+            }
+            else
+            {
+                return StatusCode(response.StatusCode, response);
+            }
+        }
+            [HttpPut("change-complete")]
         public IActionResult ChangeStatusComplete([FromForm] int bookingID)
         {
             var response = repository.ChangeStatusComplete(bookingID);
@@ -125,6 +139,21 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         {
             var response = repository.GetBookingByHotel(hotelID);
             return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("export-bookings-and-total-revenue-by-hotelID")]
+        public IActionResult ExportBookingbyHotelID([FromQuery] int hotelID)
+        {
+            var response = repository.ExportBookingbyHotelID(hotelID);
+
+            if (response.Success)
+            {
+                return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Bookings_HotelID_{hotelID}.xlsx");
+            }
+            else
+            {
+                return StatusCode(response.StatusCode, response);
+            }
         }
     }
     

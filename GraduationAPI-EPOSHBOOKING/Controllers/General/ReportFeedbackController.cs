@@ -32,5 +32,12 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.General
             var response = repository.RejectReport(reportID, ReasonReject);
             return StatusCode(response.StatusCode,response);
         }
+
+        [HttpPost("create-report")]
+        public IActionResult CreateReportFeedback([FromForm]int feedbackId, [FromForm]String ReporterEmail, [FromForm]String ReasonReport)
+        {
+            var response = repository.CreateReportFeedback(feedbackId, ReporterEmail, ReporterEmail);
+            return StatusCode(response.StatusCode,response);
+        }
     }
 }

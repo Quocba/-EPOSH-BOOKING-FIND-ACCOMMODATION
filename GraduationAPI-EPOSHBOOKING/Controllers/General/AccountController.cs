@@ -13,13 +13,11 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
     public class AccountController : ControllerBase
     {
         private readonly IAccountRepository repository;
-        private readonly IConfiguration configuration;
-        private readonly Utils utils;
+     
 
-        public AccountController(IAccountRepository _repository, IConfiguration configuration, Utils utils)
+
+        public AccountController(IAccountRepository _repository)
         {
-            this.configuration = configuration;
-            this.utils = utils;
             repository = _repository;
         }
 
@@ -52,16 +50,11 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpGet("searchByName")]
-        public IActionResult SearchByName([FromQuery] string name)
+        public IActionResult SearchAccountByName([FromQuery] string name)
         {
             var response = repository.SearchAccountByName(name);
             return StatusCode(response.StatusCode, response);
         }
-        [HttpPut("update-profile")]
-        public IActionResult UpdateProfile([FromForm]int accountID, [FromForm]Profile profile, [FromForm]IFormFile Avatar)
-        {
-            var response = repository.UpdateProfileByAccount(accountID, profile, Avatar);
-            return StatusCode(response.StatusCode, response);
-        }
+       
     }
 }
