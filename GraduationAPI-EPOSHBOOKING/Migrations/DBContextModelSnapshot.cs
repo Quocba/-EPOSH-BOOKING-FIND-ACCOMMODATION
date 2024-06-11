@@ -641,7 +641,6 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("VoucherImage")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("VoucherName")
@@ -752,7 +751,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.Hotel", b =>
                 {
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Account", "Account")
-                        .WithMany()
+                        .WithMany("Hotel")
                         .HasForeignKey("AccountID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -885,6 +884,8 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.Account", b =>
                 {
                     b.Navigation("Blogs");
+
+                    b.Navigation("Hotel");
 
                     b.Navigation("MyVouchers");
                 });

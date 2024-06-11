@@ -73,7 +73,18 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
             var response = repository.UpdateProfileByAccount(accountID, profile, Avatar);
             return StatusCode(response.StatusCode, response);
         }
-
-
+        [HttpPost("login")]
+        public IActionResult Login([FromForm]String email, [FromForm]String password)
+        {
+            var response = repository.Login(email, password);
+            return StatusCode(response.StatusCode, response);
+        }
+        [HttpGet("get-time-server")]
+        public IActionResult GetTime()
+        {
+            var time = DateTime.Now;
+            return Ok(time);
+        }
+        
     }
 }
