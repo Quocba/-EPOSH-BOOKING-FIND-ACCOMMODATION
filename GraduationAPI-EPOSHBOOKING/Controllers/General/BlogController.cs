@@ -53,9 +53,9 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             return StatusCode(response.StatusCode, response);
         }
         [HttpPost("comment-blog")]
-        public IActionResult CommentBlog([FromBody] CommentRequest commentRequest)
+        public IActionResult CommentBlog([FromForm]int blogId, [FromForm] int accountId, [FromForm] string description)
         {
-            var response = _blogRepository.CommentBlog(commentRequest.BlogID, commentRequest.AccountID, commentRequest.Description);
+            var response = _blogRepository.CommentBlog(blogId,accountId,description);
             return StatusCode(response.StatusCode, response);
         }
         [HttpGet("filter-blog-with-status")]

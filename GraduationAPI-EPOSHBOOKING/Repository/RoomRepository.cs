@@ -1,4 +1,5 @@
 ﻿using GraduationAPI_EPOSHBOOKING.DataAccess;
+using GraduationAPI_EPOSHBOOKING.DTO;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.EntityFrameworkCore;
@@ -53,7 +54,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = false,Data = getRoom, Message = "Data not found",StatusCode = (int)HttpStatusCode.NotFound}; 
         }
 
-        public ResponseMessage AddRoom(int hotelID, Room room,List<SpecialPrice>specialPrices, List<IFormFile> images,List<ServiceType>services)
+        public ResponseMessage AddRoom(int hotelID, Room room,List<SpecialPrice>specialPrices, List<IFormFile> images,List<ServiceTypeDTO>services)
         {
             var getHotel = db.hotel.FirstOrDefault(hotel => hotel.HotelID == hotelID);
             Room createRoom = new Room
@@ -154,7 +155,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         }
 
         public ResponseMessage UpdateRoom(int roomID, Room room, List<SpecialPrice>SpecialPrices, List<IFormFile> image, 
-            List<ServiceType>services)
+            List<ServiceTypeDTO>services)
         {
             var getRoom = db.room
                   .Include(room => room.Hotel)
@@ -295,7 +296,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetRoomByHotel(int hotelID)
         {
-            var currentDate = DateTime.UtcNow.AddDays(-1);
+            var currentDate = DateTime.Now.AddDays(-1);
             var listRoomWithHotel = db.room
                                       .Include(hotel => hotel.Hotel)
                                       .Include(roomService => roomService.RoomService)

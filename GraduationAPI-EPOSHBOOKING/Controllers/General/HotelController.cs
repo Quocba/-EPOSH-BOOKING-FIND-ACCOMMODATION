@@ -1,6 +1,5 @@
 ﻿
 using GraduationAPI_EPOSHBOOKING.IRepository;
-using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -47,16 +46,16 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpGet("get-by-price")]
-        public IActionResult getHotelByPrice([FromForm]double minPrice, [FromForm]double maxPrice)
+        public IActionResult getHotelByPrice([FromForm] String city, [FromForm]double minPrice, [FromForm]double maxPrice)
         {
-            var response = repository.GetHotelByPrice(minPrice, maxPrice);
+            var response = repository.GetHotelByPrice(city, minPrice, maxPrice);
             return StatusCode(response.StatusCode, response);
         }
 
-        [HttpGet("get-by-rating")]
-        public IActionResult getHotelByRating([FromQuery]int rating)
+        [HttpGet("get-by-standar")]
+        public IActionResult getHotelByRating([FromQuery]int hotelStandar)
         {
-            var response = repository.GetByRating(rating);
+            var response = repository.GetByHotelStandar(hotelStandar);
             return StatusCode(response.StatusCode, response);
         }
 
@@ -91,22 +90,8 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         [HttpPost("hotel-registration")]
         public IActionResult RegisterHotel([FromForm]HotelRegistrationDTO registrationModel)
         {
-            var services = JsonConvert.DeserializeObject<List<ServiceType>>(registrationModel.Services);
-
-            var response = repository.HotelRegistration(
-                registrationModel.HotelName,
-                registrationModel.OpenedIn,
-                registrationModel.Description,
-                registrationModel.HotelStandard,
-                registrationModel.HotelAddress,
-                registrationModel.City,
-                registrationModel.Latitude,
-                registrationModel.Longitude,
-                registrationModel.Images,
-                registrationModel.MainImage,
-                registrationModel.AccountID,
-                services
-            );
+            var services = JsonConvert.DeserializeObject<List<ServiceTypeDTO>>(registrationModel.Services);
+            var response = repository.HotelRegistration(registrationModel, services);
             return StatusCode(response.StatusCode, response);
         }   
         [HttpPut("update-basic-infomation")]
@@ -152,9 +137,9 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpPut("blocked-hotel")]
-        public IActionResult BlockedHotel([FromQuery]int hotelId)
+        public IActionResult BlockedHotel([FromQuery]int hotelId, String reaseonBlock)
         {
-            var response = repository.BlockedHotel(hotelId);
+            var response = repository.BlockedHotel(hotelId,reaseonBlock);
             return StatusCode(response.StatusCode, response);
         }
 
@@ -184,9 +169,9 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpGet("get-all-registrationfom")]
-        public IActionResult GetAllHotelWaitForConfirm()
+        public IActionResult GetAllHotelWaitForApproval()
         {
-            var response = repository.GetAllHotelWaitForConfirm();
+            var response = repository.GetAllHotelWaitForApproval();
             return StatusCode(response.StatusCode, response);
         }
 
