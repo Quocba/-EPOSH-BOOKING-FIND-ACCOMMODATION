@@ -24,6 +24,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         [ForeignKey("ProfileID")]
         public Profile? Profile { get; set; }
 
+        public ICollection<Hotel> Hotel { get; set; }
         public ICollection<MyVoucher>? MyVouchers { get; set; }
         public ICollection<Blog>? Blogs { get; set; }
 

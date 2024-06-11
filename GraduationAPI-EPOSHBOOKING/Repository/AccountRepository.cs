@@ -146,8 +146,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 Success = true,
                 Message = "Registration Successfully",
-                StatusCode = 201,
-                Data = new { account.AccountID, account.Email, profile.fullName }
+                StatusCode = (int)HttpStatusCode.OK,
+                Data = account
             };
         }
 
@@ -315,7 +315,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 db.SaveChanges();
                 Ultils.Utils.SendMailRegistration(getAccount.Email, reason);
 
-                return new ResponseMessage { Success = true,Message = "Blocked Successfully", Data = new { account = getAccount, hotel = getHotel }, StatusCode = (int)HttpStatusCode.OK };
+                return new ResponseMessage { Success = true,Message = "Blocked Successfully", Data = getAccount, StatusCode = (int)HttpStatusCode.OK };
             }
 
 
@@ -359,6 +359,59 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             });
 
             return new ResponseMessage { Success = true, Data = result, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            
+        }
+
+        public ResponseMessage Login(String email, String password)
+        {
+            var passwordMD5 = Ultils.Utils.HashPassword(password);
+            var checkAccount = db.accounts
+                                 .Include(profile => profile.Profile)
+                                 .Include(Role => Role.Role)
+                                 .Include(hotel => hotel.Hotel)
+                                 .FirstOrDefault(x => x.Email.Equals(email) && x.Password.Equals(passwordMD5));
+           if(checkAccount != null && checkAccount.IsActive == true && checkAccount.Role.Name.Equals("Customer"))
+            {   
+                return new ResponseMessage { Success = true, Data = checkAccount, Message = "Successfully", StatusCode= (int)HttpStatusCode.OK };
+            }
+            if (checkAccount != null && checkAccount.IsActive == false && checkAccount.Role.Name.Equals("Customer"))
+            {
+                return new ResponseMessage { Success = false, Data = checkAccount, Message = "Your account has been permanently blocked.", StatusCode= (int)HttpStatusCode.Forbidden};
+
+            }
+
+            if (checkAccount != null && checkAccount.IsActive == true && checkAccount.Role.Name.Equals("Partner")
+                && checkAccount.Hotel.Any(status => status.Status == true) && checkAccount.Hotel.Any(isRegister => isRegister.isRegister.Equals("Approved")))
+            {
+                return new ResponseMessage { Success = true, Data = checkAccount, Message = "Sucessfully", StatusCode = (int)(HttpStatusCode.OK) };
+            }
+
+            if (checkAccount != null && checkAccount.IsActive == false && checkAccount.Role.Name.Equals("Partner")
+              && checkAccount.Hotel.Any(status => status.Status == false) && checkAccount.Hotel.Any(isRegister => isRegister.isRegister.Equals("Blocked")))
+            {
+               return new ResponseMessage { Success = false, Data = checkAccount, Message = "Your account has been permanently blocked.", StatusCode = (int)HttpStatusCode.Forbidden };
+            }
+
+            if (checkAccount != null && checkAccount.IsActive == true && checkAccount.Role.Name.Equals("Partner")
+                && checkAccount.Hotel.Any(status => status.Status == false) && checkAccount.Hotel.Any(isRegister => isRegister.isRegister.Equals("Awaiting Approval")))
+            {
+                return new ResponseMessage { 
+                                            Success = true, 
+                                            Data = checkAccount, 
+                                            Message = "Your partner account is awaiting approval. Please wait for our response email.", 
+                                            StatusCode = (int)(HttpStatusCode.Accepted) 
+                                            };
+            }
+
+            if (checkAccount != null && checkAccount.IsActive == true && checkAccount.Role.Name.Equals("Admin"))
+            {
+                return new ResponseMessage { Success = true, Data = checkAccount, Message = "Sucessfully", StatusCode=(int)(HttpStatusCode.OK) };
+            }
+
+            else
+            {
+                return new ResponseMessage { Success = false, Data = checkAccount, Message = "Login Fail.Account does not exist!", StatusCode = (int)(HttpStatusCode.NotFound) };
+            }
             
         }
     }

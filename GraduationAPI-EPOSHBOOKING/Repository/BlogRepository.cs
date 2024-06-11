@@ -68,6 +68,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 var blog = db.blog
                     .Include(b => b.Comment)
+                    .Include(account => account.Account)
+                    .ThenInclude(profile => profile.Profile)
                     .Include(b => b.BlogImage)
                     .FirstOrDefault(b => b.BlogID == blogId);
 
@@ -88,7 +90,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetBlogsByAccountId(int accountId)
         {
-            var getBlog = db.blog.Include(img => img.BlogImage).Include(account => account.Account)
+            var getBlog = db.blog.Include(img => img.BlogImage)
+                .Include(account => account.Account)
                 .Where(blog => blog.Account.AccountID == accountId)
                 .ToList();
             if (getBlog.Any())
@@ -298,7 +301,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage ConfirmBlog(int blogId)
         {
             {
-                var existingBlog = db.blog.FirstOrDefault(b => b.BlogID == blogId);
+                var existingBlog = db.blog
+                                     .Include(account => account.Account)
+                                     .ThenInclude(profile => profile.Profile)
+                                     .Include(image => image.BlogImage)
+                                     .FirstOrDefault(b => b.BlogID == blogId);
                 if (existingBlog == null)
                 {
                     return new ResponseMessage { Success = false, Message = "Blog not found", StatusCode = (int)HttpStatusCode.NotFound };
@@ -328,7 +335,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage RejectBlog(int blogId,string reasonReject)
         {
-            var existingBlog = db.blog.FirstOrDefault(b => b.BlogID == blogId);
+            var existingBlog = db.blog
+                                 .Include(account => account.Account)
+                                 .ThenInclude(profile => profile.Profile)
+                                 .Include(image => image.BlogImage)
+                                 .FirstOrDefault(b => b.BlogID == blogId);
             if (existingBlog == null)
             {
                 return new ResponseMessage { Success = false, Message = "Blog not found", StatusCode = (int)HttpStatusCode.NotFound };

@@ -1,4 +1,5 @@
-﻿using GraduationAPI_EPOSHBOOKING.Model;
+﻿using GraduationAPI_EPOSHBOOKING.DTO;
+using GraduationAPI_EPOSHBOOKING.Model;
 
 namespace GraduationAPI_EPOSHBOOKING.IRepository
 {
@@ -7,8 +8,8 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         ResponseMessage GetRoomDetail(int roomID);
         ResponseMessage GetAllRoom();
         ResponseMessage DeleteRoom(int roomID);
-        ResponseMessage AddRoom(int hotelID,Room room,List<SpecialPrice>specialPrices, List<IFormFile>images,List<ServiceType>services);
-        ResponseMessage UpdateRoom(int roomID,Room room,List<SpecialPrice> specialPrices, List<IFormFile>image,List<ServiceType>services);
+        ResponseMessage AddRoom(int hotelID,Room room,List<SpecialPrice>specialPrices, List<IFormFile>images,List<ServiceTypeDTO>services);
+        ResponseMessage UpdateRoom(int roomID,Room room,List<SpecialPrice> specialPrices, List<IFormFile>image,List<ServiceTypeDTO>services);
         ResponseMessage GetRoomByHotel(int hotelID);
     }
 }
