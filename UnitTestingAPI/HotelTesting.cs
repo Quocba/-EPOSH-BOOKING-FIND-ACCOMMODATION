@@ -101,15 +101,16 @@ namespace UnitTestingAPI
         {
             double minPrice = 100;
             double maxPrice = 150;
+            String address = "Ho Chi Minh";
             var fakeHotel = GetFakeHotels();
             var expectedResult = fakeHotel.Select(hotel => new
             {
                 Hotel = hotel,
                 AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0
             }).ToList();
-            repository.Setup(repository => repository.GetHotelByPrice(minPrice, maxPrice))
+            repository.Setup(repository => repository.GetHotelByPrice(address,minPrice, maxPrice))
                 .Returns(new ResponseMessage { Success = true, Data = expectedResult, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK });
-            var result = controller.getHotelByPrice(minPrice, maxPrice) as ObjectResult;
+            var result = controller.getHotelByPrice(address, minPrice, maxPrice) as ObjectResult;
             Assert.AreEqual(200, result.StatusCode);
         }
 
@@ -118,10 +119,12 @@ namespace UnitTestingAPI
         {
             double minPrice = 200;
             double maxPrice = 500;
-            repository.Setup(repository => repository.GetHotelByPrice(minPrice, maxPrice))
+            String address = "Ho Chi Minh";
+
+            repository.Setup(repository => repository.GetHotelByPrice(address, minPrice, maxPrice))
                       .Returns(new ResponseMessage { Success = false, Data = null, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound });
 
-            var result = controller.getHotelByPrice(minPrice, maxPrice) as ObjectResult;
+            var result = controller.getHotelByPrice(address, minPrice, maxPrice) as ObjectResult;
             Assert.AreEqual(404, result.StatusCode);
         }
 
@@ -137,7 +140,7 @@ namespace UnitTestingAPI
             });
 
             var expected = filterHotelRating.Where(h => (int)h.AvgRating == rating).ToList();
-            repository.Setup(repository => repository.GetByRating(rating))
+            repository.Setup(repository => repository.GetByHotelStandar(rating))
                 .Returns(new ResponseMessage { Success = true, Data = expected, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK });
             var result = controller.getHotelByRating(rating) as ObjectResult;
             Assert.AreEqual(200, result.StatusCode);
@@ -156,7 +159,7 @@ namespace UnitTestingAPI
             });
 
             var expected = filterHotelRating.Where(h => (int)h.AvgRating == rating).ToList();
-            repository.Setup(repository => repository.GetByRating(rating))
+            repository.Setup(repository => repository.GetByHotelStandar(rating))
                 .Returns(new ResponseMessage { Success = true, Data = expected, Message = "Data Not Found", StatusCode = (int)HttpStatusCode.NotFound });
             var result = controller.getHotelByRating(rating) as ObjectResult;
             Assert.AreEqual(404, result.StatusCode);

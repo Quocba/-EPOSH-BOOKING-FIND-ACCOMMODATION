@@ -39,7 +39,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         [HttpPost("add-room")]
         public IActionResult AddRoom([FromForm] AddRoomDTO addRoomModel)
         {
-            var services = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ServiceType>>(addRoomModel.Services);
+            var services = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ServiceTypeDTO>>(addRoomModel.Services);
             var specialPrices = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SpecialPrice>>(addRoomModel.SpecialPrices);
             var response = reponsitory.AddRoom(
                 addRoomModel.HotelID,
@@ -55,7 +55,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         [HttpPut("update-room")]
         public IActionResult UpdateRoom([FromForm] UpdateRoomDTO updateRoomModel)
         {
-            var services = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ServiceType>>(updateRoomModel.Services);
+            var services = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ServiceTypeDTO>>(updateRoomModel.Services);
             var specialPrice = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SpecialPrice>>(updateRoomModel.specialPrice);
             var response = reponsitory.UpdateRoom(
                 updateRoomModel.RoomID,

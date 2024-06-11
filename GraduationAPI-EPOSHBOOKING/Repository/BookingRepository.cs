@@ -63,7 +63,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         private bool CanCancelBooking(DateTime checkInDate)
         {
-            DateTime currentDateTime = DateTime.Now;
+            DateTime currentDateTime = DateTime.Now.AddDays(-1);
             TimeSpan timeDifference = checkInDate - currentDateTime;
 
             // Check if the check-in date is more than 24 hours from now

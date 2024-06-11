@@ -12,8 +12,6 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
     public class VoucherController : ControllerBase
     {
         private readonly IVoucherRepository _voucherRepository;
-        private readonly IConfiguration configuration;
-        private readonly Utils utils;
 
         public VoucherController(IVoucherRepository voucherRepository)
         {
