@@ -58,14 +58,14 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
     app.UseCors("AllowAllOrigins");
     app.UseHttpsRedirection();
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(
-    Path.Combine(Directory.GetCurrentDirectory(), "images")),
-    RequestPath = "/images"
-});
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "images")),
+        RequestPath = "/images"
+    });
 
-app.UseAuthentication();
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllers();

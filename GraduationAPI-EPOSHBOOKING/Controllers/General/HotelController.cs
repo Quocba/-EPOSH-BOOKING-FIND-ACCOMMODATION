@@ -181,6 +181,13 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             var response = repository.AnalyzeHotelStandar();
             return StatusCode(response.StatusCode, response);
         }
+
+        [HttpGet("get-guest-review")]
+        public IActionResult GetGuestReview([FromQuery]int hotelID)
+        {
+            var response = repository.GetGuestReviewByHotel(hotelID);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
  
