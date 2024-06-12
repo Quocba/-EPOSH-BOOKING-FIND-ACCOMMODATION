@@ -74,9 +74,9 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
             return StatusCode(response.StatusCode, response);
         }
         [HttpPost("login")]
-        public IActionResult Login([FromForm]String email, [FromForm]String password)
+        public IActionResult Login([FromBody]LoginDTO login)
         {
-            var response = repository.Login(email, password);
+            var response = repository.Login(login.Email, login.Password);
             return StatusCode(response.StatusCode, response);
         }
         [HttpGet("get-time-server")]
