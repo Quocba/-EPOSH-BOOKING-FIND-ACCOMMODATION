@@ -52,8 +52,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     };
                     db.accounts.Add(addAccount);
                     db.SaveChanges();
-                    Ultils.Utils.sendMail(account.Email);
-                    return new ResponseMessage { Success = true, Data = addAccount, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                    String otp = Ultils.Utils.sendMail(account.Email);
+                    return new ResponseMessage { Success = true, Data = new { addAccount = addAccount, otp = otp }, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                 }
                 return new ResponseMessage { Success = false, Data = account, Message = "Register Fail", StatusCode = (int)HttpStatusCode.BadRequest };
             }
@@ -120,7 +120,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 {
                     Success = false,
                     Message = "Email is already registered",
-                    StatusCode = 400
+                    StatusCode = (int)HttpStatusCode.AlreadyReported
                 };
             }
 
@@ -141,13 +141,13 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             account.Profile = profile;
             db.accounts.Add(account);
             db.SaveChanges();
-
+            String otp = Ultils.Utils.sendMail(account.Email);
             return new ResponseMessage
             {
                 Success = true,
                 Message = "Registration Successfully",
                 StatusCode = (int)HttpStatusCode.OK,
-                Data = account
+                Data = new {Account = account, otp = otp}
             };
         }
 
@@ -391,7 +391,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                return new ResponseMessage { Success = false, Data = checkAccount, Message = "Your account has been permanently blocked.", StatusCode = (int)HttpStatusCode.Forbidden };
             }
-
+            
             if (checkAccount != null && checkAccount.IsActive == true && checkAccount.Role.Name.Equals("Partner")
                 && checkAccount.Hotel.Any(status => status.Status == false) && checkAccount.Hotel.Any(isRegister => isRegister.isRegister.Equals("Awaiting Approval")))
             {
@@ -401,6 +401,15 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                             Message = "Your partner account is awaiting approval. Please wait for our response email.", 
                                             StatusCode = (int)(HttpStatusCode.Accepted) 
                                             };
+            }
+            if (checkAccount != null && checkAccount.IsActive == true && checkAccount.Role.Name.Equals("Partner")
+             && !checkAccount.Hotel.Any())
+            {
+                return new ResponseMessage { 
+                                            Success = false,
+                                            Data = checkAccount, 
+                                            Message = "Your account does not have any registered hotels.Please registered hotels.", 
+                                            StatusCode = (int)HttpStatusCode.Created };
             }
 
             if (checkAccount != null && checkAccount.IsActive == true && checkAccount.Role.Name.Equals("Admin"))
@@ -416,3 +425,4 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         }
     }
 }
+    
