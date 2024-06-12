@@ -11,7 +11,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public int FeedBackID { get; set; }
 
         public int Rating { get; set; }
-        public String Image { get; set; }
+        public String? Image { get; set; }
         public String Description { get; set; }
         public bool isDeleted { get; set; }
 
