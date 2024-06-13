@@ -1,4 +1,5 @@
-﻿using GraduationAPI_EPOSHBOOKING.Model;
+﻿using GraduationAPI_EPOSHBOOKING.DTO;
+using GraduationAPI_EPOSHBOOKING.Model;
 
 namespace GraduationAPI_EPOSHBOOKING.IRepository
 {
@@ -8,6 +9,7 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
 
         public ResponseMessage CancleBooking(int bookingID, String Reason);
         public ResponseMessage CreateBooking(int accountID, int voucherID,int RoomID,Booking? booking);
+        public ResponseMessage CreateBookingFE(CreateBookingDTO newBooking);
         public ResponseMessage ChangeStatusWaitForPayment(int bookingID);
         public ResponseMessage ChangeStatusComplete(int bookingID);
         public ResponseMessage GetAllBooking();
@@ -21,5 +23,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage GetBookingByHotel(int hotelID);
         public ResponseMessage ExportBookingbyHotelID(int hotelID);
         public ResponseMessage ExportRevenues();
+        public double CheckRoomPrice(int roomID, DateTime CheckInDate, DateTime CheckOutDate);
     }
 }

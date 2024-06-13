@@ -1,4 +1,5 @@
-﻿using GraduationAPI_EPOSHBOOKING.IRepository;
+﻿using GraduationAPI_EPOSHBOOKING.DTO;
+using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -35,7 +36,18 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             var response = repository.CreateBooking(accountID, voucherID, roomID, booking);
             return StatusCode(response.StatusCode, response);
         }
+        [HttpPost("create-booking-fe")]
+        public IActionResult CreateBookingFE([FromForm]CreateBookingDTO createBookingDTO)
+        {
+            var response = repository.CreateBookingFE(createBookingDTO);
+            return StatusCode(response.StatusCode, response);
+        }
 
+        [HttpGet("check-room-price")]
+        public IActionResult CheckRoomPrice([FromForm]int roomID, [FromForm]DateTime CheckInDate, [FromForm]DateTime CheckOutDate) { 
+            double roomPrice = repository.CheckRoomPrice(roomID, CheckInDate, CheckOutDate);
+            return Ok(new { Price = roomPrice });
+        }
         [HttpGet("get-all-bookings")]
         public IActionResult GetAllBooking()
         {
