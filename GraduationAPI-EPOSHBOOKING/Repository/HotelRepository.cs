@@ -571,7 +571,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         Hotel = hotel,
                         Room = hotel.rooms.Select(newRoom =>
                         {
-                            var specialPrice = newRoom.SpecialPrice.FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                            var specialPrice = newRoom.SpecialPrice.FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate
+                            || checkInDate >= sp.StartDate && checkOutDate <= sp.EndDate);
                             if (specialPrice != null)
                             {
                                 newRoom.Price = specialPrice.Price;
