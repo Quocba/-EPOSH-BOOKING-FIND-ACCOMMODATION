@@ -28,34 +28,107 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetBookingByAccount(int accountID)
         {
-            var getBooking = db.booking.Where(booking => booking.Account.AccountID == accountID).Include(room => room.Room).ThenInclude(hotel => hotel.Hotel)
-                .ToList();
+            var getBooking = db.booking
+                               .Include(room => room.Room)
+                               .ThenInclude(hotel => hotel.Hotel)
+                               .Where(booking => booking.Account.AccountID == accountID)
+                               .ToList();
+            var responseData = getBooking.Select(booking => new
+            {
+               BookingID = booking.BookingID,
+               CheckInDate = booking.CheckInDate,
+               CheckOutDate = booking.CheckOutDate,
+               TotalPrice = booking.TotalPrice,
+               UnitPrice = booking.UnitPrice,
+               TaxesPrice = booking.TaxesPrice,
+               NumberOfRoom = booking.NumberOfRoom,
+               NumberOfGuest = booking.NumberGuest,
+               Status = booking.Status,
+               Room = new
+               {
+                   RoomID = booking.Room.RoomID,
+                   TypeOfRoom = booking.Room.TypeOfRoom,
+                   NumberOfCapacity = booking.Room.NumberCapacity,
+                   Price = booking.Room.Price,
+                   Quantity = booking.Room.Quantity,
+                   SizeOfRoom = booking.Room.SizeOfRoom,
+                   TypeOfBed = booking.Room.TypeOfBed
+               },
+               Hotel = new
+               {
+                   HotelID = booking.Room.Hotel.HotelID,
+                   MainImage = booking.Room.Hotel.MainImage,
+                   Name = booking.Room.Hotel.Name,
+                   OpenIn = booking.Room.Hotel.OpenedIn,
+                   Description = booking.Room.Hotel.Description,
+                   HotelStandar = booking.Room.Hotel.HotelStandar,
+                   IsRegister = booking.Room.Hotel.isRegister,
+                   Status = booking.Room.Hotel.Status
+               }
+            });
             if (getBooking.Any())
             {
-                return new ResponseMessage { Success = true, Data = getBooking, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                return new ResponseMessage { Success = true, Data = responseData, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
-            return new ResponseMessage { Success = false, Data = getBooking, Message = "No Booking", StatusCode = (int)HttpStatusCode.NotFound };
+            return new ResponseMessage { Success = false, Data = responseData, Message = "No Booking", StatusCode = (int)HttpStatusCode.NotFound };
         }
 
         public ResponseMessage CancleBooking(int bookingID, String Reason)
         {
-            var getBooking = db.booking.Include(account => account.Account).FirstOrDefault(booking => booking.BookingID == bookingID);
-            if (getBooking != null)
+            var booking = db.booking
+                            .Include(room => room.Room)
+                            .ThenInclude(hotel => hotel.Hotel)
+                            .Include(account => account.Account)
+                            .FirstOrDefault(booking => booking.BookingID == bookingID);
+            if (booking != null)
             {
-                if (CanCancelBooking(getBooking.CheckInDate))
+                if (CanCancelBooking(booking.CheckInDate))
                 {
-                    getBooking.Status = "Cancle";
-                    getBooking.ReasonCancle = Reason;
-                    db.booking.Update(getBooking);
+                    booking.Status = "Cancle";
+                    booking.ReasonCancle = Reason;
+                    db.booking.Update(booking);
                     db.SaveChanges();
-                    return new ResponseMessage { Success = true, Data = getBooking, Message = "Cancle Success", StatusCode = (int)HttpStatusCode.OK };
-                }
-
+                    var responseData = new
+                    {
+                        BookingID = booking.BookingID,
+                        CheckInDate = booking.CheckInDate,
+                        CheckOutDate = booking.CheckOutDate,
+                        TotalPrice = booking.TotalPrice,
+                        UnitPrice = booking.UnitPrice,
+                        TaxesPrice = booking.TaxesPrice,
+                        NumberOfRoom = booking.NumberOfRoom,
+                        NumberOfGuest = booking.NumberGuest,
+                        Status = booking.Status,
+                        ReasonCancel = booking.ReasonCancle,
+                        Room = booking.Room == null ? null : new
+                        {
+                            RoomID = booking.Room.RoomID,
+                            TypeOfRoom = booking.Room.TypeOfRoom,
+                            NumberOfCapacity = booking.Room.NumberCapacity,
+                            Price = booking.Room.Price,
+                            Quantity = booking.Room.Quantity,
+                            SizeOfRoom = booking.Room.SizeOfRoom,
+                            TypeOfBed = booking.Room.TypeOfBed,
+                            Hotel = booking.Room.Hotel == null ? null : new
+                            {
+                                HotelID = booking.Room.Hotel.HotelID,
+                                MainImage = booking.Room.Hotel.MainImage,
+                                Name = booking.Room.Hotel.Name,
+                                OpenedIn = booking.Room.Hotel.OpenedIn,
+                                Description = booking.Room.Hotel.Description,
+                                HotelStandard = booking.Room.Hotel.HotelStandar,
+                                IsRegister = booking.Room.Hotel.isRegister,
+                                Status = booking.Room.Hotel.Status
+                            }
+                        }
+                    };
+                    return new ResponseMessage { Success = true, Data = responseData, Message = "Cancle Success", StatusCode = (int)HttpStatusCode.OK };
+                };
             }
+
             return new ResponseMessage
             {
                 Success = false,
-                Data = getBooking,
                 Message = "Cancel failed. You must cancel 24 hours before check-in date.",
                 StatusCode = (int)HttpStatusCode.NotFound
             };
@@ -63,7 +136,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         private bool CanCancelBooking(DateTime checkInDate)
         {
-            DateTime currentDateTime = DateTime.Now.AddDays(-1);
+            DateTime currentDateTime = DateTime.Now;
             TimeSpan timeDifference = checkInDate - currentDateTime;
 
             // Check if the check-in date is more than 24 hours from now
@@ -192,6 +265,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = true, Data = ex, Message = "Internal Server Error", StatusCode = (int)HttpStatusCode.InternalServerError };
             }
         }
+
+
 
         public ResponseMessage ExportBookingbyHotelID(int hotelID)
         {
@@ -925,6 +1000,162 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                 });
             return new ResponseMessage { Success = true,Data = listBooking,Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                                 
+        }
+
+        public ResponseMessage CreateBookingFE(CreateBookingDTO newBooking)
+        {
+            var account = db.accounts
+                            .Include(profile => profile.Profile)
+                            .FirstOrDefault(account => account.AccountID == newBooking.AccountID);
+            var voucher = db.voucher.FirstOrDefault(voucher => voucher.VoucherID == newBooking.VoucherID);
+            var room = db.room.Include(hotel => hotel.Hotel)
+                              .FirstOrDefault(room => room.RoomID == newBooking.RoomID);
+            if (voucher != null && voucher.QuantityUse >0)
+            {
+                Booking createBooking = new Booking
+                {
+                    Account = account,
+                    Voucher = voucher,
+                    Room = room,
+                    CheckInDate = newBooking.CheckInDate,
+                    CheckOutDate = newBooking.CheckOutDate,
+                    UnitPrice = CheckRoomPrice(newBooking.RoomID,newBooking.CheckInDate,newBooking.CheckOutDate), 
+                    TotalPrice = newBooking.TotalPrice,
+                    TaxesPrice = newBooking.TaxesPrice,
+                    NumberGuest = newBooking.NumberOfGuest,
+                    NumberOfRoom = newBooking.NumberOfRoom,
+                    Status = "WaitWait For Check-In"
+                };
+                db.booking.Add(createBooking);
+                voucher.QuantityUse = voucher.QuantityUse - 1;
+                room.Quantity = room.Quantity - newBooking.NumberOfRoom;
+                db.voucher.Update(voucher);
+                db.room.Update(room);
+                if (voucher.QuantityUse == 0)
+                {
+                    var myvoucher = db.myVoucher
+                                      .Include(account => account.Account)
+                                      .Include(voucher => voucher.Voucher)
+                                      .FirstOrDefault(myVoucher => myVoucher.VoucherID == newBooking.VoucherID);
+                    if (myvoucher != null)
+                    {
+                        myvoucher.IsVoucher = false;
+                        db.myVoucher.Update(myvoucher);
+                        Ultils.Utils.sendMail(createBooking.Account.Email);
+                    }
+                }
+                db.SaveChanges();
+                var responseData = new
+                {
+                    BookingID = createBooking.BookingID,
+                    CheckInDate = createBooking.CheckInDate,
+                    CheckOutDate = createBooking.CheckOutDate,
+                    TotalPrice = createBooking.TotalPrice,
+                    UnitPrice = createBooking.UnitPrice,
+                    TaxesPrice = createBooking.TaxesPrice,
+                    NumberOfRoom = createBooking.NumberOfRoom,
+                    NumberOfGuest = createBooking.NumberGuest,
+                    Status = createBooking.Status,
+                    ReasonCancel = createBooking.ReasonCancle,
+                    Room = createBooking.Room == null ? null : new
+                    {
+                        RoomID = createBooking.Room.RoomID,
+                        TypeOfRoom = createBooking.Room.TypeOfRoom,
+                        NumberOfCapacity = createBooking.Room.NumberCapacity,
+                        Price = createBooking.Room.Price,
+                        Quantity = createBooking.Room.Quantity,
+                        SizeOfRoom = createBooking.Room.SizeOfRoom,
+                        TypeOfBed = createBooking.Room.TypeOfBed,
+                        Hotel = createBooking.Room.Hotel == null ? null : new
+                        {
+                            HotelID = createBooking.Room.Hotel.HotelID,
+                            MainImage = createBooking.Room.Hotel.MainImage,
+                            Name = createBooking.Room.Hotel.Name,
+                            OpenedIn = createBooking.Room.Hotel.OpenedIn,
+                            Description = createBooking.Room.Hotel.Description,
+                            HotelStandard = createBooking.Room.Hotel.HotelStandar,
+                            IsRegister = createBooking.Room.Hotel.isRegister,
+                            Status = createBooking.Room.Hotel.Status
+                        }
+                    }
+                };
+                return new ResponseMessage { Success = true, Data = responseData, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+            else
+            {
+                Booking createBooking = new Booking
+                {
+                    Account = account,
+                    Voucher = voucher,
+                    Room = room,
+                    CheckInDate = newBooking.CheckInDate,
+                    CheckOutDate = newBooking.CheckOutDate,
+                    UnitPrice = CheckRoomPrice(newBooking.RoomID, newBooking.CheckInDate, newBooking.CheckOutDate),
+                    TotalPrice = newBooking.TotalPrice,
+                    TaxesPrice = newBooking.TaxesPrice,
+                    NumberGuest = newBooking.NumberOfGuest,
+                    NumberOfRoom = newBooking.NumberOfRoom,
+                    Status = "WaitWait For Check-In"
+                };
+                db.booking.Add(createBooking);
+                room.Quantity = room.Quantity - newBooking.NumberOfRoom;
+                db.room.Update(room);
+                db.booking.Add(createBooking);
+                db.SaveChanges();
+                Ultils.Utils.sendMail(createBooking.Account.Email);
+
+                var responseData = new
+                {
+                    BookingID = createBooking.BookingID,
+                    CheckInDate = createBooking.CheckInDate,
+                    CheckOutDate = createBooking.CheckOutDate,
+                    TotalPrice = createBooking.TotalPrice,
+                    UnitPrice = createBooking.UnitPrice,
+                    TaxesPrice = createBooking.TaxesPrice,
+                    NumberOfRoom = createBooking.NumberOfRoom,
+                    NumberOfGuest = createBooking.NumberGuest,
+                    Status = createBooking.Status,
+                    ReasonCancel = createBooking.ReasonCancle,
+                    Room = createBooking.Room == null ? null : new
+                    {
+                        RoomID = createBooking.Room.RoomID,
+                        TypeOfRoom = createBooking.Room.TypeOfRoom,
+                        NumberOfCapacity = createBooking.Room.NumberCapacity,
+                        Price = createBooking.Room.Price,
+                        Quantity = createBooking.Room.Quantity,
+                        SizeOfRoom = createBooking.Room.SizeOfRoom,
+                        TypeOfBed = createBooking.Room.TypeOfBed,
+                        Hotel = createBooking.Room.Hotel == null ? null : new
+                        {
+                            HotelID = createBooking.Room.Hotel.HotelID,
+                            MainImage = createBooking.Room.Hotel.MainImage,
+                            Name = createBooking.Room.Hotel.Name,
+                            OpenedIn = createBooking.Room.Hotel.OpenedIn,
+                            Description = createBooking.Room.Hotel.Description,
+                            HotelStandard = createBooking.Room.Hotel.HotelStandar,
+                            IsRegister = createBooking.Room.Hotel.isRegister,
+                            Status = createBooking.Room.Hotel.Status
+                        }
+                    }
+                };
+                return new ResponseMessage { Success = true, Data = responseData, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+
+            }
+
+        }
+
+        public double CheckRoomPrice(int roomID, DateTime CheckInDate, DateTime CheckOutDate)
+        {
+            var room = db.room
+                         .Include(specialPrice => specialPrice.SpecialPrice)
+                         .FirstOrDefault(room => room.RoomID == roomID);
+            var specialPrice = room.SpecialPrice
+                              .FirstOrDefault(sp => CheckInDate >= sp.StartDate && CheckOutDate <= sp.EndDate);
+            if (specialPrice != null)
+            {
+                room.Price = specialPrice.Price;
+            }
+            return room.Price;
         }
     }
 }

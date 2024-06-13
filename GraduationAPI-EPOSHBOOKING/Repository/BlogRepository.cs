@@ -5,6 +5,7 @@ using GraduationAPI_EPOSHBOOKING.Model;
 using GraduationAPI_EPOSHBOOKING.Ultils;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Net;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
@@ -68,14 +69,48 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 var blog = db.blog
                     .Include(b => b.Comment)
+                    .ThenInclude(accountComment => accountComment.account)
+                    .ThenInclude(profileAccount  => profileAccount.Profile)
                     .Include(account => account.Account)
                     .ThenInclude(profile => profile.Profile)
                     .Include(b => b.BlogImage)
                     .FirstOrDefault(b => b.BlogID == blogId);
+                
 
                 if (blog != null)
                 {
-                    return new ResponseMessage { Success = true, Message = "Successfully retrieved blog details", Data = blog, StatusCode = (int)HttpStatusCode.OK };
+                    var responseData = new
+                    {
+                        blog.BlogID,
+                        blog.Title,
+                        blog.Description,
+                        blog.Location,
+                        blog.PublishDate,
+                        blog.Status,
+                        Comments = blog.Comment?.Select(c => new
+                        {
+                            c.CommentID,
+                            c.Description,
+                            c.DateComment,
+                            Account = new
+                            {
+                                AccountID = c.account.AccountID,
+                                Email = c.account.Email,
+                                Phone = c.account.Phone,
+                                Profile = new
+                                {
+                                   FullName = c.account.Profile.fullName,
+                                   Avatar = c.account.Profile.Avatar
+                                }
+                            }
+                        }).ToList(),
+                        BlogImages = blog.BlogImage.Select(img => new
+                        {
+                            img.ImageID,
+                            img.Image
+                        }).ToList()
+                    };
+                    return new ResponseMessage { Success = true, Message = "Successfully retrieved blog details", Data = responseData, StatusCode = (int)HttpStatusCode.OK };
                 }
                 else
                 {
@@ -94,11 +129,32 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 .Include(account => account.Account)
                 .Where(blog => blog.Account.AccountID == accountId)
                 .ToList();
+            var responseData = getBlog.Select(blog => new
+            {
+                Blog = new
+                {
+                    BlogID = blog.BlogID,
+                    Title = blog.Title,
+                    Description = blog.Description,
+                    Location = blog.Location,
+                    PublishDate = blog.PublishDate,
+                    Status = blog.Status,
+                    ReasonReject = blog.ReasonReject,
+                    BlogImage = blog.BlogImage.Select(img => new
+                    {
+                        ImageID = img.ImageID,
+                        Image = img.Image
+                    }).ToList()
+ 
+                }
+            });
+
             if (getBlog.Any())
             {
-                return new ResponseMessage { Success = true, Data = getBlog, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+               
+                return new ResponseMessage { Success = true, Data = responseData, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
-            return new ResponseMessage { Success = false, Data = getBlog, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+            return new ResponseMessage { Success = false, Data = responseData, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
 
         public ResponseMessage CreateBlog(Blog blog, int accountId, List<IFormFile> images)

@@ -53,7 +53,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     db.accounts.Add(addAccount);
                     db.SaveChanges();
                     String otp = Ultils.Utils.sendMail(account.Email);
-                    return new ResponseMessage { Success = true, Data = new { addAccount = addAccount, otp = otp }, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                    return new ResponseMessage { Success = true, Data = new { addAccount = addAccount, OTP = otp }, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                 }
                 return new ResponseMessage { Success = false, Data = account, Message = "Register Fail", StatusCode = (int)HttpStatusCode.BadRequest };
             }
