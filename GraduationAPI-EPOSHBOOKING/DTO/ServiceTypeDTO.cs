@@ -2,7 +2,7 @@
 {
     public class ServiceTypeDTO
     {
-        public string Type { get; set; }
-        public List<string> SubServiceNames { get; set; }
+        public string serviceType { get; set; }
+        public List<string> subServiceName { get; set; }
     }
 }

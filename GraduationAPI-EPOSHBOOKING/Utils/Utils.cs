@@ -6,9 +6,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Drawing;
 using ClosedXML.Excel;
-using CloudinaryDotNet;
 using Microsoft.Extensions.Options;
-using CloudinaryDotNet.Actions;
+
 
 namespace GraduationAPI_EPOSHBOOKING.Ultils
 {
