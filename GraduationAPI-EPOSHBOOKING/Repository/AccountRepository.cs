@@ -17,10 +17,12 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
     {
         private readonly DBContext db;
         private readonly IWebHostEnvironment environment;
-        public AccountRepository(DBContext _db,IWebHostEnvironment _environment)
+        private readonly IConfiguration configuration;
+        public AccountRepository(DBContext _db,IWebHostEnvironment _environment, IConfiguration configuration)
         {
             this.db = _db;
             this.environment = _environment;
+            this.configuration = configuration;
         }
 
         public ResponseMessage RegisterPartnerAccount(Account account, String fullName)
@@ -371,7 +373,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                  .Include(hotel => hotel.Hotel)
                                  .FirstOrDefault(x => x.Email.Equals(email) && x.Password.Equals(passwordMD5));
            if(checkAccount != null && checkAccount.IsActive == true && checkAccount.Role.Name.Equals("Customer"))
-            {   
+            {
+               
                 return new ResponseMessage { Success = true, Data = checkAccount, Message = "Successfully", StatusCode= (int)HttpStatusCode.OK };
             }
             if (checkAccount != null && checkAccount.IsActive == false && checkAccount.Role.Name.Equals("Customer"))
@@ -414,7 +417,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
             if (checkAccount != null && checkAccount.IsActive == true && checkAccount.Role.Name.Equals("Admin"))
             {
-                return new ResponseMessage { Success = true, Data = checkAccount, Message = "Sucessfully", StatusCode=(int)(HttpStatusCode.OK) };
+                String token = Ultils.Utils.CreateToken(checkAccount, configuration);
+                return new ResponseMessage { Success = true, Data = checkAccount,Token = token, Message = "Sucessfully", StatusCode=(int)(HttpStatusCode.OK) };
             }
 
             else
