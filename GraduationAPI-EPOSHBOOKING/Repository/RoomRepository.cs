@@ -98,13 +98,13 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 var addService = new RoomService
                 {
-                    Type = service.Type,
+                    Type = service.serviceType,
                     Room = createRoom
                 };
                 db.roomService.Add(addService);
                 db.SaveChanges();
                 var roomSubService = new List<RoomSubService>();
-                foreach (var subServiceName in service.SubServiceNames)
+                foreach (var subServiceName in service.subServiceName)
                 {
                     var addSubService = new RoomSubService
                     {
@@ -230,13 +230,13 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 {
                     var addService = new RoomService
                     {
-                        Type = service.Type,
+                        Type = service.serviceType,
                         Room = getRoom
                     };
                     db.roomService.Add(addService);
                     db.SaveChanges();
                     var roomSubService = new List<RoomSubService>();
-                    foreach (var subServiceName in service.SubServiceNames)
+                    foreach (var subServiceName in service.subServiceName)
                     {   
                         var addSubService = new RoomSubService
                         {

@@ -144,7 +144,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpPut("confirm-registration")]
-        public IActionResult ConfirmRegistration([FromQuery]int hotelID)
+        public IActionResult ConfirmRegistration([FromForm]int hotelID)
         {
             var response = repository.ConfirmRegistration(hotelID);
             return StatusCode(response.StatusCode, response);
@@ -168,7 +168,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
             return StatusCode(response.StatusCode, response);
         }
 
-        [HttpGet("get-all-registrationfom")]
+        [HttpGet("get-all-registration-form")]
         public IActionResult GetAllHotelWaitForApproval()
         {
             var response = repository.GetAllHotelWaitForApproval();
