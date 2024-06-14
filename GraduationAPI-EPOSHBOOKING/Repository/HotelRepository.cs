@@ -754,14 +754,14 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 var addService = new HotelService
                 {
-                    Type = service.Type,
+                    Type = service.serviceType,
                     Hotel = addHotel,
                     
                 };
                 db.hotelService.Add(addService);
                 db.SaveChanges();
                 var hotelSubService = new List<HotelSubService>();
-                foreach (var subServiceName in service.SubServiceNames)
+                foreach (var subServiceName in service.subServiceName)
                 {
                     var addSubService = new HotelSubService
                     {
@@ -786,12 +786,62 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
                 db.hotelImage.Add(addImage);
             }
-
+            var responseData = new
+            {
+                HotelID = addHotel.HotelID,
+                MainImage = addHotel.MainImage,
+                Name = addHotel.Name,
+                OpenedIn = addHotel.OpenedIn,
+                Description = addHotel.Description,
+                HotelStandar = addHotel.HotelStandar,
+                IsRegister = addHotel.isRegister,
+                Status = addHotel.Status,
+                Account = new
+                {
+                    addHotel.Account.AccountID,
+                    addHotel.Account.Email,
+                    addHotel.Account.Phone,
+                    addHotel.Account.IsActive,
+                    Profile = new
+                    {
+                        addHotel.Account.Profile.ProfileID,
+                        addHotel.Account.Profile.fullName,
+                        addHotel.Account.Profile.BirthDay,
+                        addHotel.Account.Profile.Gender,
+                        addHotel.Account.Profile.Address,
+                        addHotel.Account.Profile.Avatar
+                    }
+                },
+                HotelAddress = new
+                {
+                    addHotel.HotelAddress.AddressID,
+                    addHotel.HotelAddress.Address,
+                    addHotel.HotelAddress.City,
+                    addHotel.HotelAddress.latitude,
+                    addHotel.HotelAddress.longitude
+                },
+                HotelImages = addHotel.HotelImages.Select(img => new
+                {
+                    img.ImageID,
+                    img.Title,
+                    img.Image
+                }).ToList(),
+                HotelServices = addHotel.HotelServices.Select(service => new
+                {
+                    service.ServiceID,
+                    service.Type,
+                    HotelSubServices = service.HotelSubServices.Select(subService => new
+                    {
+                        subService.SubServiceID,
+                        subService.SubServiceName
+                    }).ToList()
+                }).ToList()
+            };
             db.SaveChanges(); // Save all changes at the end
             return new ResponseMessage
             {
                 Success = true,
-                Data = addHotel,
+                Data = responseData,
                 Message = "Successfully registered hotel",
                 StatusCode = (int)HttpStatusCode.OK
             };
@@ -853,7 +903,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     {
                         var addService = new HotelService
                         {
-                            Type = serviceType.Type,
+                            Type = serviceType.serviceType,
                             Hotel = hotel // Associate the service with the hotel
                         };
 
@@ -862,7 +912,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
                         var hotelSubServices = new List<HotelSubService>();
 
-                        foreach (var subServiceName in serviceType.SubServiceNames)
+                        foreach (var subServiceName in serviceType.subServiceName)
                         {
                             var addSubService = new HotelSubService
                             {
@@ -978,9 +1028,10 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                              .ThenInclude(hotelSubService => hotelSubService.HotelSubServices)
                              .Include(address => address.HotelAddress)
                              .FirstOrDefault(hotel => hotel.HotelID == hotelID);
-            var getAccount = db.accounts.FirstOrDefault(account => account.AccountID == getHotel.Account.AccountID);
+            
             if (getHotel != null)
             {
+                var getAccount = db.accounts.FirstOrDefault(account => account.AccountID == getHotel.Account.AccountID);
                 getHotel.isRegister = "Approved";
                 getHotel.Status = true;
                 getAccount.IsActive = true;
@@ -1055,7 +1106,54 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                               .Include(profile => profile.Account.Profile)
                               .Where(hotel => hotel.isRegister.Equals("Wait for approved") && hotel.Status == false)
                               .ToList();
-            return new ResponseMessage { Success = true,Data = listHotel, Message = "Sucessfully",StatusCode =(int)HttpStatusCode.OK};
+
+            var responseData = listHotel.Select(hotel => new
+            {
+                HotelID = hotel.HotelID,
+                MainImage = hotel.MainImage,
+                Name = hotel.Name,
+                OpenedIn = hotel.OpenedIn,
+                Description = hotel.Description,
+                HotelStandar = hotel.HotelStandar,
+                IsRegister = hotel.isRegister,
+                Status = hotel.Status,
+                Account = new
+                {
+                    AccountID = hotel.Account.AccountID,
+                    Email = hotel.Account.Email,
+                    Phone = hotel.Account.Phone,
+                    IsActive = hotel.Account.IsActive,
+                    Profile = new
+                    {
+                        ProfileID = hotel.Account.Profile.ProfileID,
+                        FullName = hotel.Account.Profile.fullName,
+                        BirthDay = hotel.Account.Profile.BirthDay,
+                        Gender = hotel.Account.Profile.Gender,
+                        Address = hotel.Account.Profile.Address,
+                        Avatar = hotel.Account.Profile.Avatar
+                    }
+                },
+                HotelAddress = new
+                {
+                    AddressID = hotel.HotelAddress.AddressID,
+                    Address = hotel.HotelAddress.Address,
+                    City = hotel.HotelAddress.City,
+                    Latitude = hotel.HotelAddress.latitude,
+                    Longitude = hotel.HotelAddress.longitude
+                },
+                HotelServices = hotel.HotelServices.Select(service => new
+                {
+                    ServiceID = service.ServiceID,
+                    Type = service.Type,
+                    HotelSubServices = service.HotelSubServices.Select(subService => new
+                    {
+                        SubServiceID = subService.SubServiceID,
+                        SubServiceName = subService.SubServiceName
+                    }).ToList()
+                }).ToList()
+            }).ToList();
+
+            return new ResponseMessage { Success = true,Data = responseData, Message = "Sucessfully",StatusCode =(int)HttpStatusCode.OK};
         }
 
         public ResponseMessage AnalyzeHotelStandar()

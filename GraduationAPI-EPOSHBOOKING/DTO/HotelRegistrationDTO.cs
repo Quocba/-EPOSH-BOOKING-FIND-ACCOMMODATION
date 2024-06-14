@@ -5,7 +5,6 @@
         public string HotelName { get; set; }
         public int OpenedIn { get; set; }
         public string Description { get; set; }
-        public int HotelStandard { get; set; }
         public string HotelAddress { get; set; }
         public string City { get; set; }
         public double Latitude { get; set; }
