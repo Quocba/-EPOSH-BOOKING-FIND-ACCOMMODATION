@@ -4,6 +4,7 @@ using System.Net;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Ultils;
 using GraduationAPI_EPOSHBOOKING.Model;
+using DocumentFormat.OpenXml.Drawing;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
@@ -13,12 +14,13 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
     public class AccountController : ControllerBase
     {
         private readonly IAccountRepository repository;
-     
+        private readonly IConfiguration configuration;
 
 
-        public AccountController(IAccountRepository _repository)
+        public AccountController(IAccountRepository _repository, IConfiguration configuration)
         {
             repository = _repository;
+            this.configuration = configuration;
         }
 
         [HttpGet("get-profile-by-account")]

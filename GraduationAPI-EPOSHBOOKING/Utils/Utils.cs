@@ -7,15 +7,95 @@ using System.Text;
 using System.Drawing;
 using ClosedXML.Excel;
 using Microsoft.Extensions.Options;
-
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using Microsoft.Extensions.Configuration;
 
 namespace GraduationAPI_EPOSHBOOKING.Ultils
 {
     public class Utils
     {
-       
-      
-        
+        public static class AppSettings
+        {
+            public static string Token { get; } = "my top secret key";
+        }
+
+        public static IConfiguration configuration;
+
+        public static string CreateToken(Account accounts, IConfiguration configuration)
+        {
+            if (accounts == null || string.IsNullOrWhiteSpace(accounts.Email))
+            {
+                throw new ArgumentException("Account or account email is null or empty.");
+            }
+
+            var tokenValue = configuration.GetSection("AppSettings:Token").Value;
+            if (string.IsNullOrEmpty(tokenValue))
+            {
+                throw new InvalidOperationException("Token key is missing or invalid in configuration.");
+            }
+
+            List<Claim> claims = new List<Claim>();
+
+            if (accounts.Role == null || string.IsNullOrWhiteSpace(accounts.Role.Name))
+            {
+                throw new ArgumentException("Account role is null or empty.");
+            }
+
+            claims.Add(new Claim(ClaimTypes.Role, accounts.Role.Name.ToLower()));
+            claims.Add(new Claim(ClaimTypes.Email, accounts.Email));
+
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(tokenValue));
+            var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: cred);
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            return jwt;
+        }
+
+        public static Account GetUserInfoFromToken(string token, IConfiguration configuration)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.UTF8.GetBytes(configuration.GetSection("AppSettings:Token").Value);
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out _);
+                var roleClaim = claimsPrincipal.FindFirst(ClaimTypes.Role);
+                var emailClaim = claimsPrincipal.FindFirst(ClaimTypes.Email);
+
+                if (roleClaim == null || emailClaim == null)
+                {
+                    return null;
+                }
+
+                return new Account
+                {
+                    Role = new Role { Name = roleClaim.Value },
+                    Email = emailClaim.Value
+                };
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+
         public static string HashPassword(string password)
         {
             using (MD5 md5 = MD5.Create())
