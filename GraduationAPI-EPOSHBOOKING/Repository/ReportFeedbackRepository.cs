@@ -39,6 +39,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             var report = db.reportFeedBack
                      .Include(feedback => feedback.FeedBack)
+                     .Include(account => account.FeedBack.Account)
+                     .ThenInclude(profile => profile.Profile)
                      .ToList();
             if (report.Any())
             {
