@@ -1,5 +1,6 @@
 ﻿using GraduationAPI_EPOSHBOOKING.IRepository;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
 {
@@ -8,24 +9,56 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
     public class CustomerVoucherController : Controller
     {
         private readonly IVoucherRepository _voucherRepository;
-
-        public CustomerVoucherController(IVoucherRepository voucherRepository)
+        private readonly IConfiguration configuration;
+        public CustomerVoucherController(IVoucherRepository voucherRepository, IConfiguration configuration)
         {
             this._voucherRepository = voucherRepository;
+            this.configuration = configuration;
         }
 
         [HttpGet("get-voucher-by-account")]
         public IActionResult GetVouchersByAccountId([FromQuery] int accountId)
         {
-            var response = _voucherRepository.GetVouchersByAccountId(accountId);
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token,configuration);
+            try
+            {
+                switch(user.Role.Name.ToLower())
+                {
+                    case "customer":
+                        var response = _voucherRepository.GetVouchersByAccountId(accountId);
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized();
+                }
+            }catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+
         }
 
         [HttpPost("receive-voucher")]
         public IActionResult ReceviceVoucher([FromForm] int accountID, [FromForm] int voucherID)
         {
-            var response = _voucherRepository.ReceiveVoucher(accountID, voucherID);
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch (user.Role.Name.ToLower())
+                {
+                    case "customer":
+                        var response = _voucherRepository.ReceiveVoucher(accountID, voucherID);
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+
         }
     }
 }
