@@ -12,14 +12,14 @@ namespace UnitTestingAPI
     [TestFixture]
     public class VoucherTesting
     {
-        private VoucherController voucherController;
+        private GeneralVoucherController voucherController;
         private Mock<IVoucherRepository> _mockRepository;
 
         [SetUp] 
         public void Setup()
         {
             _mockRepository = new Mock<IVoucherRepository>();
-            voucherController = new VoucherController(_mockRepository.Object);
+            voucherController = new GeneralVoucherController(_mockRepository.Object);
         }
 
         [Test]
