@@ -85,6 +85,13 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
             var time = DateTime.Now;
             return Ok(time);
         }
-        
+
+        [HttpGet("get-profile-by-account")]
+        public IActionResult GetProfileByAccountId([FromQuery] int accountId)
+        {
+            var response = repository.GetProfileByAccountId(accountId);
+
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
