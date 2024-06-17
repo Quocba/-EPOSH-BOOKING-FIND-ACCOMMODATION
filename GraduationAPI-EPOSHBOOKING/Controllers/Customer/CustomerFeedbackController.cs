@@ -9,17 +9,33 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
     public class CustomerFeedbackController : Controller
     {
         private readonly IFeedbackRepository repository;
-        
-        public CustomerFeedbackController(IFeedbackRepository repository)
+        private readonly IConfiguration configuration;
+        public CustomerFeedbackController(IFeedbackRepository repository, IConfiguration configuration)
         {
             this.repository = repository;
+            this.configuration = configuration;
         }
 
         [HttpPost("create-feedback")]
         public IActionResult CreateFeedBack([FromForm] int BookingID, [FromForm] FeedBack newFeedBack, [FromForm] IFormFile Image)
         {
-            var response = repository.CreateFeedBack(BookingID, newFeedBack, Image);
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ","");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch(user.Role.Name.ToLower())
+                {
+                    case "customer":
+                        var response = repository.CreateFeedBack(BookingID, newFeedBack, Image);
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized();
+                }
+            }catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+ 
         }
     }
 }

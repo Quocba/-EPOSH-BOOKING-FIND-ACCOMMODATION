@@ -1,8 +1,10 @@
-﻿using GraduationAPI_EPOSHBOOKING.Controllers.Auth;
+﻿using Castle.Components.DictionaryAdapter.Xml;
+using GraduationAPI_EPOSHBOOKING.Controllers.Auth;
 using GraduationAPI_EPOSHBOOKING.DTO;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -16,12 +18,13 @@ namespace UnitTestingAPI
     {
         private AuthController authController;
         private Mock<IAccountRepository> _mockRepository;
+        IConfiguration _configuration;
 
         [SetUp]
         public void Setup()
         {
             _mockRepository = new Mock<IAccountRepository>();
-            authController = new AuthController(_mockRepository.Object);
+            authController = new AuthController(_mockRepository.Object,_configuration);
         }
 
         [Test]
