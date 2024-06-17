@@ -8,16 +8,33 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
     public class PartnerReportFeedbackController : Controller
     {
         private readonly IReportFeedbackRepository repository;
-        public PartnerReportFeedbackController(IReportFeedbackRepository repository)
+        private readonly IConfiguration configuration;
+        public PartnerReportFeedbackController(IReportFeedbackRepository repository, IConfiguration configuration)
         {
             this.repository = repository;
+            this.configuration = configuration;
         }
 
         [HttpPost("create-report")]
         public IActionResult CreateReportFeedback([FromForm] int feedbackId, [FromForm] String ReporterEmail, [FromForm] String ReasonReport)
         {
-            var response = repository.CreateReportFeedback(feedbackId, ReporterEmail, ReporterEmail);
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ","");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch(user.Role.Name.ToLower())
+                {
+                    case "partner":
+                        var response = repository.CreateReportFeedback(feedbackId, ReporterEmail, ReporterEmail);
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized();
+                }
+            }catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+
         }
     }
 }

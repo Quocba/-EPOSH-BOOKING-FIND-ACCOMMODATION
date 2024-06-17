@@ -9,38 +9,102 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Admin
     public class AdminVoucherController : Controller
     {
         private readonly IVoucherRepository _voucherRepository;
-
-        public AdminVoucherController(IVoucherRepository voucherRepository)
+        private readonly IConfiguration configuration;
+        public AdminVoucherController(IVoucherRepository voucherRepository, IConfiguration configuration)
         {
             _voucherRepository = voucherRepository;
+            this.configuration = configuration;
         }
 
         [HttpPost("create-voucher")]
         public IActionResult CreateVoucher([FromForm] Voucher voucher, [FromForm] IFormFile image)
         {
-            var response = _voucherRepository.CreateVoucher(voucher, image);
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch(user.Role.Name.ToLower())
+                {
+                    case "admin":
+                        var response = _voucherRepository.CreateVoucher(voucher, image);
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized();
+                }
+            }catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+
         }
 
         [HttpDelete("delete-voucher")]
         public IActionResult DeleteVoucher([FromQuery] int voucherID)
         {
-            var response = _voucherRepository.DeleteVoucher(voucherID);
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch (user.Role.Name.ToLower())
+                {
+                    case "admin":
+                        var response = _voucherRepository.DeleteVoucher(voucherID);
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+
         }
 
         [HttpPut("update-voucher")]
         public IActionResult UpdateVoucher([FromForm] int voucherID, [FromForm] Voucher voucher, [FromForm] IFormFile? image)
         {
-            var response = _voucherRepository.UpdateVoucher(voucherID, voucher, image);
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch (user.Role.Name.ToLower())
+                {
+                    case "admin":
+                        var response = _voucherRepository.UpdateVoucher(voucherID, voucher, image);
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+
         }
 
         [HttpGet("search-name")]
         public IActionResult SearchVoucherName([FromQuery] String voucherName)
         {
-            var response = _voucherRepository.SearchVoucherName(voucherName);
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch (user.Role.Name.ToLower())
+                {
+                    case "admin":
+                        var response = _voucherRepository.SearchVoucherName(voucherName);
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+       
         }
     }
 }

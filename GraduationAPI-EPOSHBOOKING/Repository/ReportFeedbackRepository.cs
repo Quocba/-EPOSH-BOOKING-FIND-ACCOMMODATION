@@ -54,10 +54,14 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var getReport = db.reportFeedBack
                               .Include(feedback => feedback.FeedBack)
                               .FirstOrDefault(report => report.ReportID == reportID);
-            var feedback = db.feedback.FirstOrDefault(feedback => feedback.FeedBackID == getReport.FeedBack.FeedBackID);
             if (getReport == null)
             {
                 return new ResponseMessage { Success = false, Data = getReport, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+            }
+            var feedback = db.feedback.FirstOrDefault(feedback => feedback.FeedBackID == getReport.FeedBack.FeedBackID);
+            if (feedback == null)
+            {
+                return new ResponseMessage { Success = false, Data = feedback, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
             }
 
             String emailContent = "Your request for a feedback report has been processed.";

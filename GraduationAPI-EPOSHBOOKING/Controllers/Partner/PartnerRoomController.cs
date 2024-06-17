@@ -1,4 +1,5 @@
-﻿using GraduationAPI_EPOSHBOOKING.DTO;
+﻿using DocumentFormat.OpenXml.Drawing.Spreadsheet;
+using GraduationAPI_EPOSHBOOKING.DTO;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
@@ -7,12 +8,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
 {
+    [ApiController]
+    [Route("api/v1/partner/room")]
     public class PartnerRoomController : Controller
     {
         private readonly IRoomRepository reponsitory;
-        public PartnerRoomController(IRoomRepository roomRepository)
+        private readonly IConfiguration configuration;
+        public PartnerRoomController(IRoomRepository roomRepository, IConfiguration configuration)
         {
             this.reponsitory = roomRepository;
+            this.configuration = configuration;
         }
 
 
@@ -20,39 +25,88 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
         [HttpDelete("delete-room")]
         public IActionResult DeleteRoom([FromQuery] int roomID)
         {
-            var response = reponsitory.DeleteRoom(roomID);
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ","");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch(user.Role.Name.ToLower())
+                {
+                    case "partner":
+                        var response = reponsitory.DeleteRoom(roomID);
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized();
+                }
+            }catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+
         }
 
         [HttpPost("add-room")]
         public IActionResult AddRoom([FromForm] AddRoomDTO addRoomModel)
         {
-            var services = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ServiceTypeDTO>>(addRoomModel.Services);
-            var specialPrices = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SpecialPrice>>(addRoomModel.SpecialPrices);
-            var response = reponsitory.AddRoom(
-                addRoomModel.HotelID,
-                addRoomModel.Room,
-                specialPrices,
-                addRoomModel.Images,
-                services
-            );
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch (user.Role.Name.ToLower())
+                {
+                    case "partner":
+                        var services = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ServiceTypeDTO>>(addRoomModel.Services);
+                        var specialPrices = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SpecialPrice>>(addRoomModel.SpecialPrices);
+                        var response = reponsitory.AddRoom(
+                            addRoomModel.HotelID,
+                            addRoomModel.Room,
+                            specialPrices,
+                            addRoomModel.Images,
+                            services
+                        );
 
-            return StatusCode(response.StatusCode, response);
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+
         }
 
         [HttpPut("update-room")]
         public IActionResult UpdateRoom([FromForm] UpdateRoomDTO updateRoomModel)
         {
-            var services = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ServiceTypeDTO>>(updateRoomModel.Services);
-            var specialPrice = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SpecialPrice>>(updateRoomModel.specialPrice);
-            var response = reponsitory.UpdateRoom(
-                updateRoomModel.RoomID,
-                updateRoomModel.Room,
-                specialPrice,
-                updateRoomModel.Images,
-                services
-            );
-            return StatusCode(response.StatusCode, response);
+
+
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch (user.Role.Name.ToLower())
+                {
+                    case "partner":
+                        var services = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ServiceTypeDTO>>(updateRoomModel.Services);
+                        var specialPrice = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SpecialPrice>>(updateRoomModel.specialPrice);
+                        var response = reponsitory.UpdateRoom(
+                            updateRoomModel.RoomID,
+                            updateRoomModel.Room,
+                            specialPrice,
+                            updateRoomModel.Images,
+                            services
+                        );
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+
         }
     }
 }

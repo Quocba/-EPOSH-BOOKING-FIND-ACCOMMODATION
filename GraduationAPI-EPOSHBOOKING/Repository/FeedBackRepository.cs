@@ -25,6 +25,10 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 
                 var booking = db.booking.Include(room => room.Room).ThenInclude(hotel => hotel.Hotel).Include(account => account.Account)
                     .FirstOrDefault(booking => booking.BookingID == BookingID);
+                if (booking == null)
+                {
+                    return new ResponseMessage { Success = false, Data = booking, Message = "Booking not found", StatusCode = (int)HttpStatusCode.NotFound };
+                }
                 FeedBack addFeedBack = new FeedBack
                 {
                     Account = booking.Account,
