@@ -960,7 +960,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 HotelImage addImage = new HotelImage
                 {
                     Title = title,
-                    Image = Ultils.Utils.SaveImage(images,environment)
+                    Image = Ultils.Utils.SaveImage(images,environment),
+                    Hotel = hotel
                 };
                 db.hotelImage.Add(addImage);
                 db.SaveChanges();
@@ -977,7 +978,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 db.SaveChanges();
                 return new ResponseMessage { Success = true, Data = getImage, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
-            return new ResponseMessage { Success = false, Data = null, Message = "Hotel not found", StatusCode = (int)HttpStatusCode.NotFound };
+            return new ResponseMessage { Success = false, Data = null, Message = "Image not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
 
         public ResponseMessage GetAllHotelInfomation()
@@ -1005,9 +1006,16 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var getHotel = db.hotel
                              .Include(account => account.Account)
                              .FirstOrDefault(hotel => hotel.HotelID == hotelID);
-            var getAccount = db.accounts.FirstOrDefault(account => account.AccountID == getHotel.Account.AccountID);
-            if (getHotel != null && getAccount != null)
+            if (getHotel == null)
             {
+                return new ResponseMessage { Success = true, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.OK };
+            }
+            var getAccount = db.accounts.FirstOrDefault(account => account.AccountID == getHotel.Account.AccountID);
+            if (getAccount == null)
+            {
+                return new ResponseMessage { Success = true, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.OK };
+            }
+           
                 getHotel.isRegister = "Blocked";
                 getHotel.Status = false;
                 getAccount.IsActive = false;
@@ -1016,7 +1024,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 db.SaveChanges();
                 Ultils.Utils.SendMailRegistration(getAccount.Email, reaseonBlock);
                 return new ResponseMessage { Success = true, Data = getHotel, StatusCode = (int)HttpStatusCode.OK };
-            }
+            
+            
             return new ResponseMessage { Success = true, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.OK };
         }
 
@@ -1055,13 +1064,21 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var getHotel = db.hotel
                              .Include(account => account.Account)
                              .FirstOrDefault(hotel => hotel.HotelID == hotelID);
+            if (getHotel == null)
+            {
+                return new ResponseMessage { Success =false, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound};
+
+            }
             var getAccount = db.accounts
                                .Include(role => role.Role)
                                .FirstOrDefault(account => account.AccountID == getHotel.Account.AccountID);
+            if (getAccount == null)
+            {
+                return new ResponseMessage { Success = false, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+
+            }
             String Role = "Customer";
             var getRole = db.roles.FirstOrDefault(role => role.Name.Equals(Role));
-            if(getHotel != null)
-            {
                 getHotel.isRegister = "Rejected";
                 getAccount.Role = getRole;
                 db.hotel.Update(getHotel);
@@ -1069,11 +1086,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 db.SaveChanges();
                 Ultils.Utils.SendMailRegistration(getAccount.Email, reasonReject);
                 return new ResponseMessage { Success = true, Data = getHotel, Message = "Successfully", StatusCode= (int)HttpStatusCode.OK};
-            }
-            else
-            {
-                return new ResponseMessage { Success =false, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound};
-            }
+            
+         
         }
 
         public ResponseMessage SearchHotelByName(string hotelName)

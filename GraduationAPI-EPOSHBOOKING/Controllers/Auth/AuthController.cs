@@ -4,6 +4,7 @@ using GraduationAPI_EPOSHBOOKING.Model;
 using GraduationAPI_EPOSHBOOKING.Repository;
 using GraduationAPI_EPOSHBOOKING.Ultils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
@@ -14,9 +15,11 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
     {
 
         private readonly IAccountRepository repository;
-        public AuthController(IAccountRepository repository)
+        private readonly IConfiguration configuration;
+        public AuthController(IAccountRepository repository, IConfiguration configuration)
         {
             this.repository = repository;
+            this.configuration = configuration;
         }
 
         [HttpPost("partner-register")]
@@ -85,13 +88,54 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
             var time = DateTime.Now;
             return Ok(time);
         }
-
+            
         [HttpGet("get-profile-by-account")]
         public IActionResult GetProfileByAccountId([FromQuery] int accountId)
         {
-            var response = repository.GetProfileByAccountId(accountId);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                if (user.Role.Name.ToLower().Equals("customer") || user.Role.Name.ToLower().Equals("partner"))
+                {
+                    var response = repository.GetProfileByAccountId(accountId);
 
-            return StatusCode(response.StatusCode, response);
+                    return StatusCode(response.StatusCode, response);
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+
+        }
+
+        [HttpPost("google-login")]
+        public IActionResult GoogleLogin(String email,String userName, String avartar)
+        {
+
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                if (user.Role.Name.ToLower().Equals("customer") || user.Role.Name.ToLower().Equals("partner"))
+                {
+                    var reponse = repository.GoogleLogin(email, userName, avartar);
+                    return StatusCode(reponse.StatusCode, reponse);
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+ 
         }
     }
 }

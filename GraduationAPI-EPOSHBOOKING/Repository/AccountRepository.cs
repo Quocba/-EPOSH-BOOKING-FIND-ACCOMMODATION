@@ -88,6 +88,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             String phoneRegex = @"^(?:\+84|0)([3|5|7|8|9])+([0-9]{8})$";
             Regex regex = new Regex(phoneRegex);
+            String RoleName = "Customer";
+            var role = db.roles.FirstOrDefault(x => x.Name.Equals(RoleName));
             if (regex.IsMatch(phone))
             {
                 var checkPhone = db.accounts.FirstOrDefault(x => x.Phone.Equals(phone));
@@ -105,7 +107,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Account addAccount = new Account
                     {
                         Phone = phone,
-                        Profile = addProfile
+                        Profile = addProfile,
+                        Role = role
                     };
                     db.accounts.Add(addAccount);
                     db.SaveChanges();
@@ -374,8 +377,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                  .FirstOrDefault(x => x.Email.Equals(email) && x.Password.Equals(passwordMD5));
            if(checkAccount != null && checkAccount.IsActive == true && checkAccount.Role.Name.Equals("Customer"))
             {
-               
-                return new ResponseMessage { Success = true, Data = checkAccount, Message = "Successfully", StatusCode= (int)HttpStatusCode.OK };
+                var token = Ultils.Utils.CreateToken(checkAccount,configuration);
+                return new ResponseMessage { Success = true, Data = checkAccount,Token = token, Message = "Successfully", StatusCode= (int)HttpStatusCode.OK };
             }
             if (checkAccount != null && checkAccount.IsActive == false && checkAccount.Role.Name.Equals("Customer"))
             {
@@ -386,7 +389,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             if (checkAccount != null && checkAccount.IsActive == true && checkAccount.Role.Name.Equals("Partner")
                 && checkAccount.Hotel.Any(status => status.Status == true) && checkAccount.Hotel.Any(isRegister => isRegister.isRegister.Equals("Approved")))
             {
-                return new ResponseMessage { Success = true, Data = checkAccount, Message = "Sucessfully", StatusCode = (int)(HttpStatusCode.OK) };
+                var token = Ultils.Utils.CreateToken(checkAccount, configuration);
+                return new ResponseMessage { Success = true, Data = checkAccount, Token = token, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
 
             if (checkAccount != null && checkAccount.IsActive == false && checkAccount.Role.Name.Equals("Partner")
@@ -417,8 +421,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
             if (checkAccount != null && checkAccount.IsActive == true && checkAccount.Role.Name.Equals("Admin"))
             {
-                String token = Ultils.Utils.CreateToken(checkAccount, configuration);
-                return new ResponseMessage { Success = true, Data = checkAccount,Token = token, Message = "Sucessfully", StatusCode=(int)(HttpStatusCode.OK) };
+                var token = Ultils.Utils.CreateToken(checkAccount, configuration);
+                return new ResponseMessage { Success = true, Data = checkAccount, Token = token, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
 
             else
@@ -426,6 +430,35 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = false, Data = checkAccount, Message = "Login Fail.Account does not exist!", StatusCode = (int)(HttpStatusCode.NotFound) };
             }
             
+        }
+
+        public ResponseMessage GoogleLogin(string email, string userName, string avatar)
+        {
+            var check = db.accounts.FirstOrDefault(x => x.Email.Equals(email));
+            if (check != null)
+            {
+                return new ResponseMessage { Success = true, Data = check, Message = "Login Successfully" };
+            }
+            else
+            {
+                String RoleName = "Customer";
+                var role = db.roles.FirstOrDefault(x => x.Name.Equals(RoleName));
+                Profile createProfile = new Profile
+                {
+                    fullName = userName,
+                    Avatar = avatar
+                };
+                db.profiles.Add(createProfile);
+                Account createAccount = new Account
+                {
+                    Email  = email,
+                    Profile = createProfile,
+                    Role = role
+                };
+                db.accounts.Add(createAccount);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true, Data = check, Message = "Login Sucessfully" };
+            }
         }
     }
 }

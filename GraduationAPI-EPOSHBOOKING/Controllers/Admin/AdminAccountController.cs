@@ -18,29 +18,88 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Admin
         [HttpGet("get-all")]
         public IActionResult GetAllAccount()
         {
-            var response = repository.GetAllAccount();
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ","");
+            var user = Ultils.Utils.GetUserInfoFromToken(token,configuration);
+            try
+            {
+                switch (user.Role.Name.ToLower())
+                {
+                    case "admin":
+                        var response = repository.GetAllAccount();
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized();
+                }
+            }catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+
         }
 
         [HttpPut("blocked-account")]
         public IActionResult BlockedAccount([FromForm] int accountId, [FromForm] String reasonBlock)
         {
-            var response = repository.BlockedAccount(accountId, reasonBlock);
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch (user.Role.Name.ToLower())
+                {
+                    case "admin":
+                        var response = repository.BlockedAccount(accountId, reasonBlock);
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized();
+                }
+            }catch (Exception ex)
+            {
+                return Unauthorized() ;
+            }
+
         }
 
         [HttpGet("filter-account")]
         public IActionResult FilterAccountByStatus([FromQuery] bool isActive)
         {
-            var response = repository.FilterAccountByStatus(isActive);
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch (user.Role.Name.ToLower())
+                {
+                    case "admin":
+                        var response = repository.FilterAccountByStatus(isActive);
+                        return StatusCode(response.StatusCode, response);
+                    default : return Unauthorized();
+                }
+            }catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+
         }
 
         [HttpGet("searchByName")]
         public IActionResult SearchAccountByName([FromQuery] string name)
         {
-            var response = repository.SearchAccountByName(name);
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch (user.Role.Name.ToLower())
+                {
+                    case "admin":
+                        var response = repository.SearchAccountByName(name);
+                        return StatusCode(response.StatusCode, response);
+                    default : 
+                        return Unauthorized();
+                }
+            }catch(Exception ex) {
+             
+                return Unauthorized();
+            }
+   
         }
 
     }
