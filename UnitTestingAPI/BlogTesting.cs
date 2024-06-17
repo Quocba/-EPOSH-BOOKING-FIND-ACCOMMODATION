@@ -13,14 +13,14 @@ namespace UnitTestingAPI
     [TestFixture]
     public class BlogTesting
     {
-        private BlogController BlogController;
+        private GeneralBlogController BlogController;
         private Mock<IBlogRepository> _mockRepository;
 
         [SetUp]
         public void Setup()
         {
             _mockRepository = new Mock<IBlogRepository>();
-            BlogController = new BlogController(_mockRepository.Object);
+            BlogController = new GeneralBlogController(_mockRepository.Object);
         }
         [Test]
         public void GetAllBlogs()

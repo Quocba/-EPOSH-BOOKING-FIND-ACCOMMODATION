@@ -19,13 +19,13 @@ namespace UnitTestingAPI
     [TestFixture]
     public class HotelTesting
     {
-        public HotelController controller { get; set; }
+        public GeneralHotelController controller { get; set; }
         private Mock<IHotelRepository> repository;
         [SetUp]
         public void SetUp()
         {
             repository = new Mock<IHotelRepository>();
-            controller = new HotelController(repository.Object);
+            controller = new GeneralHotelController(repository.Object);
         }
 
         [Test]

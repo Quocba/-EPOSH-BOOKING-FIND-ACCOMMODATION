@@ -18,12 +18,12 @@ namespace UnitTestingAPI
     public class RoomTesting
     {
         private  Mock<IRoomRepository> repository;
-        public RoomController controller { get; set; }
+        public GeneralRoomController controller { get; set; }
         [SetUp]
         public void SetUp()
         {
             repository = new Mock<IRoomRepository>();
-            controller = new RoomController(repository.Object);
+            controller = new GeneralRoomController(repository.Object);
         }
 
         [Test]
