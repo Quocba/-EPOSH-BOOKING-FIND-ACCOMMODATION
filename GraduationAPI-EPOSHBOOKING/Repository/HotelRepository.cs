@@ -741,7 +741,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 Description = registration.Description,
                 HotelAddress = addAddress,
                 Status = false,
-                isRegister = "Wait for approved",
+                isRegister = "Awaiting Approval",
                 HotelStandar = 0,
                 Account = account
             };
@@ -1118,7 +1118,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                               .Include(address => address.HotelAddress)
                               .Include(account => account.Account)
                               .Include(profile => profile.Account.Profile)
-                              .Where(hotel => hotel.isRegister.Equals("Wait for approved") && hotel.Status == false)
+                              .Where(hotel => hotel.isRegister.Equals("Awaiting Approval") && hotel.Status == false)
                               .ToList();
 
             var responseData = listHotel.Select(hotel => new

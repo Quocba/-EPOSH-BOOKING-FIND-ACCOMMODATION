@@ -1,4 +1,5 @@
-﻿using GraduationAPI_EPOSHBOOKING.DTO;
+﻿using Azure.Core;
+using GraduationAPI_EPOSHBOOKING.DTO;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using GraduationAPI_EPOSHBOOKING.Repository;
@@ -52,8 +53,24 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         [HttpPut("change-password")]
         public IActionResult ChangePassword([FromBody] ChangePasswordRequest request)
         {
-            var response = repository.ChangePassword(request.AccountId, request.OldPassword, request.NewPassword);
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ","");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                if (user.Role.Name.ToLower().Equals("user") || user.Role.Name.ToLower().Equals("partner"))
+                {
+                    var response = repository.ChangePassword(request.AccountId, request.OldPassword, request.NewPassword);
+                    return StatusCode(response.StatusCode, response);
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }catch(Exception ex)
+            {
+                return Unauthorized();
+            }
+          
         }
 
         [HttpPost("send-mail")]
@@ -73,8 +90,25 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         [HttpPut("update-profile")]
         public IActionResult UpdateProfileByAccount([FromForm] int accountID, [FromForm] Profile profile, [FromForm] IFormFile Avatar)
         {
-            var response = repository.UpdateProfileByAccount(accountID, profile, Avatar);
-            return StatusCode(response.StatusCode, response);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                if (user.Role.Name.ToLower().Equals("user") || user.Role.Name.ToLower().Equals("partner"))
+                {
+                    var response = repository.UpdateProfileByAccount(accountID, profile, Avatar);
+                    return StatusCode(response.StatusCode, response);
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+
         }
         [HttpPost("login")]
         public IActionResult Login([FromBody]LoginDTO login)
@@ -99,7 +133,6 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
                 if (user.Role.Name.ToLower().Equals("customer") || user.Role.Name.ToLower().Equals("partner"))
                 {
                     var response = repository.GetProfileByAccountId(accountId);
-
                     return StatusCode(response.StatusCode, response);
                 }
                 else
@@ -107,35 +140,17 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
                     return Unauthorized();
                 }
             }catch (Exception ex)
-            {
+            {   
                 return Unauthorized();
             }
 
         }
 
         [HttpPost("google-login")]
-        public IActionResult GoogleLogin(String email,String userName, String avartar)
-        {
-
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
-            try
-            {
-                if (user.Role.Name.ToLower().Equals("customer") || user.Role.Name.ToLower().Equals("partner"))
-                {
+        public IActionResult GoogleLogin([FromForm]String email, [FromForm] String userName, [FromForm] String avartar)
+        { 
                     var reponse = repository.GoogleLogin(email, userName, avartar);
-                    return StatusCode(reponse.StatusCode, reponse);
-                }
-                else
-                {
-                    return Unauthorized();
-                }
-            }
-            catch (Exception ex)
-            {
-                return Unauthorized();
-            }
- 
+                    return StatusCode(reponse.StatusCode, reponse);     
         }
     }
 }
