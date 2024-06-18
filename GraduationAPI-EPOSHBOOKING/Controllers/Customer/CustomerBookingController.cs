@@ -2,6 +2,7 @@
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
+using Net.payOS;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
 {
@@ -72,6 +73,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
                 {
                     case "customer":
                         var response = repository.CreateBooking(createBookingDTO);
+                        
                         return StatusCode(response.StatusCode, response);
                     default:
                         return Unauthorized();
@@ -115,8 +117,29 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
                 }
             }catch (Exception ex)
             {
-                return Unauthorized();
+                return Unauthorized(ex);
             }
         }
+
+        [HttpPost("create-booking-online")]
+        public IActionResult CreateBookingOnline([FromForm] CreateBookingDTO createBookingDTO)
+        {
+
+            var response = repository.CreateBooking(createBookingDTO);
+            var bookingData = (dynamic)response.Data;
+            string description = $"BID-{bookingData.BookingID}-TP-{bookingData.TotalPrice}";
+            var paymentRequest = new PaymentRequestDTO
+            {
+                BookingID = bookingData.BookingID,
+                TotalPrice = (int)bookingData.TotalPrice,
+                Description = description,
+                SuccessUrl = "https://chatgpt.com/c/55d2ec59-5044-46ad-af65-d40adf9e180e",
+                FailureUrl = "https://www.facebook.com/",
+            };
+            var linkCheckOut = repository.GeneratePaymentLink(paymentRequest);
+            return Ok(new { CheckoutUrl = linkCheckOut, response.Data });
+        }
+
+
     }
 }

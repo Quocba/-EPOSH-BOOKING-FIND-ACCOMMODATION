@@ -6,8 +6,11 @@ using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
+using Net.payOS;
+using Net.payOS.Types;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using SkiaSharp;
 using System.ComponentModel;
 using System.Drawing;
 using System.Globalization;
@@ -21,6 +24,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
     public class BookingRepository : IBookingRepository
     {
         private readonly DBContext db;
+ 
         public BookingRepository(DBContext _db)
         {
             this.db = _db;
@@ -1002,7 +1006,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 db.room.Update(room);
                 db.booking.Add(createBooking);
                 db.SaveChanges();
-                Ultils.Utils.sendMail(createBooking.Account.Email);
+                Ultils.Utils.SendMailBooking(createBooking.Account.Email,createBooking);
 
                 var responseData = new
                 {
@@ -1058,6 +1062,31 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return room.Price;
         }
 
+        public async Task<string> GeneratePaymentLink(PaymentRequestDTO request)
+        {
+             string clientId = "8e20b398-7a60-4ea7-ae11-c8b1267de435";
+             string apiKey = "aa5333b5-b17c-4428-89de-2613fa7847ec";
+             string checksumKey = "d00595dd40ad4898adf0cf4d636a26c237d8f0a72807074c111d67a0a426855e";
 
+            var payOs = new PayOS(clientId,apiKey,checksumKey);
+        var items = new List<ItemData>
+             {
+                 new ItemData(request.Description, request.TotalPrice, request.TotalPrice)
+              };
+
+            var paymentData = new PaymentData(
+                request.BookingID,
+                request.TotalPrice,
+                request.Description,
+                items,
+                request.SuccessUrl,
+                request.FailureUrl
+            );
+
+            var createPayment = await payOs.createPaymentLink(paymentData);
+            return createPayment.checkoutUrl;
+        }
+
+ 
     }
 }

@@ -22,5 +22,7 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage ExportBookingbyHotelID(int hotelID);
         public ResponseMessage ExportRevenues();
         public double CheckRoomPrice(int roomID, DateTime CheckInDate, DateTime CheckOutDate);
+
+        Task<String> GeneratePaymentLink(PaymentRequestDTO request);
     }
 }
