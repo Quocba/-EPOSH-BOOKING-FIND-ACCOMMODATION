@@ -359,6 +359,186 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
 
             return "Ok";
         }
+
+        public static String SendMailBooking([FromHeader] string toEmail,Booking booking)
+        {
+            // Cấu hình thông tin SMTP
+            string smtpServer = "smtp.gmail.com";
+            int smtpPort = 587; // Thay đổi nếu cần
+            string smtpUsername = "eposhhotel@gmail.com";
+            string smtpPassword = "yqgorijrzzvpmwqa";
+            // URL cơ sở của máy chủ
+            string baseUrl = "https://localhost:7162";
+
+            // Đường dẫn tương đối của hình ảnh từ cơ sở dữ liệu
+            string relativeImageUrl = booking.Room.Hotel.MainImage;
+
+            // Tạo đường dẫn đầy đủ của hình ảnh
+            string imageUrl = $"{baseUrl}{relativeImageUrl}";
+            // Tạo đối tượng SmtpClient
+            using (SmtpClient client = new SmtpClient(smtpServer, smtpPort))
+            {
+                client.UseDefaultCredentials = false;
+                client.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
+                client.EnableSsl = true; // Sử dụng SSL để bảo vệ thông tin đăng nhập
+
+                // Tạo đối tượng MailMessage
+                using (MailMessage mailMessage = new MailMessage())
+                {
+                    mailMessage.From = new MailAddress(smtpUsername);
+                    mailMessage.To.Add(toEmail);
+                    mailMessage.Subject = "[Eposh Notifycation]";
+                    mailMessage.IsBodyHtml = true;
+                        mailMessage.Body =
+       mailMessage.Body =
+    $@"<!DOCTYPE html>
+   <html lang=""en"">
+<head>
+    <meta charset=""UTF-8"">
+    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+    <title>Booking Form</title>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }}
+
+        .container {{
+            background-color: #FFFAF0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 600px;
+        }}
+
+        .hotel-info {{
+            text-align: center;
+            margin-bottom: 20px;
+        }}
+
+        .hotel-image {{
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }}
+
+        .room-type {{
+            font-size: 18px;
+            font-weight: bold;
+        }}
+
+        .details, .cancellation {{
+            font-size: 14px;
+            color: #666;
+        }}
+
+        .cancellation span {{
+            color: #d9534f;
+        }}
+
+        .booking-form {{
+            margin-bottom: 20px;
+        }}
+
+        .form-group {{
+            margin-bottom: 15px;
+        }}
+
+        .form-group label {{
+            display: block;
+            margin-bottom: 5px;
+        }}
+
+        .form-group input, .form-group select, .form-group button {{
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }}
+
+        .use-button {{
+            width: auto;
+            display: inline-block;
+            margin-left: 10px;
+        }}
+
+        .price-detail {{
+            text-align: right;
+            font-size: 14px;
+            color: #666;
+        }}
+
+        .price-detail span {{
+            font-weight: bold;
+            color: #333;
+        }}
+
+        .booking-button {{
+            background-color: #5cb85c;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }}
+
+        .booking-button:hover {{
+            background-color: #4cae4c;
+        }}
+    </style>
+</head>
+<body>
+    <div class=""container"">
+        <div class=""hotel-info"">
+            <img src=""{imageUrl}"" alt=""Hotel Image"" class=""hotel-image"">
+            <h2>{booking.Room.Hotel.Name} - {booking.Room.Hotel.HotelAddress.Address}</h2>
+            <p class=""room-type"">{booking.Room.TypeOfRoom}</p>
+            <p class=""details"">{booking.NumberGuest} people &bull; {booking.Room.TypeOfBed} &bull; {booking.Room.SizeOfRoom} m²</p>
+            <p class=""cancellation"">Reservations can be <span>canceled</span> before 24 hours from check-in date</p>
+        </div>
+        <form action=""sendmail.php"" method=""post"" class=""booking-form"">
+            <div class=""form-group"">
+                <label for=""checkin"">Check-in</label>
+                <input type=""date"" id=""checkin"" name=""checkin"" value =""{booking.CheckInDate:yyyy-MM-dd}"" required>
+            </div>
+            <div class=""form-group"">
+                <label for=""checkout"">Check-out</label>
+                <input type=""date"" id=""checkout"" name=""checkout"" value =""{booking.CheckOutDate:yyyy-MM-dd}""required>
+            </div>
+            <div class=""form-group"">
+                <label for=""fullname"">Fullname</label>
+                <input type=""text"" id=""fullname"" name=""fullname"" value= ""{booking.Account.Profile.fullName}"" required>
+            </div>
+            <div class=""form-group"">
+                <label for=""email"">Email</label>
+                <input type=""email"" id=""email"" name=""email"" value = ""{booking.Account.Email}"" required>
+            </div>
+            <div class=""form-group"">
+                <label for=""phone"">Phone</label>  
+                <input type=""tel"" id=""phone"" name=""phone"" value = ""{booking.Account.Phone}"" required>
+            </div>
+
+        </form>
+        <div class=""price-detail"">
+            <p>Room: <span>VND {booking.Room.Price}</span></p>
+            <p>Taxes: <span>VND {booking.TaxesPrice}</span></p>
+            <p>Total: <span>VND {booking.TotalPrice}</span></p>
+        </div>
+    </div>
+</body>
+        </html>";
+
+                    // Gửi email
+                    client.Send(mailMessage);
+                }
+            }
+
+            return "Ok";
+        }
     }
 
 }
