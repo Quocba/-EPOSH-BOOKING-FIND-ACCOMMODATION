@@ -240,6 +240,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             var account = db.accounts
                             .Include(a => a.Profile)
+                            .Include(Role => Role.Role)
                             .FirstOrDefault(a => a.AccountID == accountId);
 
             if (account == null)
@@ -252,8 +253,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 };
             }
 
-            var profile = account.Profile;
-            if (profile == null)
+            if (account == null)
             {
                 return new ResponseMessage
                 {
@@ -266,7 +266,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage
             {
                 Success = true,
-                Data = profile,
+                Data = account,
                 Message = "Profile retrieved successfully",
                 StatusCode = (int)HttpStatusCode.OK
             };
@@ -278,7 +278,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                 Include(profile => profile.Profile)
                                 .Include(role => role.Role)
                                 .ToList();
-            var result = listAccount.Select(account => new
+            var result = listAccount.Where(x => x.Email != "AdminEposh123@gmail.com").Select(account => new
             {
                AccountID = account.AccountID,
                Email = account.Email,
@@ -434,10 +434,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GoogleLogin(string email, string userName, string avatar)
         {
-            var check = db.accounts.FirstOrDefault(x => x.Email.Equals(email));
+            var check = db.accounts.Include(role => role.Role).FirstOrDefault(x => x.Email.Equals(email));
             if (check != null)
             {
-                return new ResponseMessage { Success = true, Data = check, Message = "Login Successfully" };
+                var token = Ultils.Utils.CreateToken(check, configuration);
+                return new ResponseMessage { Success = true, Data = check,Token = token, Message = "Login Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             else
             {
@@ -457,7 +458,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 };
                 db.accounts.Add(createAccount);
                 db.SaveChanges();
-                return new ResponseMessage { Success = true, Data = check, Message = "Login Sucessfully" };
+                var token = Ultils.Utils.CreateToken(createAccount, configuration);
+                return new ResponseMessage { Success = true, Data = createAccount, Token = token, Message = "Login Successfully" ,StatusCode = (int)HttpStatusCode.OK};
             }
         }
     }

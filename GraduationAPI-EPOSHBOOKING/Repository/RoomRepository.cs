@@ -47,6 +47,17 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var getRoom = db.room.FirstOrDefault(room => room.RoomID == roomID);
             if (getRoom != null)
             {
+                var bookings = db.booking.Include(Room => Room.Room).Where(b => b.Room.RoomID == roomID).ToList();
+
+                if (bookings.Any())
+                {
+                    foreach (var booking in bookings)
+                    {
+                        db.booking.Remove(booking);
+                    }
+                    db.SaveChanges();
+                }
+
                 db.room.Remove(getRoom);
                 db.SaveChanges();
                 return new ResponseMessage { Success = true, Data = getRoom, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
