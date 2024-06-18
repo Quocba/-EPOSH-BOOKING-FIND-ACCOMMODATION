@@ -23,24 +23,9 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
         [HttpPost("hotel-registration")]
         public IActionResult RegisterHotel([FromForm] HotelRegistrationDTO registrationModel)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
-            try
-            {
-                switch(user.Role.Name.ToLower())
-                {
-                    case "partner":
                         var services = JsonConvert.DeserializeObject<List<ServiceTypeDTO>>(registrationModel.Services);
                         var response = repository.HotelRegistration(registrationModel, services);
                         return StatusCode(response.StatusCode, response);
-                    default:
-                        return Unauthorized();
-                }
-            }catch (Exception ex)
-            {
-                return Unauthorized();
-            }
-
         }
         [HttpPut("update-basic-information")]
         public IActionResult UpdateBasicInfomation([FromForm] int hotelID,
