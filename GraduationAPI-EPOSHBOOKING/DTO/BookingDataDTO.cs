@@ -2,7 +2,7 @@
 {
     public class BookingDataDTO
     {
-        public String Name { get; set; }
+        public String name { get; set; }
         public int Data { get; set; }
     }
 }

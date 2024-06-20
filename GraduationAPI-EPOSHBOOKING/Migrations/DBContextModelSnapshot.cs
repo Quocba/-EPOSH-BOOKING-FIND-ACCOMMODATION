@@ -226,7 +226,6 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Image")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Rating")
@@ -498,6 +497,9 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("NumberCapacity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumberOfBed")
                         .HasColumnType("int");
 
                     b.Property<double>("Price")

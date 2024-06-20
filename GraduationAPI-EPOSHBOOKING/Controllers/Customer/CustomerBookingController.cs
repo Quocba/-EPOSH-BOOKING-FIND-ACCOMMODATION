@@ -2,6 +2,7 @@
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
+using Net.payOS;
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
 {
@@ -64,22 +65,23 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
         [HttpPost("create-booking")]
         public IActionResult CreateBooking([FromForm] CreateBookingDTO createBookingDTO)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
-            try
-            {
-                switch (user.Role.Name.ToLower())
-                {
-                    case "customer":
+            //var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            //var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            //try
+            //{
+            //    switch (user.Role.Name.ToLower())
+            //    {
+            //        case "customer":
                         var response = repository.CreateBooking(createBookingDTO);
+                        
                         return StatusCode(response.StatusCode, response);
-                    default:
-                        return Unauthorized();
-                }
-            }catch (Exception ex)
-            {
-                return Unauthorized();
-            }
+            //        default:
+            //            return Unauthorized();
+            //    }
+            //}catch (Exception ex)
+            //{
+            //    return Unauthorized();
+            //}
 
         }
 
@@ -93,30 +95,37 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
         [HttpGet("export-bookings-by-accountID")]
         public IActionResult ExportBookingsByAccountID([FromQuery] int accountID)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
-            try
-            {
-                switch (user.Role.Name.ToLower())
-                {
-                    case "customer":
-                        var response = repository.ExportBookingsByAccountID(accountID);
+             var response = repository.ExportBookingsByAccountID(accountID);
 
-                        if (response.Success)
-                        {
-                            return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Bookings_{accountID}.xlsx");
-                        }
-                        else
-                        {
-                            return StatusCode(response.StatusCode, response);
-                        }
-                    default:
-                        return Unauthorized();
-                }
-            }catch (Exception ex)
-            {
-                return Unauthorized();
-            }
+             if (response.Success)
+               {
+                   return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Bookings_{accountID}.xlsx");
+               }
+             else
+               {
+                   return StatusCode(response.StatusCode, response);
+               }
         }
+
+        [HttpPost("create-booking-online")]
+        public IActionResult CreateBookingOnline([FromForm] CreateBookingDTO createBookingDTO)
+        {
+
+            var response = repository.CreateBooking(createBookingDTO);
+            var bookingData = (dynamic)response.Data;
+            string description = $"BID-{bookingData.BookingID}-TP-{bookingData.TotalPrice}";
+            var paymentRequest = new PaymentRequestDTO
+            {
+                BookingID = bookingData.BookingID,
+                TotalPrice = (int)bookingData.TotalPrice,
+                Description = description,
+                SuccessUrl = "https://chatgpt.com/c/55d2ec59-5044-46ad-af65-d40adf9e180e",
+                FailureUrl = "https://www.facebook.com/",
+            };
+            var linkCheckOut = repository.GeneratePaymentLink(paymentRequest);
+            return Ok(new { CheckoutUrl = linkCheckOut, response.Data });
+        }
+
+
     }
 }

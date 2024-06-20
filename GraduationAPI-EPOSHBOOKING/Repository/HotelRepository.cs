@@ -119,7 +119,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 var listHotelWithAvgRating = getListHotel.Select(hotel => new
                 {
-                    Hotel = hotel,
+                    Hotel = hotel,  
                     Avgrating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(feedBack => feedBack.Rating) : 0,
                     Room = hotel.rooms.Select(room =>
                     {
@@ -209,7 +209,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                              .Where(hotel => hotel.HotelAddress.City.Equals(city))
                              .ToList();
             var filterHotel = getHotel.Select(hotel => new
-            {
+            {   
                 HotelID = hotel.HotelID,
                 Name = hotel.Name,
                 Description = hotel.Description,
@@ -281,7 +281,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             var currentDate = DateTime.Now.AddDays(-1);
 
-            var listHotel = db.hotel.Include(x => x.HotelImages)
+            var listHotel = db.hotel.Include(x => x.HotelImages)    
                                     .Include(x => x.HotelAddress)
                                     .Include(x => x.feedBacks)
                                     .Include(x => x.rooms)
@@ -374,7 +374,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                         .Include(x => x.feedBacks)
                                         .Include(x => x.rooms).ThenInclude(special => special.SpecialPrice)
                                         .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved"))
-                                        .ToList();
+                                        .ToList();  
 
               
                 var listHotelWithService = listHotel.Where(hotel => hotel.HotelServices.Any(service => services.Contains(service.Type)))
@@ -478,7 +478,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                      ServiceID = service.ServiceID,
                                      Type = service.Type,
                                      SubServices = service.HotelSubServices.Select(subService => new
-                                     {
+                                     {  
                                          SubServiceID = subService.SubServiceID,
                                          SubServiceName = subService.SubServiceName
                                      }).ToList()
@@ -496,7 +496,15 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetGalleriesByHotelID(int hotelID)
         {
-            var getGalleries = db.hotel.Include(x => x.HotelImages).Where(hotel => hotel.HotelID == hotelID).ToList();
+            var getGalleries = db.hotel.Include(x => x.HotelImages).Where(hotel => hotel.HotelID == hotelID).SelectMany(hotel => hotel.HotelImages).ToList();
+            var responseData = getGalleries.Select(image => new
+            {
+                Image = new HotelImage
+                {
+                    ImageID = image.ImageID,
+                    Image = image.Image // Assuming HotelImage has ImageUrl property
+                }
+            }).ToList();
             if (getGalleries.Any())
             {
                 return new ResponseMessage { Success = true, Data = getGalleries, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
@@ -1026,7 +1034,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = true, Data = getHotel, StatusCode = (int)HttpStatusCode.OK };
             
             
-            return new ResponseMessage { Success = true, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.OK };
         }
 
         public ResponseMessage ConfirmRegistration(int hotelID)

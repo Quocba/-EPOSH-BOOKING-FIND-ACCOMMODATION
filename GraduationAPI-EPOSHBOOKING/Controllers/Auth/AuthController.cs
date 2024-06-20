@@ -88,25 +88,25 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         }
 
         [HttpPut("update-profile")]
-        public IActionResult UpdateProfileByAccount([FromForm] int accountID, [FromForm] Profile profile, [FromForm] IFormFile Avatar)
+        public IActionResult UpdateProfileByAccount([FromForm] int accountID, [FromForm]String? phone, [FromForm] Profile profile, [FromForm] IFormFile? Avatar)
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
             try
             {
-                if (user.Role.Name.ToLower().Equals("user") || user.Role.Name.ToLower().Equals("partner"))
+                if (user.Role.Name.ToLower().Equals("customer") || user.Role.Name.ToLower().Equals("partner"))
                 {
-                    var response = repository.UpdateProfileByAccount(accountID, profile, Avatar);
+                    var response = repository.UpdateProfileByAccount(accountID,phone, profile, Avatar);
                     return StatusCode(response.StatusCode, response);
-                }
+                 }       
                 else
                 {
                     return Unauthorized();
-                }
-            }
+                }       
+             }
             catch (Exception ex)
             {
-                return Unauthorized();
+                 return Unauthorized();
             }
 
         }
