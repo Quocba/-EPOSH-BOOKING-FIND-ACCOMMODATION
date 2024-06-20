@@ -9,7 +9,7 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         ResponseMessage LoginWithNumberPhone(String phone);
         ResponseMessage Register(String email, String password, String fullName, String phone);
         ResponseMessage UpdateNewPassword(String email,String newPassword);
-        ResponseMessage UpdateProfileByAccount(int accountID,Profile profile, IFormFile avatar);
+        ResponseMessage UpdateProfileByAccount(int accountID,String phone,Profile profile, IFormFile avatar);
         ResponseMessage GetProfileByAccountId(int accountId);
         ResponseMessage ChangePassword(int accountId, string oldPassword, string newPassword);
         ResponseMessage GetAllAccount();

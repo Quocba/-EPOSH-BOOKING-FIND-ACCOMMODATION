@@ -1302,6 +1302,22 @@
           "build/netcoreapp3.1/NUnit3TestAdapter.props": {}
         }
       },
+      "payOS/1.0.5": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.3"
+        },
+        "compile": {
+          "lib/net6.0/payos-lib-backend-dotnet.dll": {
+            "related": ".runtimeconfig.json"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/payos-lib-backend-dotnet.dll": {
+            "related": ".runtimeconfig.json"
+          }
+        }
+      },
       "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {
         "type": "package",
         "runtimeTargets": {
@@ -2719,7 +2735,8 @@
           "Microsoft.EntityFrameworkCore.SqlServer": "7.0.10",
           "Newtonsoft.Json": "13.0.3",
           "SkiaSharp": "2.88.8",
-          "Swashbuckle.AspNetCore": "6.5.0"
+          "Swashbuckle.AspNetCore": "6.5.0",
+          "payOS": "1.0.5"
         },
         "compile": {
           "bin/placeholder/GraduationAPI-EPOSHBOOKING.dll": {}
@@ -4836,6 +4853,19 @@
         "nunit3testadapter.4.4.2.nupkg.sha512",
         "nunit3testadapter.nuspec",
         "nunit_256.png"
+      ]
+    },
+    "payOS/1.0.5": {
+      "sha512": "FMM3FMaO1MqTnf3G5bhn6Uf73hoz5BbIEFGDPyGj3JEhdhbLcViCgab7uI+aEjf4uSjLUUmr5bXvIJXzk0M7ZA==",
+      "type": "package",
+      "path": "payos/1.0.5",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net6.0/payos-lib-backend-dotnet.dll",
+        "lib/net6.0/payos-lib-backend-dotnet.runtimeconfig.json",
+        "payos.1.0.5.nupkg.sha512",
+        "payos.nuspec"
       ]
     },
     "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.2": {

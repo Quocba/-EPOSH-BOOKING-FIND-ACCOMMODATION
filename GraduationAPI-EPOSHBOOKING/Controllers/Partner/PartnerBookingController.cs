@@ -129,33 +129,19 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
         [HttpGet("export-bookings-and-total-revenue-by-hotelID")]
         public IActionResult ExportBookingbyHotelID([FromQuery] int hotelID)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
-            try
-            {
-                switch (user.Role.Name.ToLower())
-                {
-                    case "partner":
-                        var response = repository.ExportBookingbyHotelID(hotelID);
 
-                        if (response.Success)
-                        {
-                            return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Bookings_HotelID_{hotelID}.xlsx");
-                        }
-                        else
-                        {
-                            return StatusCode(response.StatusCode, response);
-                        }
-                    default: return Unauthorized();
-                }
 
-            }catch (Exception ex)
+            var response = repository.ExportBookingbyHotelID(hotelID);
+
+            if (response.Success)
             {
-                return Unauthorized() ;
+                return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Bookings_HotelID_{hotelID}.xlsx");
+            }
+            else
+            {
+                return StatusCode(response.StatusCode, response);
             }
 
         }
-
-
     }
 }

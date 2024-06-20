@@ -15,6 +15,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public int Quantity { get; set; }
         public int SizeOfRoom { get; set; }
         public String TypeOfBed { get; set; }
+        public int NumberOfBed { get; set; }
 
         [ForeignKey("HotelID")]
         public Hotel? Hotel { get; set; }

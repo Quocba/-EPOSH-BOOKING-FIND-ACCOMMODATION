@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "C+0r4ETR9keWNjrE5qt3B9JpHnhDMM2DPqOZtmIQ44h1UbeKdPBzARoHdhF14sgo5Zo7aEXFvXwvjkEsE61BnQ==",
+  "dgSpecHash": "3CcPKCzWTcOT8h3R4l7Kp0lJ71FXEfkxmbQ+F3VWF1pb23TgbvXFpRIhPnVxvrG937C4ZkuSkxC2vxw5ef7IQw==",
   "success": true,
   "projectFilePath": "D:\\DoAnTotNghiep-FPTU-2024\\SourceCode\\-EPOSH-BOOKING-FIND-ACCOMMODATION\\UnitTestingAPI\\UnitTestingAPI.csproj",
   "expectedPackageFiles": [
@@ -69,6 +69,7 @@
     "C:\\Users\\Acer\\.nuget\\packages\\nunit\\3.13.3\\nunit.3.13.3.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\nunit.analyzers\\3.6.1\\nunit.analyzers.3.6.1.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\nunit3testadapter\\4.4.2\\nunit3testadapter.4.4.2.nupkg.sha512",
+    "C:\\Users\\Acer\\.nuget\\packages\\payos\\1.0.5\\payos.1.0.5.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl\\4.3.2\\runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl\\4.3.2\\runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl\\4.3.2\\runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
