@@ -29,11 +29,12 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
                 return new ResponseMessage { Success = false,Data = getRoom, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
-
+        //Không dùng tới
         public ResponseMessage GetAllRoom()
         {
             var listRoom = db.room.Include(service => service.RoomService)
                 .ThenInclude(subService => subService.RoomSubServices)
+                .Include(specialPrice => specialPrice.SpecialPrice)
                 .Include(img => img.RoomImages).ToList();
             if (listRoom.Any())
             {
@@ -76,6 +77,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 Quantity = room.Quantity,
                 SizeOfRoom = room.SizeOfRoom,
                 TypeOfRoom = room.TypeOfRoom,
+                NumberOfBed = room.NumberOfBed,
                 Hotel = getHotel
             };
             db.room.Add(createRoom);
@@ -134,34 +136,27 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             if (totalQuantity > 0 && totalQuantity <= 10)
             {
                 getHotel.HotelStandar = 1;
-                db.hotel.Update(getHotel);
-                db.SaveChanges();
             }
-            if (totalQuantity >= 20 && totalQuantity <= 49)
+            else if (totalQuantity >= 20 && totalQuantity <= 49)
             {
                 getHotel.HotelStandar = 2;
-                db.hotel.Update(getHotel);
-                db.SaveChanges();
             }
-
-            if (totalQuantity >= 50 && totalQuantity <= 79)
+            else if (totalQuantity >= 50 && totalQuantity <= 79)
             {
                 getHotel.HotelStandar = 3;
-                db.hotel.Update(getHotel);
-                db.SaveChanges();
             }
-            if (totalQuantity >= 80 && totalQuantity <= 99)
+            else if (totalQuantity >= 80 && totalQuantity <= 99)
             {
                 getHotel.HotelStandar = 4;
-                db.hotel.Update(getHotel);
-                db.SaveChanges();
             }
-            if (totalQuantity >= 99){ 
+            else if (totalQuantity >= 100)
+            {
                 getHotel.HotelStandar = 5;
-                db.hotel.Update(getHotel);
-                db.SaveChanges();
             }
-               
+
+            db.hotel.Update(getHotel);
+            db.SaveChanges();
+
             return new ResponseMessage { Success = true, Data = createRoom, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
         }
 
@@ -186,6 +181,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                  getRoom.Quantity = room.Quantity;
                  getRoom.SizeOfRoom = room.SizeOfRoom;
                  getRoom.TypeOfBed = room.TypeOfBed;
+                getRoom.NumberOfBed = room.NumberOfBed;
                  db.room.Update(getRoom);
                  
                 var getSpecialPriceRoom = db.specialPrice.Where(sp => sp.Room.RoomID== roomID).ToList();
