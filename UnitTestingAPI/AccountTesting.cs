@@ -33,7 +33,7 @@ namespace UnitTestingAPI
         }
 
         [Test]
-        public void LoginWithNumberPhone_ValidPhoneNumber_ReturnsOk()
+        public void LoginWithNumberPhone()
         {
             // Arrange
             string phone = "0923343536";
@@ -52,7 +52,7 @@ namespace UnitTestingAPI
         }
 
         [Test]
-        public void LoginWithNumberPhone_InvalidPhoneNumber_ReturnsBadRequest()
+        public void LoginWithNumberPhone_ReturnsBadRequest()
         {
             // Arrange
             string[] invalidPhoneNumbers = { "0923343536", "012345689", "anhyeuem", "$%$%", "" };
@@ -74,7 +74,7 @@ namespace UnitTestingAPI
         }
 
         [Test]
-        public void LoginWithNumberPhone_PhoneNumberNotFound_ReturnsNotFound()
+        public void LoginWithNumberPhone_ReturnsNotFound()
         {
             // Arrange
             string phone = "0923343536";
@@ -92,7 +92,7 @@ namespace UnitTestingAPI
         }
 
         [Test]
-        public void LoginWithNumberPhone_PhoneNumberAlreadyExists_ReturnsAlreadyReported()
+        public void LoginWithNumberPhone_ReturnsAlreadyReported()
         {
             // Arrange
             string phone = "0923343536";
@@ -651,11 +651,10 @@ namespace UnitTestingAPI
             string password = "password123";
             var account = new Account
             {
-                // ... (Các thuộc tính khác) ...
                 Hotel = new List<Hotel>
-        {
+            {
             new Hotel { HotelID = 1, isRegister = "Awaiting Approval", Status = false }
-        }
+            }
             };
 
             _mockRepository.Setup(repo => repo.Login(email, password))
@@ -706,7 +705,7 @@ namespace UnitTestingAPI
             Assert.AreEqual(account, returnedAccount);
         }
         [Test]
-        public void Login_CustomerInvalidCredentials_ReturnsNotFound()
+        public void Login_Customer_ReturnsNotFound()
         {
             // Arrange
             string email = "customer@example.com";
@@ -797,7 +796,7 @@ namespace UnitTestingAPI
             };
 
             _mockRepository.Setup(repo => repo.Login(email, password))
-                .Returns(new ResponseMessage { Success = true, Data = account, Message = "Successfully", StatusCode = (int)H ttpStatusCode.OK });
+                .Returns(new ResponseMessage { Success = true, Data = account, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK });
 
             // Act
             var result = authController.Login(new LoginDTO { Email = email, Password = password }) as ObjectResult;
@@ -810,6 +809,26 @@ namespace UnitTestingAPI
             Assert.That(responseMessage.Message, Is.EqualTo("Successfully"));
             Assert.AreEqual(account, returnedAccount);
         }
+        [Test]
+        public void Login_Admin_ReturnsNotFound()
+        {
+            // Arrange
+            string email = "admin@example.com";
+            string password = "adminPassword";
+            var account = new Account
+            {
+                AccountID = 1,
+                Email = email,
+                Password = Utils.HashPassword(password),
+                IsActive = true,
+                Role = new Role { Name = "Admin" }
+            };
+            _mockRepository.Setup(repo => repo.Login(email, password))
+                .Returns(new ResponseMessage { Success = false, Data = account, Message = "Login Fail.Account does not exist!", StatusCode = (int)HttpStatusCode.NotFound });
+            var result = authController.Login(new LoginDTO { Email = email, Password = password }) as ObjectResult;
+            var responseMessage = result.Value as ResponseMessage;
+            Assert.AreEqual(404, result.StatusCode);
+        }
     }
-    
+
 }
