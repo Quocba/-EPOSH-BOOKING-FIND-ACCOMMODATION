@@ -65,23 +65,23 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
         [HttpPost("create-booking")]
         public IActionResult CreateBooking([FromForm] CreateBookingDTO createBookingDTO)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
-            try
-            {
-                switch (user.Role.Name.ToLower())
-                {
-                    case "customer":
+            //var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            //var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            //try
+            //{
+            //    switch (user.Role.Name.ToLower())
+            //    {
+            //        case "customer":
                         var response = repository.CreateBooking(createBookingDTO);
                         
                         return StatusCode(response.StatusCode, response);
-                    default:
-                        return Unauthorized();
-                }
-            }catch (Exception ex)
-            {
-                return Unauthorized();
-            }
+            //        default:
+            //            return Unauthorized();
+            //    }
+            //}catch (Exception ex)
+            //{
+            //    return Unauthorized();
+            //}
 
         }
 
@@ -95,30 +95,16 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
         [HttpGet("export-bookings-by-accountID")]
         public IActionResult ExportBookingsByAccountID([FromQuery] int accountID)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
-            try
-            {
-                switch (user.Role.Name.ToLower())
-                {
-                    case "customer":
-                        var response = repository.ExportBookingsByAccountID(accountID);
+             var response = repository.ExportBookingsByAccountID(accountID);
 
-                        if (response.Success)
-                        {
-                            return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Bookings_{accountID}.xlsx");
-                        }
-                        else
-                        {
-                            return StatusCode(response.StatusCode, response);
-                        }
-                    default:
-                        return Unauthorized();
-                }
-            }catch (Exception ex)
-            {
-                return Unauthorized(ex);
-            }
+             if (response.Success)
+               {
+                   return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Bookings_{accountID}.xlsx");
+               }
+             else
+               {
+                   return StatusCode(response.StatusCode, response);
+               }
         }
 
         [HttpPost("create-booking-online")]

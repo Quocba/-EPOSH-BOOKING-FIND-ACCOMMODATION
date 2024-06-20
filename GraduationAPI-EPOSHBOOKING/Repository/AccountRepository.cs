@@ -209,24 +209,37 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             };
         }
 
-        public ResponseMessage UpdateProfileByAccount(int accountID, Profile profile,IFormFile avatar)
+        public ResponseMessage UpdateProfileByAccount(int accountID,String phone, Profile profile,IFormFile avatar)
         {
             try
             {
-                var getAccount = db.accounts.Include(profile => profile.Profile).FirstOrDefault(account => account.AccountID == accountID);
-                if (getAccount != null)
+                var getAccount = db.accounts.Include(p => p.Profile).FirstOrDefault(account => account.AccountID == accountID);
+                if (getAccount == null)
                 {
-                 
+                    return new ResponseMessage { Success = false, Data = null, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+                }
+
+                if (avatar == null)
+                {
+                    getAccount.Phone = phone;
                     getAccount.Profile.fullName = profile.fullName;
                     getAccount.Profile.BirthDay = profile.BirthDay;
                     getAccount.Profile.Gender = profile.Gender;
                     getAccount.Profile.Address = profile.Address;
-                    getAccount.Profile.Avatar = Utils.SaveImage(avatar,environment);
-                    db.accounts.Update(getAccount);
-                    db.SaveChanges();
-                    return new ResponseMessage { Success = true, Data = getAccount, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                    getAccount.Profile.Avatar = profile.Avatar;
                 }
-                    return new ResponseMessage { Success = false,Data = getAccount, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+                else
+                {
+                    getAccount.Phone = phone;
+                    getAccount.Profile.fullName = profile.fullName;
+                    getAccount.Profile.BirthDay = profile.BirthDay;
+                    getAccount.Profile.Gender = profile.Gender;
+                    getAccount.Profile.Address = profile.Address;
+                    getAccount.Profile.Avatar = Utils.SaveImage(avatar, environment);
+                }
+                db.accounts.Update(getAccount);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true, Data = getAccount, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             catch (Exception ex)
             {
@@ -331,6 +344,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage FilterAccountByStatus(bool isActice)
         {
             var filterAccount = db.accounts
+                                  .Include(profile => profile.Profile)
+                                  .Include(role => role.Role)
                                   .Where(account => account.IsActive ==  isActice)
                                   .ToList();
          
@@ -427,7 +442,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
             else
             {
-                return new ResponseMessage { Success = false, Data = checkAccount, Message = "Login Fail.Account does not exist!", StatusCode = (int)(HttpStatusCode.NotFound) };
+                return new ResponseMessage { Success = false, Data = checkAccount, Message = "Login Fail", StatusCode = (int)(HttpStatusCode.NotFound) };
             }
             
         }

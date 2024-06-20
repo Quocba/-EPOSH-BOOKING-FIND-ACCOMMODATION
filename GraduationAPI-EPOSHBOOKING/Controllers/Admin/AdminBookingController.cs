@@ -21,56 +21,33 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Admin
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
-            try
-            {
-                switch(user.Role.Name.ToLower())
-                {
-                    case "admin":
+   
                         var response = repository.ExportAllBookings();
 
-                        if (response.Success)
-                        {
-                            return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"AllBookings.xlsx");
-                        }
-                        else
-                        {
-                            return StatusCode(response.StatusCode, response);
-                        }
-                    default:
-                        return Unauthorized();
-                }
-            }catch (Exception ex)
+            if (response.Success)
             {
-                return Unauthorized();
+                return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"AllBookings.xlsx");
             }
-          
+            else
+            {
+                return StatusCode(response.StatusCode, response);
+            }  
         }
+
         [HttpGet("export-revenues")]
         public IActionResult ExportRevenues()
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
             var response = repository.ExportRevenues();
-            try
+            if (response.Success)
             {
-                switch (user.Role.Name.ToLower())
-                {
-                    case "admin":
-                        if (response.Success)
-                        {
-                            return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Revenues.xlsx");
-                        }
-                        else
-                        {
-                            return StatusCode(response.StatusCode, response);
-                        }
-                    default:
-                        return Unauthorized();
-                }
-            }catch(Exception ex) {
-                return Unauthorized();
+                return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Revenues.xlsx");
             }
-
+            else
+            {
+                return StatusCode(response.StatusCode, response);
+            }
         }
 
 

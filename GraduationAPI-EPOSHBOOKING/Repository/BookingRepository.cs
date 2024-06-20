@@ -164,7 +164,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var getBooking = db.booking.FirstOrDefault(booking => booking.BookingID==bookingID);
             if (getBooking != null)
             {
-                getBooking.Status = "Complete";
+                getBooking.Status = "Completed";
                 db.booking.Update(getBooking);
                 db.SaveChanges();
                 return new ResponseMessage { Success = true, Data = getBooking, Message = "Successfully", StatusCode=(int)HttpStatusCode.OK};
@@ -694,47 +694,39 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage AnalysisRevenueBookingHotel(int hotelID)
         {
             var listHotelBookingWithMonth = db.booking
-                                              .Include(room => room.Room)
-                                              .ThenInclude(hotel => hotel.Hotel)
-                                              .Where(booking => booking.Room.Hotel.HotelID == hotelID)
-                                              .GroupBy(booking => new
-                                              {
-                                                  CheckInDate = booking.CheckInDate.Month,
-                                                  CheckOutDate = booking.CheckOutDate.Month
-                                              }).ToList();
-            var totalWithMonth = new Dictionary<int,double>();
-            foreach (var monthGroup in listHotelBookingWithMonth)
+                                                 .Include(room => room.Room)
+                                                 .ThenInclude(hotel => hotel.Hotel)
+                                                 .Where(booking => booking.Room.Hotel.HotelID == hotelID && booking.Status.Equals("Completed"))
+                                                 .ToList();
+
+            var totalWithMonth = new Dictionary<int, (double TotalRevenue, int BookingCount)>();
+
+            // Khởi tạo tất cả các tháng với giá trị 0
+            for (int i = 1; i <= 12; i++)
             {
-                var checkInMonth = monthGroup.Key.CheckInDate;
-                var totalRevenueForMonth = 0.0;
-
-                foreach (var booking in monthGroup)
-                {
-                    // Assume TotalAmount is the property storing the total amount of each booking
-                    totalRevenueForMonth += booking.TotalPrice;
-                }
-
-                if (!totalWithMonth.ContainsKey(checkInMonth))
-                {
-                    totalWithMonth.Add(checkInMonth, totalRevenueForMonth);
-                }
-                else
-                {
-                    totalWithMonth[checkInMonth] += totalRevenueForMonth;
-                }
-
-               
+                totalWithMonth[i] = (0.0, 0);
             }
+
+            foreach (var booking in listHotelBookingWithMonth)
+            {
+                var checkInMonth = booking.CheckInDate.Month;
+                var currentData = totalWithMonth[checkInMonth];
+                totalWithMonth[checkInMonth] = (currentData.TotalRevenue + booking.TotalPrice, currentData.BookingCount + 1);
+            }
+
             var monthName = new[]
-                {
+            {
                 "Jan", "Feb", "Mar", "Apr", "May", "Jun",
                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-                 };
-            var result = totalWithMonth.Select(booking => new BookingRevenuesData
+    };
+
+            var result = totalWithMonth.Select(booking => new
             {
-                Name = monthName[booking.Key - 1],
-                Data = booking.Value
-            });
+                Month = monthName[booking.Key - 1],
+                Booking = booking.Value.BookingCount,
+                Revenue = booking.Value.TotalRevenue
+            }).ToList();
+
             return new ResponseMessage { Success = true, Data = result, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
         }
 
@@ -768,7 +760,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             };
             var result = QuantityBookingWithMonth.Select(qb => new BookingDataDTO
             {
-                Name = monthName[qb.Key - 1],
+                name = monthName[qb.Key - 1],
                 Data = qb.Value
             }).ToList();
             return new ResponseMessage { Success = true, Data = result, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
@@ -809,7 +801,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             };
             var result = QuantityBookingWithMonth.Select(qb => new BookingDataDTO
             {
-                Name = monthName[qb.Key - 1],
+                name = monthName[qb.Key - 1],
                 Data = qb.Value
             }).ToList();
             return new ResponseMessage { Success = true, Data = result, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
@@ -913,6 +905,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                             .FirstOrDefault(account => account.AccountID == newBooking.AccountID);
             var voucher = db.voucher.FirstOrDefault(voucher => voucher.VoucherID == newBooking.VoucherID);
             var room = db.room.Include(hotel => hotel.Hotel)
+                              .ThenInclude(hotel => hotel.HotelAddress)
                               .FirstOrDefault(room => room.RoomID == newBooking.RoomID);
             if (voucher != null && voucher.QuantityUse >0)
             {
@@ -1054,7 +1047,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                          .Include(specialPrice => specialPrice.SpecialPrice)
                          .FirstOrDefault(room => room.RoomID == roomID);
             var specialPrice = room.SpecialPrice
-                              .FirstOrDefault(sp => CheckInDate >= sp.StartDate && CheckOutDate <= sp.EndDate);
+                                   .FirstOrDefault(sp => CheckInDate >= sp.StartDate && CheckOutDate <= sp.EndDate);
             if (specialPrice != null)
             {
                 room.Price = specialPrice.Price;

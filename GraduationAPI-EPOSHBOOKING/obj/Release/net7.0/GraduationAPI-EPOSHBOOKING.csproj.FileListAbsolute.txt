@@ -95,3 +95,4 @@ D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\Graduati
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\GraduationAPI-EPOSHBOOKING.pdb
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\GraduationAPI-EPOSHBOOKING.genruntimeconfig.cache
 D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\obj\Release\net7.0\ref\GraduationAPI-EPOSHBOOKING.dll
+D:\DoAnTotNghiep-FPTU-2024\SourceCode\-EPOSH-BOOKING-FIND-ACCOMMODATION\GraduationAPI-EPOSHBOOKING\bin\Release\net7.0\payos-lib-backend-dotnet.dll
