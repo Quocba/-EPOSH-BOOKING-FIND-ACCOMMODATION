@@ -360,8 +360,29 @@ namespace UnitTestingAPI
             Assert.AreEqual("Successfully", responseMessage.Message);
             Assert.AreEqual(expected, responseMessage.Data);
         }
+        [Test]
+        public void SearchHotel_NoData_ReturnsNotFound()
+        {
+            string city = "CityA";
+            DateTime checkInDate = DateTime.Today;
+            DateTime checkOutDate = DateTime.Today.AddDays(1);
+            int numberCapacity = 2;
+            int quantity = 1;
+
+            repository.Setup(repo => repo.SearchHotel(city, checkInDate, checkOutDate, numberCapacity, quantity))
+                          .Returns(new ResponseMessage { Success = false, Data = null, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound });
 
 
+            var result = controller.SearchHotel(city, checkInDate, checkOutDate, numberCapacity, quantity) as ObjectResult;
+
+
+            Assert.IsNotNull(result, "Result should not be null");
+            Assert.AreEqual(404, result.StatusCode);
+            var responseMessage = result.Value as ResponseMessage;
+            Assert.IsNotNull(responseMessage, "Response message should not be null");
+            Assert.IsFalse(responseMessage.Success);
+            Assert.AreEqual("Data not found", responseMessage.Message);
+        }
 
         private List<Hotel> GetFakeHotels()
         {
