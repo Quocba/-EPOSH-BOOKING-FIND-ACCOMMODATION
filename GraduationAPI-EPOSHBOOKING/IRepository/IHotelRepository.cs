@@ -36,6 +36,7 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage GetAllHotelWaitForApproval();
         public ResponseMessage AnalyzeHotelStandar();
         public ResponseMessage GetGuestReviewByHotel(int hotelID);
+        public ResponseMessage GetBasicInformation(int hotelID);
     }
 
  
