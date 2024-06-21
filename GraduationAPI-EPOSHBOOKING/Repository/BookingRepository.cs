@@ -151,7 +151,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var getBooking = db.booking.FirstOrDefault(booking => booking.BookingID == bookingID);
             if (getBooking != null)
             {
-                getBooking.Status = "Wait For Payment";
+                getBooking.Status = "Awaiting Payment";
                 db.booking.Update(getBooking);
                 db.SaveChanges();
                 return new ResponseMessage { Success = true, Data = getBooking, Message = "Confirm Successfully", StatusCode= (int)HttpStatusCode.OK };
