@@ -368,7 +368,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var currentDate = DateTime.UtcNow.AddDays(-1);
             if (services.Any())
             {
-                var listHotel = db.hotel.Include(x => x.HotelImages)
+                var listHotel = db.hotel
                                         .Include(x => x.HotelAddress)
                                         .Include(x => x.HotelServices).ThenInclude(x => x.HotelSubServices)
                                         .Include(x => x.feedBacks)
@@ -987,7 +987,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = true, Data = getImage, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             return new ResponseMessage { Success = false, Data = null, Message = "Image not found", StatusCode = (int)HttpStatusCode.NotFound };
-        }
+        }   
 
         public ResponseMessage GetAllHotelInfomation()
         {
@@ -1240,6 +1240,18 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 Data = new { listReview = listReview,AvgRating = AvgRating, CountFeedback = CountFeedback }, 
                 Message = "Successfully",
                 StatusCode  = (int)HttpStatusCode.OK};
+        }
+
+        public ResponseMessage GetBasicInformation(int hotelID)
+        {
+            var basicInformation = db.hotel
+                                     .Include(x => x.HotelAddress)
+                                     .FirstOrDefault(hotel => hotel.HotelID == hotelID);
+            if (basicInformation != null)
+            {
+                return new ResponseMessage { Success = true, Data = basicInformation, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+            return new ResponseMessage { Success = false, Data = basicInformation, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
     }
 }

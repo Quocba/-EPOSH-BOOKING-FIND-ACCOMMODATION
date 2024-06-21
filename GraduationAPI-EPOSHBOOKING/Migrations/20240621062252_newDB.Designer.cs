@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GraduationAPI_EPOSHBOOKING.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20240620083510_updateTabaseRoomAddNumberOfBed")]
-    partial class updateTabaseRoomAddNumberOfBed
+    [Migration("20240621062252_newDB")]
+    partial class newDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

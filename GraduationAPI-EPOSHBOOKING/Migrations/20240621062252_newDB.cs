@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace GraduationAPI_EPOSHBOOKING.Migrations
 {
     /// <inheritdoc />
-    public partial class createDatabase : Migration
+    public partial class newDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -63,7 +63,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                 {
                     VoucherID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    VoucherImage = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VoucherImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     VoucherName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Code = table.Column<string>(type: "nvarchar(6)", maxLength: 6, nullable: false),
                     QuantityUse = table.Column<int>(type: "int", nullable: false),
@@ -285,6 +285,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     SizeOfRoom = table.Column<int>(type: "int", nullable: false),
                     TypeOfBed = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    NumberOfBed = table.Column<int>(type: "int", nullable: false),
                     HotelID = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -425,7 +426,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     FeedBackID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Rating = table.Column<int>(type: "int", nullable: false),
-                    Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     isDeleted = table.Column<bool>(type: "bit", nullable: false),
                     AccountID = table.Column<int>(type: "int", nullable: true),
