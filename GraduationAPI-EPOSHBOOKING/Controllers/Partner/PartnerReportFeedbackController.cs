@@ -11,10 +11,11 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
         private readonly IReportFeedbackRepository repository;
         private readonly IFeedbackRepository feedbackRepository;
         private readonly IConfiguration configuration;
-        public PartnerReportFeedbackController(IReportFeedbackRepository repository, IConfiguration configuration)
+        public PartnerReportFeedbackController(IReportFeedbackRepository repository, IConfiguration configuration,IFeedbackRepository feedbackRepository)
         {
             this.repository = repository;
             this.configuration = configuration;
+            this.feedbackRepository = feedbackRepository;
         }
 
         [HttpPost("create-report")]
@@ -43,7 +44,8 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
         public IActionResult GetAllHotelFeedback([FromQuery]int hotelID)
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var user = Ultils.Utils.GetUserInfoFromToken (token, configuration);
+
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
             try
             {
                 switch (user.Role.Name.ToLower())

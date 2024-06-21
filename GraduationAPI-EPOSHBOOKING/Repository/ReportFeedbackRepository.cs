@@ -43,7 +43,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                      .ThenInclude(profile => profile.Profile)
                      .ToList();
             if (report.Any())
-            {
+            {   
                 return new ResponseMessage { Success = true, Data = report, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             return new ResponseMessage { Success = false, Data = report, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };

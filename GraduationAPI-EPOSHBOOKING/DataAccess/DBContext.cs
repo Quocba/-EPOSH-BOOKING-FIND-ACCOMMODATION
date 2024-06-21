@@ -11,7 +11,7 @@ namespace GraduationAPI_EPOSHBOOKING.DataAccess
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
-            optionsBuilder.UseSqlServer("Data Source=SQL6032.site4now.net;Initial Catalog=db_aa9943_eposhbooking;User ID=db_aa9943_eposhbooking_admin;Password=Admin123@;Trust Server Certificate=True");
+            optionsBuilder.UseSqlServer("Data Source=SQL8006.site4now.net;Initial Catalog=db_aaa284_eposhgraduation;User Id=db_aaa284_eposhgraduation_admin;Password=Admin123@;Trust Server Certificate=True");
             //optionsBuilder.UseSqlServer("Data Source=LAPTOP-3P8D5MG5;Initial Catalog=EPOSHGRADUATION;Integrated Security=True;Trust Server Certificate=True");
 
         }

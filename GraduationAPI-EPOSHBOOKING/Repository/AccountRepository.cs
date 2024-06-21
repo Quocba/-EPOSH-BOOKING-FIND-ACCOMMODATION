@@ -31,7 +31,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var addRole = db.roles.FirstOrDefault(x => x.Name.Equals(role));
             var checkEmailAlready = db.accounts.FirstOrDefault(email => email.Email.Equals(account.Email));
             if (checkEmailAlready != null)
-            {
+            {   
                 return new ResponseMessage { Success = false, Data = checkEmailAlready.Email, Message = "Email Already Exist", StatusCode = (int)HttpStatusCode.AlreadyReported };
             }
             else
@@ -89,7 +89,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             String phoneRegex = @"^(?:\+84|0)([3|5|7|8|9])+([0-9]{8})$";
             Regex regex = new Regex(phoneRegex);
             String RoleName = "Customer";
-            var role = db.roles.FirstOrDefault(x => x.Name.Equals(RoleName));
+            var role = db.roles.FirstOrDefault(x => x.Name.Equals(RoleName));   
             if (regex.IsMatch(phone))
             {
                 var checkPhone = db.accounts.FirstOrDefault(x => x.Phone.Equals(phone));
