@@ -30,6 +30,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 ReasonReport = ReasonReport,
                 Status = "Awaiting Approval"
             };
+            getFeedback.Status = "Reported";
+            db.feedback.Update(getFeedback);
             db.reportFeedBack.Add(addReport);
             db.SaveChanges();
             return new ResponseMessage { Success = true, Data = addReport, Message = "Report Successfully", StatusCode = (int)HttpStatusCode.OK };
@@ -66,8 +68,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
             String emailContent = "Your request for a feedback report has been processed.";
             getReport.Status = "Approved";
-            feedback.isDeleted = true;
-            db.reportFeedBack.Update(getReport);
+            feedback.Status = "Hidden";
+            db.reportFeedBack.Update(getReport);  
             db.SaveChanges();
             Ultils.Utils.SendMailRegistration(getReport.ReporterEmail, emailContent);
             return new ResponseMessage { Success = true, Data = getReport, Message = emailContent, StatusCode = (int)HttpStatusCode.OK };

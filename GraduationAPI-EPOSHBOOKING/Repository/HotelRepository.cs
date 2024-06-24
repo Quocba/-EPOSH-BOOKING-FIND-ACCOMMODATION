@@ -90,7 +90,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         Rating = feedback.Rating,
                         Image = feedback.Image,
                         Description = feedback.Description,
-                        isDelete = feedback.isDeleted,
+                        isDelete = feedback.Status,
                         Account = feedback.Account
                     }).ToList(),
                     AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0,
@@ -164,7 +164,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         Rating = feedback.Rating,
                         Image = feedback.Image,
                         Description = feedback.Description,
-                        isDelete = feedback.isDeleted,
+                        isDelete = feedback.Status,
                         Account = feedback.Account
                     }),
                     Rooms = hotel.Room,
@@ -257,7 +257,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Rating = feedback.Rating,
                     Image = feedback.Image,
                     Description = feedback.Description,
-                    isDelete = feedback.isDeleted,
+                    isDelete = feedback.Status,
                     Account = feedback.Account
                 }).ToList()
             }).Where(hotel => hotel.Rooms.Any()).ToList();
@@ -281,7 +281,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             var currentDate = DateTime.Now.AddDays(-1);
 
-            var listHotel = db.hotel.Include(x => x.HotelImages)    
+            var listHotel = db.hotel
                                     .Include(x => x.HotelAddress)
                                     .Include(x => x.feedBacks)
                                     .Include(x => x.rooms)
@@ -306,11 +306,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                                       HotelStandar = hotel.HotelStandar,
                                                       MainImage = hotel.MainImage,
                                                       OpenedIn = hotel.OpenedIn,
-                                                      HotelImages = hotel.HotelImages?.Select(img => new
-                                                      {
-                                                          img.ImageID,
-                                                          img.Image
-                                                      }).ToList(),
                                                       HotelServices = hotel.HotelServices?.Select(service => new
                                                       {
                                                           service.ServiceID,
@@ -420,7 +415,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         feedback.Rating,
                         feedback.Image,
                         feedback.Description,
-                        feedback.isDeleted,
+                        feedback.Status,
                         feedback.Account
                     }).ToList(),
                     Rooms = hotel.rooms.Select(room =>

@@ -13,7 +13,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public int Rating { get; set; }
         public String? Image { get; set; }
         public String Description { get; set; }
-        public bool isDeleted { get; set; }
+        public String Status { get; set; }
 
         [ForeignKey("AccountID")]
         public Account? Account { get; set; }
