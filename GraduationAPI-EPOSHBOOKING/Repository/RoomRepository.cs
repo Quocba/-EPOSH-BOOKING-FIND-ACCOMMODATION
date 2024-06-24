@@ -23,8 +23,16 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             var getRoom = db.room.Include(x => x.RoomImages).Include(x => x.SpecialPrice).Include(x => x.RoomService).ThenInclude(x => x.RoomSubServices)
             .FirstOrDefault(room => room.RoomID == roomID);
+           
             if (getRoom != null)
             {
+                var currentDate = DateTime.Now;
+                var specialPrice = db.specialPrice.FirstOrDefault(x => x.StartDate <= currentDate && x.EndDate >= currentDate);
+                if (specialPrice != null)
+                {
+                    getRoom.Price = specialPrice.Price;
+                }
+
                 return new ResponseMessage { Success = true, Data = getRoom, Message = "Successfully",StatusCode = (int)HttpStatusCode.OK };
             }
                 return new ResponseMessage { Success = false,Data = getRoom, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
@@ -84,6 +92,12 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
             foreach (var specialPrice in specialPrices)
             {
+                var checkSpecialPrice = db.specialPrice.FirstOrDefault(x => x.StartDate == specialPrice.StartDate && x.EndDate == specialPrice.EndDate);
+                if (checkSpecialPrice != null)
+                {
+                    return new ResponseMessage { Success = false, Data = checkSpecialPrice, Message = "Already Exist", StatusCode = (int)HttpStatusCode.AlreadyReported };
+                }
+                else { 
                 SpecialPrice addSpecialPrice = new SpecialPrice
                 {
                     StartDate = specialPrice.StartDate,
@@ -92,6 +106,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Room = createRoom
                 };
                 db.specialPrice.Add(addSpecialPrice);
+                }
             }
              
 
@@ -205,14 +220,24 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 {
                     foreach (var specialPrice in SpecialPrices)
                     {
+                        var checkSpecialPrice = db.specialPrice.FirstOrDefault(x => x.StartDate == specialPrice.StartDate && x.EndDate == specialPrice.EndDate);
+                        if (checkSpecialPrice != null)
+                        {
+                            return new ResponseMessage { Success = false, Data = getRoom, Message = "Data not found", StatusCode = (int)HttpStatusCode.OK };
+
+                        }
+                        else
+                        {
                         SpecialPrice addSpecialprice = new SpecialPrice
                         {
+
                             StartDate = specialPrice.StartDate,
                             EndDate = specialPrice.EndDate,
                             Price = specialPrice.Price,
                             Room = getRoom
                         };
                          db.specialPrice.Add(addSpecialprice);
+                        }
                     }
                          db.SaveChanges();
                 }

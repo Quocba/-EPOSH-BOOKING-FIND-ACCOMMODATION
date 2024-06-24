@@ -36,8 +36,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Rating = feedBack.Rating,
                     Description = feedBack.Description,
                     Hotel = booking.Room.Hotel,
-                    Image = Ultils.Utils.SaveImage(Image,environment),
-                    isDeleted = false
+                    Image = Ultils.Utils.SaveImage(Image, environment),
+                    Status = "Normal"
                 };
 
                 db.feedback.Add(addFeedBack);
@@ -47,7 +47,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     addFeedBack.FeedBackID,
                     addFeedBack.Rating,
                     addFeedBack.Description,
-                    addFeedBack.isDeleted,
+                    addFeedBack.Status,
                     addFeedBack.Image,
                     Account = addFeedBack.Account != null ? new
                     {
@@ -99,7 +99,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var listFeedback = db.feedback
                                  .Include(account => account.Account)
                                  .ThenInclude(profile => profile.Profile)
-                                 .Where(feedback => feedback.Hotel.HotelID == hotelID)
+                                 .Where(feedback => feedback.Hotel.HotelID == hotelID && feedback.Status.Equals("Normal"))
                                  .ToList();
 
             return new ResponseMessage { Success = true,Data = listFeedback, Message = "Successfully", StatusCode= (int)HttpStatusCode.OK };

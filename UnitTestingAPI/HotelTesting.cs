@@ -385,8 +385,8 @@ namespace UnitTestingAPI
             },
             feedBacks = new List<FeedBack>
             {
-                new FeedBack { FeedBackID = 1, Rating = 5, Description = "Excellent", isDeleted = false },
-                new FeedBack { FeedBackID = 2, Rating = 5, Description = "Very Good", isDeleted = false }
+                new FeedBack { FeedBackID = 1, Rating = 5, Description = "Excellent", Status = "Normal" },
+                new FeedBack { FeedBackID = 2, Rating = 5, Description = "Very Good", Status = "Normal" }
             },
             rooms = new List<Room>
             {
@@ -429,8 +429,8 @@ namespace UnitTestingAPI
             },
             feedBacks = new List<FeedBack>
             {
-                new FeedBack { FeedBackID = 3, Rating = 3, Description = "Average", isDeleted = false },
-                new FeedBack { FeedBackID = 4, Rating = 2, Description = "Poor", isDeleted = false }
+                new FeedBack { FeedBackID = 3, Rating = 3, Description = "Average", Status = "Normal" },
+                new FeedBack { FeedBackID = 4, Rating = 2, Description = "Poor", Status = "Normal" }
             },
             rooms = new List<Room>
             {
@@ -473,8 +473,8 @@ namespace UnitTestingAPI
             },
             feedBacks = new List<FeedBack>
             {
-                new FeedBack { FeedBackID = 5, Rating = 4, Description = "Good", isDeleted = false },
-                new FeedBack { FeedBackID = 6, Rating = 5, Description = "Excellent service", isDeleted = false }
+                new FeedBack { FeedBackID = 5, Rating = 4, Description = "Good", Status = "Normal" },
+                new FeedBack { FeedBackID = 6, Rating = 5, Description = "Excellent service", Status = "Normal" }
             },
             rooms = new List<Room>
             {
