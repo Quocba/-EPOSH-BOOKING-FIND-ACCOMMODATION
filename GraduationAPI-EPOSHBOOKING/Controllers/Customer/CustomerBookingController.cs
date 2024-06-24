@@ -65,23 +65,24 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
         [HttpPost("create-booking")]
         public IActionResult CreateBooking([FromForm] CreateBookingDTO createBookingDTO)
         {
-            //var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            //var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
-            //try
-            //{
-            //    switch (user.Role.Name.ToLower())
-            //    {
-            //        case "customer":
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch (user.Role.Name.ToLower())
+                {
+                    case "customer":
                         var response = repository.CreateBooking(createBookingDTO);
                         
                         return StatusCode(response.StatusCode, response);
-            //        default:
-            //            return Unauthorized();
-            //    }
-            //}catch (Exception ex)
-            //{
-            //    return Unauthorized();
-            //}
+                    default:
+                        return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized();
+            }
 
         }
 

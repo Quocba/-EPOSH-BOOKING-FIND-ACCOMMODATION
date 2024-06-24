@@ -28,7 +28,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
                 switch (user.Role.Name.ToLower())
                 {
                     case "partner":
-                        var response = repository.CreateReportFeedback(feedbackId, ReporterEmail, ReporterEmail);
+                        var response = repository.CreateReportFeedback(feedbackId, ReporterEmail, ReasonReport);
                         return StatusCode(response.StatusCode, response);
                     default:
                         return Unauthorized();
