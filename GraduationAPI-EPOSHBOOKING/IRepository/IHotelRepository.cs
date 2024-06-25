@@ -19,10 +19,6 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage UpdateBasicInformation(int hotelID,string hotelName,
                                                      int openedIn,
                                                      string description,
-                                                     string hotelAddress,
-                                                     string city,
-                                                     double latitude,
-                                                     double longitude,
                                                      IFormFile mainImage);
         public ResponseMessage UpdateHotelService(int hotelID,List<ServiceTypeDTO>services);
         public ResponseMessage AddHotelImage(int hotelId,String title, IFormFile image);
@@ -37,6 +33,9 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage AnalyzeHotelStandar();
         public ResponseMessage GetGuestReviewByHotel(int hotelID);
         public ResponseMessage GetBasicInformation(int hotelID);
+        public ResponseMessage GetAddressByHotel(int hotelID);
+        public ResponseMessage UpdateAddressByHotel(int hotelID, HotelAddress newAddress);
+
     }
 
  
