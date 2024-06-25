@@ -74,7 +74,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
                 return Unauthorized();
             }
 
-        }
+        }   
 
         [HttpPut("update-room")]
         public IActionResult UpdateRoom([FromForm] UpdateRoomDTO updateRoomModel)

@@ -32,7 +32,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
                                             [FromForm] string hotelName,
                                             [FromForm] int openedIn,
                                             [FromForm] string description,
-                                            [FromForm] IFormFile mainImage)
+                                            [FromForm] IFormFile? mainImage)
         {
 
 
