@@ -136,7 +136,59 @@ namespace UnitTestingAPI
             var result = controller.getHotelByPrice(address, minPrice, maxPrice) as ObjectResult;
             Assert.AreEqual(404, result.StatusCode);
         }
+        [Test]
+        public void GetGalleriesByHotelID_Success()
+        {
+            // Arrange
+            int hotelID = 1;
+            var fakeHotels = GetFakeHotels();
+            var expectedGalleries = fakeHotels.FirstOrDefault(h => h.HotelID == hotelID)?.HotelImages;
 
+            repository.Setup(repo => repo.GetGalleriesByHotelID(hotelID))
+                .Returns(new ResponseMessage
+                {
+                    Success = true,
+                    Data = expectedGalleries,
+                    Message = "Successfully",
+                    StatusCode = (int)HttpStatusCode.OK
+                });
+
+            // Act
+            var result = partnerHotelController.GetGalleriesByHotel(hotelID) as ObjectResult;
+            var responseMessage = result.Value as ResponseMessage;
+            var returnedGalleries = responseMessage.Data as List<HotelImage>;
+
+            // Assert
+            Assert.AreEqual(200, result.StatusCode);
+            Assert.That(responseMessage.Success, Is.True);
+            Assert.That(responseMessage.Message, Is.EqualTo("Successfully"));
+            Assert.AreEqual(expectedGalleries, returnedGalleries);
+        }
+        [Test]
+        public void GetGalleriesByHotelID_NoData_ReturnsNotFound()
+        {
+            // Arrange
+            int hotelID = 1;
+
+            repository.Setup(repo => repo.GetGalleriesByHotelID(hotelID))
+                .Returns(new ResponseMessage
+                {
+                    Success = false,
+                    Data = null,
+                    Message = "No data",
+                    StatusCode = (int)HttpStatusCode.NotFound
+                });
+
+            // Act
+            var result = partnerHotelController.GetGalleriesByHotel(hotelID) as ObjectResult;
+            var responseMessage = result.Value as ResponseMessage;
+
+            // Assert
+            Assert.AreEqual(404, result.StatusCode);
+            Assert.That(responseMessage.Success, Is.False);
+            Assert.That(responseMessage.Message, Is.EqualTo("No data"));
+            Assert.That(responseMessage.Data, Is.Null);
+        }
         [Test]
         public void GetHotelByRateSuccess()
         {
