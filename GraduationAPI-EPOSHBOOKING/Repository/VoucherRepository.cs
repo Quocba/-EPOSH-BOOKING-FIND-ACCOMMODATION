@@ -136,7 +136,21 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             var myVoucher = db.myVoucher.Include(voucher => voucher.Voucher)
                 .Where(account => account.AccountID == accountId)
-                .Select(mv => mv.Voucher)
+                .Select(myVoucher => new
+                {
+                    Account = myVoucher.Account,
+                    Voucher = new
+                    {
+                        voucherID = myVoucher.Voucher.VoucherID,
+                        voucherImage = myVoucher.Voucher.VoucherImage,
+                        voucherName = myVoucher.Voucher.VoucherName,
+                        Code = myVoucher.Voucher.Code,
+                        quantityUse = myVoucher.Voucher.QuantityUse,
+                        Discount = myVoucher.Voucher.Discount,
+                        description = myVoucher.Voucher.Description,
+                    },
+                    isVoucher = myVoucher.IsVoucher
+                })
                 .ToList();  
             if (myVoucher.Any())
             {
@@ -167,7 +181,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
                     if (checkAlready != null)
                     {
-                        return new ResponseMessage { Success = true, Data = voucherData, Message = "You have already received this voucher", StatusCode = (int)HttpStatusCode.OK };
+                        return new ResponseMessage { Success = true, Data = voucherData, Message = "You have already received this voucher", StatusCode = (int)HttpStatusCode.AlreadyReported };
 
                     }
                     else

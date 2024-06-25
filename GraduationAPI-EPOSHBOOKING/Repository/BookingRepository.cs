@@ -928,20 +928,33 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 room.Quantity = room.Quantity - newBooking.NumberOfRoom;
                 db.voucher.Update(voucher);
                 db.room.Update(room);
+                var myVoucher = db.myVoucher
+                                  .Include(x => x.Voucher)
+                                  .Include(x => x.Account)
+                                  .FirstOrDefault(x => x.AccountID == account.AccountID && x.VoucherID == newBooking.VoucherID);
+                if (myVoucher != null)
+                {
+                    myVoucher.IsVoucher = false;
+                    db.myVoucher.Update(myVoucher);
+                    db.SaveChanges();
+                }
                 if (voucher.QuantityUse == 0)
                 {
-                    var myvoucher = db.myVoucher
-                                      .Include(account => account.Account)
-                                      .Include(voucher => voucher.Voucher)
-                                      .FirstOrDefault(myVoucher => myVoucher.VoucherID == newBooking.VoucherID);
-                    if (myvoucher != null)
+                    var myVoucherList = db.myVoucher
+                                           .Include(voucher => voucher.Voucher)
+                                           .Include(account => account.Account)
+                                           .Where(x => x.VoucherID == newBooking.VoucherID)
+                                           .ToList();
+                    foreach (var checkMyVoucher in myVoucherList)
                     {
-                        myvoucher.IsVoucher = false;
-                        db.myVoucher.Update(myvoucher);
-                        Ultils.Utils.sendMail(createBooking.Account.Email);
+                        checkMyVoucher.IsVoucher = false;
+                        db.myVoucher.Update(checkMyVoucher);
                     }
+                 
                 }
+                Ultils.Utils.SendMailBooking(createBooking.Account.Email,createBooking);
                 db.SaveChanges();
+                
                 var responseData = new
                 {
                     BookingID = createBooking.BookingID,
@@ -980,6 +993,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
             else
             {
+               
                 Booking createBooking = new Booking
                 {
                     Account = account,
@@ -1000,7 +1014,18 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 db.booking.Add(createBooking);
                 db.SaveChanges();
                 Ultils.Utils.SendMailBooking(createBooking.Account.Email,createBooking);
-
+                
+                var myVoucher = db.myVoucher
+                                  .Include(voucher => voucher.Voucher)
+                                  .Include(account => account.Account)
+                                  .Where(x => x.VoucherID == newBooking.VoucherID)
+                                  .ToList();
+                foreach (var checkVoucher in myVoucher)
+                {
+                    checkVoucher.IsVoucher = false;
+                    db.myVoucher.Update(checkVoucher);
+                }       
+                db.SaveChanges();
                 var responseData = new
                 {
                     BookingID = createBooking.BookingID,
