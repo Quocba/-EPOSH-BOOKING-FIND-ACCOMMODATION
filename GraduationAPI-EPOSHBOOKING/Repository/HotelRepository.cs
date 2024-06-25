@@ -119,7 +119,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 var listHotelWithAvgRating = getListHotel.Select(hotel => new
                 {
-                    Hotel = hotel,  
+                    Hotel = hotel,
                     Avgrating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(feedBack => feedBack.Rating) : 0,
                     Room = hotel.rooms.Select(room =>
                     {
@@ -209,7 +209,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                              .Where(hotel => hotel.HotelAddress.City.Equals(city))
                              .ToList();
             var filterHotel = getHotel.Select(hotel => new
-            {   
+            {
                 HotelID = hotel.HotelID,
                 Name = hotel.Name,
                 Description = hotel.Description,
@@ -369,14 +369,14 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                         .Include(x => x.feedBacks)
                                         .Include(x => x.rooms).ThenInclude(special => special.SpecialPrice)
                                         .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved"))
-                                        .ToList();  
+                                        .ToList();
 
-              
+
                 var listHotelWithService = listHotel.Where(hotel => hotel.HotelServices.Any(service => services.Contains(service.Type)))
                                                     .OrderByDescending(hotel => hotel.HotelStandar)
                                                     .ToList();
 
-                
+
                 var result = listHotelWithService.Select(hotel => new
                 {
                     HotelID = hotel.HotelID,
@@ -397,7 +397,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     {
                         img.ImageID,
                         img.Image,
-                       
+
                     }).ToList(),
                     HotelServices = hotel.HotelServices.Select(service => new
                     {
@@ -439,7 +439,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                 sp.Price
                             }).ToList()
                         };
-                   
+
                     }).ToList(),
                     AvgRating = hotel.feedBacks != null && hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(fb => fb.Rating), 2) : 0,
                     Count = hotel.feedBacks.Count()
@@ -473,7 +473,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                      ServiceID = service.ServiceID,
                                      Type = service.Type,
                                      SubServices = service.HotelSubServices.Select(subService => new
-                                     {  
+                                     {
                                          SubServiceID = subService.SubServiceID,
                                          SubServiceName = subService.SubServiceName
                                      }).ToList()
@@ -510,8 +510,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
-     
-        
+
+
         public ResponseMessage SearchHotel(String city, DateTime? checkInDate, DateTime? checkOutDate, int? numberCapacity, int? quantity)
         {
             var currentDate = DateTime.Now.AddDays(-1);
@@ -523,7 +523,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
             if (!city.IsNullOrEmpty() && checkInDate == null && checkOutDate == null && numberCapacity == null && quantity == null)
             {
-                var searchCity = listHotel.Select(hotel => 
+                var searchCity = listHotel.Select(hotel =>
                 {
                     var avgRating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(rating => rating.Rating) : 0;
                     var countReview = hotel.feedBacks.Any() ? hotel.feedBacks.Count() : 0;
@@ -720,7 +720,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         }
 
 
-        public ResponseMessage HotelRegistration(HotelRegistrationDTO registration,List<ServiceTypeDTO>Services)
+        public ResponseMessage HotelRegistration(HotelRegistrationDTO registration, List<ServiceTypeDTO> Services)
         {
             var account = db.accounts
                          .Include(profile => profile.Profile)
@@ -759,7 +759,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 {
                     Type = service.serviceType,
                     Hotel = addHotel,
-                    
+
                 };
                 db.hotelService.Add(addService);
                 db.SaveChanges();
@@ -850,24 +850,35 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             };
         }
 
-        public ResponseMessage UpdateBasicInformation(int hotelID, string hotelName, int openedIn, string description,
-            string hotelAddress, string city, double latitude, double longitude, IFormFile mainImage)
+        public ResponseMessage UpdateBasicInformation(int hotelID, string hotelName, int openedIn, string description, IFormFile mainImage)
         {
-            var getHotel = db.hotel.Include(address => address.HotelAddress).FirstOrDefault(hotel => hotel.HotelID == hotelID);
+            var getHotel = db.hotel.FirstOrDefault(hotel => hotel.HotelID == hotelID);
             if (getHotel != null)
             {
-                getHotel.Name = hotelName;
-                getHotel.OpenedIn = openedIn;
-                getHotel.Description = description;
-                getHotel.HotelStandar = getHotel.HotelStandar;
-                getHotel.HotelAddress.Address = hotelAddress;
-                getHotel.HotelAddress.latitude = latitude;
-                getHotel.HotelAddress.longitude = longitude;
-                getHotel.HotelAddress.City = city;
-                getHotel.MainImage = Utils.SaveImage(mainImage, environment);
-                db.hotel.Update(getHotel);
-                db.SaveChanges();
-                return new ResponseMessage { Success = true, Data = getHotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                if (mainImage != null)
+                {
+                    getHotel.Name = hotelName;
+                    getHotel.OpenedIn = openedIn;
+                    getHotel.Description = description;
+                    getHotel.HotelStandar = getHotel.HotelStandar;
+                    getHotel.MainImage = Utils.SaveImage(mainImage, environment);
+                    db.hotel.Update(getHotel);
+                    db.SaveChanges();
+                    return new ResponseMessage { Success = true, Data = getHotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                }
+                else
+                {
+                    getHotel.Name = hotelName;
+                    getHotel.OpenedIn = openedIn;
+                    getHotel.Description = description;
+                    getHotel.HotelStandar = getHotel.HotelStandar;
+                    getHotel.MainImage = getHotel.MainImage;
+                    db.hotel.Update(getHotel);
+                    db.SaveChanges();
+                    return new ResponseMessage { Success = true, Data = getHotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                }
+
+
             }
             return new ResponseMessage { Success = false, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
@@ -955,7 +966,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
-        public ResponseMessage AddHotelImage(int hotelId, String title ,IFormFile images)
+        public ResponseMessage AddHotelImage(int hotelId, String title, IFormFile images)
         {
             var hotel = db.hotel.FirstOrDefault(hotel => hotel.HotelID == hotelId);
             if (hotel != null)
@@ -963,7 +974,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 HotelImage addImage = new HotelImage
                 {
                     Title = title,
-                    Image = Ultils.Utils.SaveImage(images,environment),
+                    Image = Ultils.Utils.SaveImage(images, environment),
                     Hotel = hotel
                 };
                 db.hotelImage.Add(addImage);
@@ -982,7 +993,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = true, Data = getImage, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             return new ResponseMessage { Success = false, Data = null, Message = "Image not found", StatusCode = (int)HttpStatusCode.NotFound };
-        }   
+        }
 
         public ResponseMessage GetAllHotelInfomation()
         {
@@ -1004,7 +1015,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         }
 
-        public ResponseMessage BlockedHotel(int hotelID,String reaseonBlock)
+        public ResponseMessage BlockedHotel(int hotelID, String reaseonBlock)
         {
             var getHotel = db.hotel
                              .Include(account => account.Account)
@@ -1018,17 +1029,17 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 return new ResponseMessage { Success = true, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.OK };
             }
-           
-                getHotel.isRegister = "Blocked";
-                getHotel.Status = false;
-                getAccount.IsActive = false;
-                db.hotel.Update(getHotel);
-                db.accounts.Update(getAccount);
-                db.SaveChanges();
-                Ultils.Utils.SendMailRegistration(getAccount.Email, reaseonBlock);
-                return new ResponseMessage { Success = true, Data = getHotel, StatusCode = (int)HttpStatusCode.OK };
-            
-            
+
+            getHotel.isRegister = "Blocked";
+            getHotel.Status = false;
+            getAccount.IsActive = false;
+            db.hotel.Update(getHotel);
+            db.accounts.Update(getAccount);
+            db.SaveChanges();
+            Ultils.Utils.SendMailRegistration(getAccount.Email, reaseonBlock);
+            return new ResponseMessage { Success = true, Data = getHotel, StatusCode = (int)HttpStatusCode.OK };
+
+
         }
 
         public ResponseMessage ConfirmRegistration(int hotelID)
@@ -1039,7 +1050,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                              .ThenInclude(hotelSubService => hotelSubService.HotelSubServices)
                              .Include(address => address.HotelAddress)
                              .FirstOrDefault(hotel => hotel.HotelID == hotelID);
-            
+
             if (getHotel != null)
             {
                 var getAccount = db.accounts.FirstOrDefault(account => account.AccountID == getHotel.Account.AccountID);
@@ -1049,16 +1060,16 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 db.hotel.Update(getHotel);
                 db.SaveChanges();
                 String mailContent = "You have been approved to become our partner. Please log in to the system and perform activities.";
-                Ultils.Utils.SendMailRegistration(getAccount.Email,mailContent);
+                Ultils.Utils.SendMailRegistration(getAccount.Email, mailContent);
                 return new ResponseMessage { Success = true, Data = getHotel, Message = "Sucessfully", StatusCode = (int)HttpStatusCode.OK };
             }
-                return new ResponseMessage { Success = false, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+            return new ResponseMessage { Success = false, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
 
         public ResponseMessage FilterHotelByStatus(bool Status)
         {
             var filterHotel = db.hotel.Where(hotel => hotel.Status == Status).ToList();
-            return new ResponseMessage {Success = true, Data = filterHotel, Message ="Successfully",StatusCode= (int)HttpStatusCode.OK};
+            return new ResponseMessage { Success = true, Data = filterHotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
         }
 
         public ResponseMessage RejectRegistration(int hotelID, String reasonReject)
@@ -1068,7 +1079,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                              .FirstOrDefault(hotel => hotel.HotelID == hotelID);
             if (getHotel == null)
             {
-                return new ResponseMessage { Success =false, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound};
+                return new ResponseMessage { Success = false, Data = getHotel, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
 
             }
             var getAccount = db.accounts
@@ -1081,15 +1092,15 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
             String Role = "Customer";
             var getRole = db.roles.FirstOrDefault(role => role.Name.Equals(Role));
-                getHotel.isRegister = "Rejected";
-                getAccount.Role = getRole;
-                db.hotel.Update(getHotel);
-                db.accounts.Update(getAccount);
-                db.SaveChanges();
-                Ultils.Utils.SendMailRegistration(getAccount.Email, reasonReject);
-                return new ResponseMessage { Success = true, Data = getHotel, Message = "Successfully", StatusCode= (int)HttpStatusCode.OK};
-            
-         
+            getHotel.isRegister = "Rejected";
+            getAccount.Role = getRole;
+            db.hotel.Update(getHotel);
+            db.accounts.Update(getAccount);
+            db.SaveChanges();
+            Ultils.Utils.SendMailRegistration(getAccount.Email, reasonReject);
+            return new ResponseMessage { Success = true, Data = getHotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+
+
         }
 
         public ResponseMessage SearchHotelByName(string hotelName)
@@ -1109,7 +1120,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                   TotalBooking = db.booking.Count(booking => booking.Room.Hotel.HotelID == hotel.HotelID),
                                   TotalRevenue = db.booking.Where(booking => booking.Room.Hotel.HotelID == hotel.HotelID).Sum(booking => booking.TotalPrice)
                               });
-            return new ResponseMessage { Success = true, Data = searchResult, Message = "Successfully", StatusCode=(int)HttpStatusCode.OK};
+            return new ResponseMessage { Success = true, Data = searchResult, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
         }
 
         public ResponseMessage GetAllHotelWaitForApproval()
@@ -1169,7 +1180,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 }).ToList()
             }).ToList();
 
-            return new ResponseMessage { Success = true,Data = responseData, Message = "Sucessfully",StatusCode =(int)HttpStatusCode.OK};
+            return new ResponseMessage { Success = true, Data = responseData, Message = "Sucessfully", StatusCode = (int)HttpStatusCode.OK };
         }
 
         public ResponseMessage AnalyzeHotelStandar()
@@ -1211,30 +1222,32 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                .ToList()
                                .Select(feedback => new
                                {
-                                  FeedbackID = feedback.FeedBackID,
-                                  Rating = feedback.Rating,
-                                  Image = feedback.Image,
-                                  Description = feedback.Description,
-                                  Booking = new
-                                  {
-                                      CheckInDate = feedback.Booking.CheckInDate
-                                  },
-                                  Room  = new
-                                  {
-                                      TypeOfRoom = feedback.Booking.Room.TypeOfRoom
-                                  },
-                                  Profile = new
-                                  {
-                                      FullName = feedback.Account.Profile.fullName
-                                  }
+                                   FeedbackID = feedback.FeedBackID,
+                                   Rating = feedback.Rating,
+                                   Image = feedback.Image,
+                                   Description = feedback.Description,
+                                   Booking = new
+                                   {
+                                       CheckInDate = feedback.Booking.CheckInDate
+                                   },
+                                   Room = new
+                                   {
+                                       TypeOfRoom = feedback.Booking.Room.TypeOfRoom
+                                   },
+                                   Profile = new
+                                   {
+                                       FullName = feedback.Account.Profile.fullName
+                                   }
                                }).ToList();
-            var AvgRating = listReview.Any() ? Math.Round(listReview.Average(rt => rt.Rating),2) : 0;
+            var AvgRating = listReview.Any() ? Math.Round(listReview.Average(rt => rt.Rating), 2) : 0;
             var CountFeedback = listReview.Count();
-            return new ResponseMessage { 
+            return new ResponseMessage
+            {
                 Success = true,
-                Data = new { listReview = listReview,AvgRating = AvgRating, CountFeedback = CountFeedback }, 
+                Data = new { listReview = listReview, AvgRating = AvgRating, CountFeedback = CountFeedback },
                 Message = "Successfully",
-                StatusCode  = (int)HttpStatusCode.OK};
+                StatusCode = (int)HttpStatusCode.OK
+            };
         }
 
         public ResponseMessage GetBasicInformation(int hotelID)
@@ -1247,6 +1260,45 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage { Success = true, Data = basicInformation, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             return new ResponseMessage { Success = false, Data = basicInformation, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
+        }
+
+        public ResponseMessage GetAddressByHotel(int hotelID)
+        {
+            var address = db.hotel
+                            .Include(address => address.HotelAddress)
+                            .FirstOrDefault(x => x.HotelID == hotelID);
+            if (address != null)
+            {
+                var result = new
+                {
+                    AddressID = address.HotelAddress.AddressID,
+                    Address = address.HotelAddress.Address,
+                    City = address.HotelAddress.City,
+                    Latidue = address.HotelAddress.latitude,
+                    Lontidue = address.HotelAddress.longitude
+                };
+                return new ResponseMessage { Success = true, Message = "Successfully", Data = result, StatusCode = (int)HttpStatusCode.OK };
+            }
+            return new ResponseMessage { Success = false, Message = "Data not found", Data = address, StatusCode = (int)HttpStatusCode.NotFound };
+        }
+
+        public ResponseMessage UpdateAddressByHotel(int hotelID,HotelAddress newAddress)
+        {
+            var address = db.hotel.Include(address => address.HotelAddress)
+                                  .FirstOrDefault(x => x.HotelID == hotelID);
+            if (address != null)
+            {
+                address.HotelAddress.Address = newAddress.Address;
+                address.HotelAddress.City = newAddress.City;
+                address.HotelAddress.latitude = newAddress.latitude;
+                address.HotelAddress.longitude = newAddress.longitude;
+                db.hotel.Update(address);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true, Message = "Successfully", Data = address, StatusCode = (int)HttpStatusCode.OK };
+
+            }
+            return new ResponseMessage { Success = false, Message = "Data not found", Data = address, StatusCode = (int)HttpStatusCode.NotFound };
+
         }
     }
 }
