@@ -651,12 +651,16 @@ namespace UnitTestingAPI
             string password = "password123";
             var account = new Account
             {
+                AccountID = 1,
+                Email = email, // Bổ sung Email
+                Password = Utils.HashPassword(password), // Bổ sung Password
+                IsActive = true,
+                Role = new Role { Name = "Partner" },
                 Hotel = new List<Hotel>
-            {
-            new Hotel { HotelID = 1, isRegister = "Awaiting Approval", Status = false }
-            }
+        {
+            new Hotel { HotelID = 1, isRegister = "Awaiting Approval", Status = true }
+        }
             };
-
             _mockRepository.Setup(repo => repo.Login(email, password))
                 .Returns(new ResponseMessage
                 {
