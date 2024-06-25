@@ -32,11 +32,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
                                             [FromForm] string hotelName,
                                             [FromForm] int openedIn,
                                             [FromForm] string description,
-                                            [FromForm] string hotelAddress,
-                                            [FromForm] string city,
-                                            [FromForm] double latitude,
-                                            [FromForm] double longitude,
-                                            [FromForm] IFormFile mainImage)
+                                            [FromForm] IFormFile? mainImage)
         {
 
 
@@ -47,7 +43,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
                 switch (user.Role.Name.ToLower())
                 {
                     case "partner":
-                        var response = repository.UpdateBasicInformation(hotelID, hotelName, openedIn, description, hotelAddress, city, latitude, longitude, mainImage);
+                        var response = repository.UpdateBasicInformation(hotelID, hotelName, openedIn, description, mainImage);
                         return StatusCode(response.StatusCode, response);
                     default:
                         return Unauthorized();
@@ -167,6 +163,49 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
                         return Unauthorized() ;
                 }
             }catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+        }
+
+        [HttpGet("get-address")]
+        public IActionResult GetAddressByHotel([FromQuery]int hotelID)
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ","");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch (user.Role.Name.ToLower())
+                {
+                    case "partner":
+                        var response = repository.GetAddressByHotel(hotelID);
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized() ;
+                }
+            }catch (Exception ex)
+            {
+                return Unauthorized() ;
+            }
+        }
+
+        [HttpPut("update-address")]
+        public IActionResult UpdateAddressByHotel([FromForm] int hotelID, [FromForm]HotelAddress newAddress)
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                switch (user.Role.Name.ToLower())
+                {
+                    case "partner":
+                        var response = repository.UpdateAddressByHotel(hotelID, newAddress);
+                        return StatusCode(response.StatusCode, response);
+                    default:
+                        return Unauthorized();
+                }
+            }
+            catch (Exception ex)
             {
                 return Unauthorized();
             }

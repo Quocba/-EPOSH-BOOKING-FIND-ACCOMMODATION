@@ -152,7 +152,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 getHotel.HotelStandar = 1;
             }
-            else if (totalQuantity >= 20 && totalQuantity <= 49)
+            else if (totalQuantity >= 20 && totalQuantity <= 49)    
             {
                 getHotel.HotelStandar = 2;
             }
