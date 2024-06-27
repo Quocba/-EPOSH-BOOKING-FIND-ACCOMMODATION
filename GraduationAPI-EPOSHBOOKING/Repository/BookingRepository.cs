@@ -33,6 +33,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetBookingByAccount(int accountID)
         {
             var getBooking = db.booking
+                               .Include(x => x.Account)
+                               .ThenInclude(x => x.Profile)
                                .Include(room => room.Room)
                                .ThenInclude(hotel => hotel.Hotel)
                                .Where(booking => booking.Account.AccountID == accountID)
@@ -48,6 +50,21 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                NumberOfRoom = booking.NumberOfRoom,
                NumberOfGuest = booking.NumberGuest,
                Status = booking.Status,
+               Account = new
+               {
+                       AccountID = booking.Account.AccountID,
+                       Email = booking.Account.Email,
+                       Phone = booking.Account.Phone,
+                       Profile = new
+                       {
+                           ProfileID = booking.Account.Profile.ProfileID,
+                           FullName = booking.Account.Profile.fullName,
+                           BirthDay = booking.Account.Profile.BirthDay,
+                           Gender = booking.Account.Profile.Gender,
+                           Address = booking.Account.Profile.Address,
+                           Avatar = booking.Account.Profile.Avatar
+                       }
+               },
                Room = new
                {
                    RoomID = booking.Room.RoomID,
@@ -320,28 +337,16 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             try
             {
                 var bookings = db.booking
-                    .Where(booking => booking.Account.AccountID == accountID && booking.Status == "Complete")
+                    .Where(booking => booking.Account.AccountID == accountID)
                     .Include(booking => booking.Room)
                     .ThenInclude(room => room.Hotel)
                     .Include(booking => booking.Voucher)
                     .Include(booking => booking.Account)
                     .ToList();
-                // Check if there are any bookings
-                if (bookings.Count == 0)
-                {
-                    return new ResponseMessage
-                    {
-                        Success = false,
-                        Data = null,
-                        Message = "No bookings found for this account.",
-                        StatusCode = (int)HttpStatusCode.NotFound
-                    };
-                }
+
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-                // Create an Excel package
                 using (ExcelPackage pck = new ExcelPackage())
                 {
-                    // Create the worksheet
                     ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Booking List");
                     // Định dạng tiêu đề cột
                     ws.Cells[1, 1, 1, 9].Style.Font.Bold = true;
@@ -360,37 +365,42 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     ws.Cells[1, 9].Value = "ReasonCancel";
                     //ws.Cells[1, 10].Value = "Status";
 
-                    // Add data to the worksheet
-                    int row = 2;
-                    foreach (var booking in bookings)
+                    if (bookings != null && bookings.Any())
                     {
-                        ws.Cells[row, 1].Value = booking.BookingID;
-                        ws.Cells[row, 2].Value = booking.CheckInDate.ToString("dd-MM-yyyy"); ;
-                        ws.Cells[row, 3].Value = booking.CheckOutDate.ToString("dd-MM-yyyy"); ;
-                        ws.Cells[row, 4].Value = booking.TotalPrice + " " + "VND";
-                        ws.Cells[row, 5].Value = booking.UnitPrice + " " + "VND";
-                        ws.Cells[row, 6].Value = booking.TaxesPrice;
-                        ws.Cells[row, 7].Value = booking.NumberOfRoom;
-                        ws.Cells[row, 8].Value = booking.NumberGuest;
-                        ws.Cells[row, 9].Value = booking.ReasonCancle;
-                        //ws.Cells[row, 10].Value = booking.Status;
-                        row++;
+                        int row = 2;
+                        foreach (var booking in bookings)
+                        {
+                            ws.Cells[row, 1].Value = booking.BookingID;
+                            ws.Cells[row, 2].Value = booking.CheckInDate.ToString("dd-MM-yyyy");
+                            ws.Cells[row, 3].Value = booking.CheckOutDate.ToString("dd-MM-yyyy");
+                            ws.Cells[row, 4].Value = booking.TotalPrice + " VND";
+                            ws.Cells[row, 5].Value = booking.UnitPrice + " VND";
+                            ws.Cells[row, 6].Value = booking.TaxesPrice;
+                            ws.Cells[row, 7].Value = booking.NumberOfRoom;
+                            ws.Cells[row, 8].Value = booking.NumberGuest;
+                            //ws.Cells[row, 10].Value = booking.Status;
+                            row++;
+                        }
+                        // Định dạng dữ liệu
+                        ws.Cells[2, 1, ws.Dimension.End.Row, 9].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     }
-                    // Định dạng dữ liệu
-                    ws.Cells[2, 1, ws.Dimension.End.Row, 10].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    // Autofit columns
-                    ws.Columns.AutoFit();
+                    else
+                    {
+                        // Ensure the worksheet has at least one row of headers if there are no bookings
+                        ws.Cells[2, 1].Value = string.Empty;
+                    }
 
-                    // Save the Excel file to a memory stream
+                    // Autofit columns
+                    ws.Cells[ws.Dimension.Address].AutoFitColumns();
+
                     MemoryStream stream = new MemoryStream();
                     pck.SaveAs(stream);
 
-                    // Return the Excel file as a response
                     return new ResponseMessage
                     {
                         Success = true,
                         Data = stream.ToArray(),
-                        Message = "Excel file generated successfully.",
+                        Message = bookings.Any() ? "Excel file generated successfully." : "No bookings found. Empty file generated.",
                         StatusCode = (int)HttpStatusCode.OK
                     };
                 }
@@ -406,7 +416,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 };
             }
         }
-
         public ResponseMessage ExportAllBookings()
         {
             try
@@ -1105,6 +1114,91 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return createPayment.checkoutUrl;
         }
 
- 
+        public ResponseMessage GetBookingDetails(int bookingID)
+        {
+            var booking = db.booking
+                             .Include(booking => booking.Room)
+                             .Include(room => room.Room.Hotel)
+                             .Include(address => address.Room.Hotel.HotelAddress)
+                             .Include(hotel => hotel.Account) // Account that owns the hotel
+                             .ThenInclude(account => account.Profile)
+                             .Include(booking => booking.Voucher)
+                             .Include(booking => booking.Account) // Account that made the booking
+                             .ThenInclude(account => account.Profile)
+                             .FirstOrDefault(x => x.BookingID == bookingID);
+            if (booking != null)
+            {
+                var responseData = new
+                {
+                    BookingID = booking.BookingID,
+                    CheckInDate = booking.CheckInDate,
+                    CheckOutDate = booking.CheckOutDate,
+                    TotalPrice = booking.TotalPrice,
+                    UnitPrice = booking.UnitPrice,
+                    TaxesPrice = booking.TaxesPrice,
+                    NumberOfRoom = booking.NumberOfRoom,
+                    NumberOfGuest = booking.NumberGuest,
+                    Status = booking.Status,
+                    BookingAccount = new
+                    {
+                        AccountID = booking.Account.AccountID,
+                        Email = booking.Account.Email,
+                        Phone = booking.Account.Phone,
+                        Profile = new
+                        {
+                            FullName = booking.Account.Profile.fullName,
+                            BirthDay = booking.Account.Profile.BirthDay,
+                            Gender = booking.Account.Profile.Gender,
+                            Address = booking.Account.Profile.Address,
+                            Avatar = booking.Account.Profile.Avatar
+                        }
+                    },
+                    Room = new
+                    {
+                        RoomID = booking.Room.RoomID,
+                        TypeOfRoom = booking.Room.TypeOfRoom,
+                        NumberCapacity = booking.Room.NumberCapacity,
+                        Price = booking.Room.Price,
+                        Quantity = booking.Room.Quantity,
+                        SizeOfRoom = booking.Room.SizeOfRoom,
+                        TypeOfBed = booking.Room.TypeOfRoom,
+                        NumberOfBed = booking.Room.NumberOfBed,
+                        Hotel = new
+                        {
+                            HotelID = booking.Room.Hotel.HotelID,
+                            MainImage = booking.Room.Hotel.MainImage,
+                            Name  = booking.Room.Hotel.Name,
+                            OnpenedIn = booking.Room.Hotel.OpenedIn,
+                            Description = booking.Room.Hotel.Description,
+                            HotelStandar = booking.Room.Hotel.HotelStandar,
+                            HotelAddress = new
+                            {
+                                AddressID = booking.Room.Hotel.HotelAddress.AddressID,
+                                Address = booking.Room.Hotel.HotelAddress.Address
+
+                            },
+                            ParnerAccount = new
+                            {
+                                Email = booking.Room.Hotel.Account.Email,
+                                Phone = booking.Room.Hotel.Account.Phone,
+                                PartnerProfile = new
+                                {
+                                    FullName = booking.Room.Hotel.Account.Profile.fullName,
+                                    BirthDay = booking.Room.Hotel.Account.Profile.BirthDay,
+                                    Gender = booking.Room.Hotel.Account.Profile.Gender,
+                                    Address = booking.Room.Hotel.Account.Profile.Address,
+                                    Avatar = booking.Room.Hotel.Account.Profile.Avatar
+                                }
+                            }
+                        }
+                    }
+                };
+                        
+                return new ResponseMessage { Success = true, Message = "Successfully",Data = responseData, StatusCode = (int)HttpStatusCode.OK };
+            }
+
+            return new ResponseMessage { Success = false, Message = "Data not found", Data = booking, StatusCode = (int)HttpStatusCode.NotFound };
+
+        }
     }
 }
