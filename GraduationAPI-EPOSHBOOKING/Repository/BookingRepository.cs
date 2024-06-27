@@ -1009,7 +1009,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Status = "WaitWait For Check-In"
                 };
                 db.booking.Add(createBooking);
-                room.Quantity = room.Quantity - newBooking.NumberOfRoom;
+                room.Quantity = room.Quantity - createBooking.NumberOfRoom;
                 db.room.Update(room);
                 db.booking.Add(createBooking);
                 db.SaveChanges();
