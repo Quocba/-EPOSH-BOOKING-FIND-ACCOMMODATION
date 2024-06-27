@@ -59,7 +59,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         .Where(room => room != null) // Lọc giá trị null trong rooms
                         .Select(room =>
                         {
-                            var currentDate = DateTime.Now.AddDays(-1);
+                            var currentDate = DateTime.Now.AddHours(14);
                             var specialPrice = room.SpecialPrice
                                 .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
                             if (specialPrice != null)
@@ -123,7 +123,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Avgrating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(feedBack => feedBack.Rating) : 0,
                     Room = hotel.rooms.Select(room =>
                     {
-                        var currentDate = DateTime.Now.AddDays(-1);
+                        var currentDate = DateTime.Now.AddHours(14);
                         var specialPrice = room.SpecialPrice
                                                .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
                         if (specialPrice != null)
@@ -199,7 +199,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetHotelByPrice(String city, double minPrice, double maxPrice)
         {
-            var currentDate = DateTime.Now.AddDays(-1);
+            var currentDate = DateTime.Now.AddHours(14);
             var getHotel = db.hotel
                              .Include(x => x.HotelAddress)
                              .Include(x => x.feedBacks)
@@ -279,7 +279,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetByHotelStandar(int hotelStandar)
         {
-            var currentDate = DateTime.Now.AddDays(-1);
+            var currentDate = DateTime.Now.AddHours(14);
 
             var listHotel = db.hotel
                                     .Include(x => x.HotelAddress)
@@ -360,7 +360,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetByService(List<String> services)
         {
-            var currentDate = DateTime.UtcNow.AddDays(-1);
+            var currentDate = DateTime.Now.AddHours(14);
             if (services.Any())
             {
                 var listHotel = db.hotel
@@ -514,7 +514,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage SearchHotel(String city, DateTime? checkInDate, DateTime? checkOutDate, int? numberCapacity, int? quantity)
         {
-            var currentDate = DateTime.Now.AddDays(-1);
+            var currentDate = DateTime.Now.AddHours(14);
 
             var listHotel = db.hotel.Include(address => address.HotelAddress)
                 .Include(feedback => feedback.feedBacks)

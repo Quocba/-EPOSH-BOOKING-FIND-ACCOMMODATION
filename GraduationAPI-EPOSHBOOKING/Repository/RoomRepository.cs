@@ -4,6 +4,7 @@ using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Newtonsoft.Json;
 using System.Net;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
 
@@ -27,7 +28,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             if (getRoom != null)
             {
                 var currentDate = DateTime.Now;
-                var specialPrice = db.specialPrice.FirstOrDefault(x => x.StartDate <= currentDate && x.EndDate >= currentDate);
+                var specialPrice = db.specialPrice.FirstOrDefault(x => x.StartDate <= currentDate && x.EndDate >= currentDate && x.Room.RoomID == roomID);
                 if (specialPrice != null)
                 {
                     getRoom.Price = specialPrice.Price;
@@ -92,12 +93,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
             foreach (var specialPrice in specialPrices)
             {
-                var checkSpecialPrice = db.specialPrice.FirstOrDefault(x => x.StartDate == specialPrice.StartDate && x.EndDate == specialPrice.EndDate);
-                if (checkSpecialPrice != null)
-                {
-                    return new ResponseMessage { Success = false, Data = checkSpecialPrice, Message = "Already Exist", StatusCode = (int)HttpStatusCode.AlreadyReported };
-                }
-                else { 
+              
                 SpecialPrice addSpecialPrice = new SpecialPrice
                 {
                     StartDate = specialPrice.StartDate,
@@ -106,7 +102,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Room = createRoom
                 };
                 db.specialPrice.Add(addSpecialPrice);
-                }
             }
              
 
@@ -175,7 +170,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = true, Data = createRoom, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
         }
 
-        public ResponseMessage UpdateRoom(int roomID, Room room, List<SpecialPrice>SpecialPrices, List<IFormFile> image, 
+        public ResponseMessage UpdateRoom(int roomID, Room room, List<SpecialPrice>SpecialPrices,String urlImage, List<IFormFile> image, 
             List<ServiceTypeDTO>services)
         {
             var getRoom = db.room
@@ -198,8 +193,12 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                  getRoom.TypeOfBed = room.TypeOfBed;
                 getRoom.NumberOfBed = room.NumberOfBed;
                  db.room.Update(getRoom);
-                 
-                var getSpecialPriceRoom = db.specialPrice.Where(sp => sp.Room.RoomID== roomID).ToList();
+
+                var getSpecialPriceRoom = db.specialPrice.Where(sp => sp.Room.RoomID == roomID).ToList();
+                if (getSpecialPriceRoom.Any())
+                {
+                    db.specialPrice.RemoveRange(getSpecialPriceRoom);
+                }
                 if (getSpecialPriceRoom.Any())
                 {
                     db.specialPrice.RemoveRange(getSpecialPriceRoom);
@@ -218,16 +217,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 }
                 else
                 {
+               
                     foreach (var specialPrice in SpecialPrices)
                     {
-                        var checkSpecialPrice = db.specialPrice.FirstOrDefault(x => x.StartDate == specialPrice.StartDate && x.EndDate == specialPrice.EndDate);
-                        if (checkSpecialPrice != null)
-                        {
-                            return new ResponseMessage { Success = false, Data = getRoom, Message = "Data not found", StatusCode = (int)HttpStatusCode.OK };
-
-                        }
-                        else
-                        {
+                       
+                       
                         SpecialPrice addSpecialprice = new SpecialPrice
                         {
 
@@ -237,22 +231,39 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                             Room = getRoom
                         };
                          db.specialPrice.Add(addSpecialprice);
-                        }
+                        
                     }
                          db.SaveChanges();
                 }
                 var existingImages = db.roomImage.Where(ri => ri.Room.RoomID == roomID).ToList();
                 db.roomImage.RemoveRange(existingImages);
-                foreach (var img in image)
+                db.SaveChanges();
+                if (urlImage != null)
                 {
-                    byte[]imgData = Ultils.Utils.ConvertIFormFileToByteArray(img);
-                    RoomImage updateNewImage = new RoomImage
+                    var urlImages = JsonConvert.DeserializeObject<List<string>>(urlImage);
+                    foreach (var imageUrl in urlImages)
                     {
-                        Image = Ultils.Utils.SaveImage(img,environment),
-                        Room = getRoom
-                    };
-                    db.roomImage.Add(updateNewImage);
-                   
+                        RoomImage oldImage = new RoomImage
+                        {
+                            Image = imageUrl,
+                            Room = getRoom
+                        };
+                        db.roomImage.Add(oldImage);
+                    }
+                }   
+                if (image != null && image.Any())
+                {
+                    foreach(var newImage in image)
+                    {
+                        RoomImage addNewImage = new RoomImage
+                        {
+                            Image = Ultils.Utils.SaveImage(newImage, environment),
+                            Room = getRoom
+                        };
+                        db.roomImage.Add(addNewImage);
+                     
+                    }
+                
                 }
 
                 var existingServices = db.roomService.Where(rs => rs.Room.RoomID == roomID).ToList();
@@ -328,7 +339,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GetRoomByHotel(int hotelID)
         {
-            var currentDate = DateTime.Now.AddDays(-1);
+            var currentDate = DateTime.Now.AddHours(14);
             var listRoomWithHotel = db.room
                                       .Include(hotel => hotel.Hotel)
                                       .Include(roomService => roomService.RoomService)
@@ -352,6 +363,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Quantity = room.Quantity,
                     SizeOfRoom = room.SizeOfRoom,
                     TypeOfBed = room.TypeOfBed,
+                    NumberOfBed = room.NumberOfBed,
                     RoomServices = room.RoomService.Select(rs => new
                     {
                         rs.RoomServiceID,
