@@ -3,6 +3,7 @@ using GraduationAPI_EPOSHBOOKING.DTO;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 #pragma warning disable // tắt cảnh báo để code sạch hơn
 
 
@@ -77,7 +78,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
         }   
 
         [HttpPut("update-room")]
-        public IActionResult UpdateRoom([FromForm] UpdateRoomDTO updateRoomModel)
+        public IActionResult UpdateRoom([FromForm] UpdateRoomDTO updateRoomModel,[FromForm]String? urlImage)
         {
 
 
@@ -90,22 +91,23 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
                     case "partner":
                         var services = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ServiceTypeDTO>>(updateRoomModel.Services);
                         var specialPrice = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SpecialPrice>>(updateRoomModel.specialPrice);
+    
                         var response = reponsitory.UpdateRoom(
                             updateRoomModel.RoomID,
                             updateRoomModel.Room,
                             specialPrice,
+                            urlImage,
                             updateRoomModel.Images,
-                            services
-                        );
+                            services);
                         return StatusCode(response.StatusCode, response);
-                    default:
+            default:
                         return Unauthorized();
-                }
-            }
+        }
+    }
             catch (Exception ex)
             {
                 return Unauthorized();
-            }
+}
 
         }
     }

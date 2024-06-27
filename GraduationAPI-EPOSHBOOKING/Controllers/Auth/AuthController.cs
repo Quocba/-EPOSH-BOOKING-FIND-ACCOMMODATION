@@ -119,7 +119,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         [HttpGet("get-time-server")]
         public IActionResult GetTime()
         {
-            var time = DateTime.Now;
+            var time = DateTime.Now.AddHours(14);
             return Ok(time);
         }
             
