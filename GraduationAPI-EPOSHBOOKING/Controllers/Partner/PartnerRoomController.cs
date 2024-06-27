@@ -26,11 +26,11 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
         [HttpDelete("delete-room")]
         public IActionResult DeleteRoom([FromQuery] int roomID)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ","");
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
             try
             {
-                switch(user.Role.Name.ToLower())
+                switch (user.Role.Name.ToLower())
                 {
                     case "partner":
                         var response = reponsitory.DeleteRoom(roomID);
@@ -38,7 +38,8 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
                     default:
                         return Unauthorized();
                 }
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return Unauthorized();
             }
