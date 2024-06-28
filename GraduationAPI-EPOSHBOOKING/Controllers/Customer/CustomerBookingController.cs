@@ -132,23 +132,23 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
         [HttpGet("get-booking-details")]
         public IActionResult GetBookingDetails([FromQuery] int bookingID)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
-            try
-            {
-                switch (user.Role.Name.ToLower())
-                {
-                    case "customer":
+            //var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            //var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            //try
+            //{
+            //    switch (user.Role.Name.ToLower())
+            //    {
+            //        case "customer":
                         var response = repository.GetBookingDetails(bookingID);
                         return StatusCode(response.StatusCode, response);
-                    default:
-                        return Unauthorized();
-                }
-            }
-            catch
-            {
-                return Unauthorized();
-            }
+            //        default:
+            //            return Unauthorized();
+            //    }
+            //}
+            //catch
+            //{
+            //    return Unauthorized();
+            //}
         }
     }
 }

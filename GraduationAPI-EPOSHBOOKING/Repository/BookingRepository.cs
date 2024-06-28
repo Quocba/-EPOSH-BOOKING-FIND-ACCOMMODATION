@@ -1117,15 +1117,15 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetBookingDetails(int bookingID)
         {
             var booking = db.booking
-                             .Include(booking => booking.Room)
-                             .Include(room => room.Room.Hotel)
-                             .Include(address => address.Room.Hotel.HotelAddress)
-                             .Include(hotel => hotel.Account) // Account that owns the hotel
-                             .ThenInclude(account => account.Profile)
-                             .Include(booking => booking.Voucher)
-                             .Include(booking => booking.Account) // Account that made the booking
-                             .ThenInclude(account => account.Profile)
-                             .FirstOrDefault(x => x.BookingID == bookingID);
+                            .Include(voucher => voucher.Voucher)
+                            .Include(BookingAccount => BookingAccount.Account)
+                            .ThenInclude(profile => profile.Profile)
+                            .Include(r => r.Room)
+                            .Include(h => h.Room.Hotel)
+                            .Include(adress => adress.Room.Hotel.HotelAddress)
+                            .Include(partner => partner.Room.Hotel.Account)
+                            .Include(partnerProfile => partnerProfile.Room.Hotel.Account.Profile)
+                            .FirstOrDefault(x => x.BookingID == bookingID);
             if (booking != null)
             {
                 var responseData = new
@@ -1139,6 +1139,15 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     NumberOfRoom = booking.NumberOfRoom,
                     NumberOfGuest = booking.NumberGuest,
                     Status = booking.Status,
+                    Voucher = booking.Voucher != null ? new
+                    {
+                        VoucherID = booking.Voucher.VoucherID,
+                        VoucherImage = booking.Voucher.VoucherImage,
+                        Code = booking.Voucher.Code,
+                        QuantityUse = booking.Voucher.QuantityUse,
+                        Discount = booking.Voucher.Discount,
+                        Description = booking.Voucher.Description
+                    } : null,
                     BookingAccount = new
                     {
                         AccountID = booking.Account.AccountID,
