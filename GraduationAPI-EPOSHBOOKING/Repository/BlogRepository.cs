@@ -50,8 +50,14 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     {
                         blog.Account.Profile.fullName,
                         blog.Account.Email
-                    }
-                   
+                    },
+                    Comments = blog.Comment.Select(comment => new
+                    {
+                        comment.CommentID,
+                        comment.Description,
+                        comment.DateComment
+                    })
+
                 });
              return new ResponseMessage { Success = true, Message = "Successfully", Data = result, StatusCode = (int)HttpStatusCode.OK };
 
@@ -87,6 +93,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         blog.Location,
                         blog.PublishDate,
                         blog.Status,
+                        blog.Account,
                         Comments = blog.Comment?.Select(c => new
                         {
                             c.CommentID,
@@ -127,12 +134,12 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             var getBlog = db.blog.Include(img => img.BlogImage)
                 .Include(account => account.Account)
+                .ThenInclude(profile =>  profile.Profile)
                 .Where(blog => blog.Account.AccountID == accountId)
                 .ToList();
             var responseData = getBlog.Select(blog => new
             {
-                Blog = new
-                {
+                
                     BlogID = blog.BlogID,
                     Title = blog.Title,
                     Description = blog.Description,
@@ -144,9 +151,14 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     {
                         ImageID = img.ImageID,
                         Image = img.Image
-                    }).ToList()
- 
-                }
+                    }).ToList(),
+                    Account = new
+                    {
+                        Fullname = blog.Account.Profile.fullName,
+                        Avatar = blog.Account.Profile.Avatar
+                        
+                    }
+                    
             });
 
             if (getBlog.Any())
