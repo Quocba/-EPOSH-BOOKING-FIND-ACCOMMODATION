@@ -27,14 +27,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
            
             if (getRoom != null)
             {
-                var currentDate = DateTime.Now;
-                var specialPrice = db.specialPrice.FirstOrDefault(x => x.StartDate <= currentDate && x.EndDate >= currentDate && x.Room.RoomID == roomID);
-                if (specialPrice != null)
-                {
-                    getRoom.Price = specialPrice.Price;
-                }
-
-                return new ResponseMessage { Success = true, Data = getRoom, Message = "Successfully",StatusCode = (int)HttpStatusCode.OK };
+               return new ResponseMessage { Success = true, Data = getRoom, Message = "Successfully",StatusCode = (int)HttpStatusCode.OK };
             }
                 return new ResponseMessage { Success = false,Data = getRoom, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
         }
@@ -57,18 +50,18 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var getRoom = db.room.FirstOrDefault(room => room.RoomID == roomID);
             if (getRoom != null)
             {
-                var bookings = db.booking.Include(Room => Room.Room).Where(b => b.Room.RoomID == roomID).ToList();
+                //var bookings = db.booking.Include(Room => Room.Room).Where(b => b.Room.RoomID == roomID).ToList();
 
-                if (bookings.Any())
-                {
-                    foreach (var booking in bookings)
-                    {
-                        db.booking.Remove(booking);
-                    }
-                    db.SaveChanges();
-                }
-
-                db.room.Remove(getRoom);
+                //if (bookings.Any())
+                //{
+                //    foreach (var booking in bookings)
+                //    {
+                //        db.booking.Remove(booking);
+                //    }
+                //    db.SaveChanges();
+                //}
+                getRoom.Quantity = 0;
+                db.room.Update(getRoom);
                 db.SaveChanges();
                 return new ResponseMessage { Success = true, Data = getRoom, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
@@ -191,7 +184,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                  getRoom.Quantity = room.Quantity;
                  getRoom.SizeOfRoom = room.SizeOfRoom;
                  getRoom.TypeOfBed = room.TypeOfBed;
-                getRoom.NumberOfBed = room.NumberOfBed;
+                 getRoom.NumberOfBed = room.NumberOfBed;
                  db.room.Update(getRoom);
 
                 var getSpecialPriceRoom = db.specialPrice.Where(sp => sp.Room.RoomID == roomID).ToList();
@@ -350,16 +343,12 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                       .ToList();
             var updatedRoomList = listRoomWithHotel.Select(room =>
             {
-                var specialPrice = room.SpecialPrice
-                                       .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
-                var adjustedPrice = specialPrice != null ? specialPrice.Price : room.Price;
-
                 return new
                 {
                     RoomID = room.RoomID,
                     TypeOfRoom = room.TypeOfRoom,
                     NumberCapacity = room.NumberCapacity,
-                    Price = adjustedPrice,
+                    Price = room.Price,
                     Quantity = room.Quantity,
                     SizeOfRoom = room.SizeOfRoom,
                     TypeOfBed = room.TypeOfBed,
