@@ -21,11 +21,11 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
         [HttpGet("get-by-accountID")]
         public IActionResult GetBookingByAccount([FromQuery] int accountID)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ","");
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
             try
             {
-                switch(user.Role.Name.ToLower())
+                switch (user.Role.Name.ToLower())
                 {
                     case "customer":
                         var response = repository.GetBookingByAccount(accountID);
@@ -33,18 +33,19 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
                     default:
                         return Unauthorized();
                 }
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return Unauthorized();
             }
-         
+
         }
 
         [HttpPut("cancle-booking")]
         public IActionResult CancleBooking([FromForm] int bookingID, [FromForm] string Reason)
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var user = Ultils.Utils.GetUserInfoFromToken (token, configuration);
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
             try
             {
                 switch (user.Role.Name.ToLower())
@@ -55,7 +56,8 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
                     default:
                         return Unauthorized();
                 }
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return Unauthorized();
             }
@@ -73,7 +75,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
                 {
                     case "customer":
                         var response = repository.CreateBooking(createBookingDTO);
-                        
+
                         return StatusCode(response.StatusCode, response);
                     default:
                         return Unauthorized();
@@ -96,16 +98,16 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
         [HttpGet("export-bookings-by-accountID")]
         public IActionResult ExportBookingsByAccountID([FromQuery] int accountID)
         {
-             var response = repository.ExportBookingsByAccountID(accountID);
+            var response = repository.ExportBookingsByAccountID(accountID);
 
-             if (response.Success)
-               {
-                   return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Bookings_{accountID}.xlsx");
-               }
-             else
-               {
-                   return StatusCode(response.StatusCode, response);
-               }
+            if (response.Success)
+            {
+                return File((byte[])response.Data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"Bookings_{accountID}.xlsx");
+            }
+            else
+            {
+                return StatusCode(response.StatusCode, response);
+            }
         }
 
         [HttpPost("create-booking-online")]
@@ -127,6 +129,26 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
             return Ok(new { CheckoutUrl = linkCheckOut, response.Data });
         }
 
-
+        [HttpGet("get-booking-details")]
+        public IActionResult GetBookingDetails([FromQuery] int bookingID)
+        {
+            //var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            //var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            //try
+            //{
+            //    switch (user.Role.Name.ToLower())
+            //    {
+            //        case "customer":
+                        var response = repository.GetBookingDetails(bookingID);
+                        return StatusCode(response.StatusCode, response);
+            //        default:
+            //            return Unauthorized();
+            //    }
+            //}
+            //catch
+            //{
+            //    return Unauthorized();
+            //}
+        }
     }
 }
