@@ -58,16 +58,18 @@ builder.Services.AddCors(options =>
                        .AllowAnyHeader();
             });
     });
-    var app = builder.Build();
-        app.UseDeveloperExceptionPage();
+builder.Services.AddLogging();
+builder.Services.AddHostedService<BookingStatusServcie>();
+var app = builder.Build();
+app.UseDeveloperExceptionPage();
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
             c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
         });
 
-    app.UseCors("AllowAllOrigins");
-    app.UseHttpsRedirection();
+app.UseCors("AllowAllOrigins");
+app.UseHttpsRedirection();
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = new PhysicalFileProvider(

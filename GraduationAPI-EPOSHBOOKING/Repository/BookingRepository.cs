@@ -33,6 +33,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetBookingByAccount(int accountID)
         {
             var getBooking = db.booking
+                               .Include(feedback => feedback.feedBacks)
                                .Include(x => x.Account)
                                .ThenInclude(x => x.Profile)
                                .Include(room => room.Room)
@@ -49,8 +50,16 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                TaxesPrice = booking.TaxesPrice,
                NumberOfRoom = booking.NumberOfRoom,
                NumberOfGuest = booking.NumberGuest,
+               ReasonCancle = booking.ReasonCancle,
                Status = booking.Status,
-               Account = new
+                Feedbacks = booking.feedBacks.Select(feedback => new
+                {
+                    FeedbackID = feedback.FeedBackID,
+                    Image = feedback.Image,
+                    Description = feedback.Description,
+                    Rating = feedback.Rating
+                }),
+                Account = new
                {
                        AccountID = booking.Account.AccountID,
                        Email = booking.Account.Email,
@@ -105,7 +114,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 if (CanCancelBooking(booking.CheckInDate))
                 {
-                    booking.Status = "Cancle";
+                    booking.Status = "Canceled";
                     booking.ReasonCancle = Reason;
                     db.booking.Update(booking);
                     db.SaveChanges();
@@ -151,7 +160,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 Success = false,
                 Message = "Cancel failed. You must cancel 24 hours before check-in date.",
-                StatusCode = (int)HttpStatusCode.NotFound
+                StatusCode = (int)HttpStatusCode.PaymentRequired
             };
         }
 
@@ -1117,6 +1126,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetBookingDetails(int bookingID)
         {
             var booking = db.booking
+                            .Include(feedback => feedback.feedBacks)
                             .Include(voucher => voucher.Voucher)
                             .Include(BookingAccount => BookingAccount.Account)
                             .ThenInclude(profile => profile.Profile)
@@ -1139,6 +1149,14 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     NumberOfRoom = booking.NumberOfRoom,
                     NumberOfGuest = booking.NumberGuest,
                     Status = booking.Status,
+                    Feedbacks = booking.feedBacks.Select(feedback => new
+                    {
+                        FeedbackID = feedback.FeedBackID,
+                        Image = feedback.Image,
+                        Description = feedback.Description,
+                        Rating = feedback.Rating,
+                      
+                    }),
                     Voucher = booking.Voucher != null ? new
                     {
                         VoucherID = booking.Voucher.VoucherID,

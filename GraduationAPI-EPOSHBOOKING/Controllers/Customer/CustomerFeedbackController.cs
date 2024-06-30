@@ -17,7 +17,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
         }
 
         [HttpPost("create-feedback")]
-        public IActionResult CreateFeedBack([FromForm] int BookingID, [FromForm] FeedBack newFeedBack, [FromForm] IFormFile Image)
+        public IActionResult CreateFeedBack([FromForm] int BookingID, [FromForm] FeedBack newFeedBack, [FromForm] IFormFile? Image)
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ","");
             var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
