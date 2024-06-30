@@ -27,7 +27,8 @@ namespace GraduationAPI_EPOSHBOOKING.Model
 
             [ForeignKey("VoucherID")]
             public Voucher? Voucher { get; set; }
-
+            
+            public ICollection<FeedBack>? feedBacks { get; set; }
  
     }
 }

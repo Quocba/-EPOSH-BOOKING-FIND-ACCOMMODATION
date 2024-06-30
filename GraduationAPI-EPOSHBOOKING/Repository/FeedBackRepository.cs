@@ -21,14 +21,28 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             try
             {
-
-                
                 var booking = db.booking.Include(room => room.Room).ThenInclude(hotel => hotel.Hotel).Include(account => account.Account)
                     .FirstOrDefault(booking => booking.BookingID == BookingID);
                 if (booking == null)
                 {
                     return new ResponseMessage { Success = false, Data = booking, Message = "Booking not found", StatusCode = (int)HttpStatusCode.NotFound };
                 }
+                if (environment == null)
+                {
+                    Console.WriteLine("Environment is null.");
+                    return new ResponseMessage { Success = false, Data = null, Message = "Invalid environment settings.", StatusCode = (int)HttpStatusCode.BadRequest };
+                }
+
+                
+                string savedImage = null;
+                if (Image != null)
+                {
+                  
+                    Console.WriteLine("Saving the image.");
+                    savedImage = Ultils.Utils.SaveImage(Image, environment);
+                }
+
+
                 FeedBack addFeedBack = new FeedBack
                 {
                     Account = booking.Account,
@@ -36,7 +50,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Rating = feedBack.Rating,
                     Description = feedBack.Description,
                     Hotel = booking.Room.Hotel,
-                    Image = Ultils.Utils.SaveImage(Image, environment),
+                    Image = savedImage,
                     Status = "Normal"
                 };
 
