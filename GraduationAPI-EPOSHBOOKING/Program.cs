@@ -60,6 +60,7 @@ builder.Services.AddCors(options =>
     });
 builder.Services.AddLogging();
 builder.Services.AddHostedService<BookingStatusServcie>();
+builder.Services.AddHostedService<ClearDataBookingService>();
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
         app.UseSwagger();
