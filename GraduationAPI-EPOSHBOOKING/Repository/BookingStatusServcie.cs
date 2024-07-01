@@ -22,7 +22,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public Task StartAsync(CancellationToken cancellationToken)
         {
             logger.LogInformation("Booking Status Service Is Running");
-            timer = new Timer(UpdateBookingStatus,null,TimeSpan.Zero,TimeSpan.FromMinutes(1));
+            timer = new Timer(UpdateBookingStatus,null,TimeSpan.Zero,TimeSpan.FromHours(2));
             return Task.CompletedTask;
         }
         private void UpdateBookingStatus(object state)
@@ -36,6 +36,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     var currentDate = DateTime.Now.AddHours(14);
                     var bookings = dbContext.booking
                         .Include(b => b.Room)
+                        .Include(account => account.Account)
                         .Where(b => b.Status == "Awaiting Check-in" && currentDate >= b.CheckInDate)
                         .ToList();
 
@@ -46,8 +47,9 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         booking.Room.Quantity += booking.NumberOfRoom;
                         dbContext.booking.Update(booking);
                         dbContext.room.Update(booking.Room);
+                        Ultils.Utils.SendMailRegistration(booking.Account.Email, booking.ReasonCancle);
                     }
-
+                 
                     dbContext.SaveChanges();
                 }
             }

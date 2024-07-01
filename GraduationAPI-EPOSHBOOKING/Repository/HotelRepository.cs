@@ -20,7 +20,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 {
     public class HotelRepository : IHotelRepository
     {
-        private readonly DBContext db;
+        private readonly DBContext db;  
         private readonly Utils ultils;
         private readonly IWebHostEnvironment environment;
         public HotelRepository(DBContext _db, Utils _ultils, IWebHostEnvironment environment)
@@ -28,19 +28,20 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             this.db = _db;
             this.ultils = _ultils;
             this.environment = environment;
-        }
+        }   
 
         public ResponseMessage GetAllHotel()
         {
             var listHotel = db.hotel.Include(x => x.HotelAddress).Include(x => x.feedBacks)
                 .Include(room => room.rooms).ThenInclude(x => x.SpecialPrice).OrderByDescending(hotel => hotel.HotelStandar)
                 .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved")).ToList();
-
+                
             if (listHotel.Any())
             {
                 var listHotelWithAvgRating = listHotel.Select(hotel => new
                 {
                     HotelID = hotel.HotelID,
+                    Name = hotel.Name,
                     MainImage = hotel.MainImage,
                     OpenedIn = hotel.OpenedIn,
                     Description = hotel.Description,
@@ -56,8 +57,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         hotel.HotelAddress.longitude
                     },
                     Rooms = hotel.rooms
-                        .Where(room => room != null) // Lọc giá trị null trong rooms
-                        .Select(room =>
+                        .Where(room => room != null && room.Quantity > 0 ) // Lọc giá trị null trong rooms
+                        .Select(room => 
                         {
                             var currentDate = DateTime.Now.AddHours(14);
                             var specialPrice = room.SpecialPrice
@@ -65,7 +66,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                             if (specialPrice != null)
                             {
                                 room.Price = specialPrice.Price;
-                            }
+                            }   
                             return new
                             {
                                 RoomID = room.RoomID,
@@ -83,7 +84,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                     Price = sp.Price
                                 }).ToList(),
                             };
-                        }).ToList(),
+                        }).OrderBy(x => x.Price).ToList(),
                     FeedBack = hotel.feedBacks.Select(feedback => new
                     {
                         FeedBackID = feedback.FeedBackID,
@@ -152,6 +153,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 {
                     HotelID = hotel.Hotel.HotelID,
                     MainImage = hotel.Hotel.MainImage,
+                    Name = hotel.Hotel.Name,
                     OpenedIn = hotel.Hotel.OpenedIn,
                     Description = hotel.Hotel.Description,
                     HotelStandar = hotel.Hotel.HotelStandar,
@@ -183,11 +185,31 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var getHotel = db.hotel
                 .Include(image => image.HotelImages)
                 .Include(address => address.HotelAddress)
+                .Include(room => room.rooms)
+                .ThenInclude(specialPrice => specialPrice.SpecialPrice)
                 .FirstOrDefault(x => x.HotelID == id && x.Status == true && x.isRegister.Equals("Approved"));
+            
+            var currentDate = DateTime.Now.AddHours(14);
 
+            var roomsWithUpdatedPrice = getHotel.rooms.Select(room =>
+            {
+                var specialPrice = room.SpecialPrice.FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                if (specialPrice != null)
+                {
+                    room.Price = specialPrice.Price;
+                }
+                return room;
+            }).ToList();
+            var totalQuantity = getHotel?.rooms.Sum(room => room.Quantity) ?? 0;
+            var responseData = new
+            {
+                Hotel = getHotel,
+                TotalRoom = totalQuantity
+            };
+           
             if (getHotel != null)
             {
-                return new ResponseMessage { Success = true, Data = getHotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                return new ResponseMessage { Success = true, Data = responseData, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             else
             {
@@ -1236,6 +1258,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                    },
                                    Profile = new
                                    {
+                                       Avatar = feedback.Account.Profile.Avatar,
                                        FullName = feedback.Account.Profile.fullName
                                    }
                                }).ToList();
