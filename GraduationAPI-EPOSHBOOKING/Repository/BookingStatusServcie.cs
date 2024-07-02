@@ -7,7 +7,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
     {
         private  Timer timer;
         private readonly IServiceProvider serviceProvider;
-        private readonly ILogger logger;
+        private readonly ILogger<BookingStatusServcie> logger;
         public BookingStatusServcie(IServiceProvider serviceProvider, ILogger<BookingStatusServcie> logger)
         {
             this.serviceProvider = serviceProvider;
@@ -63,6 +63,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
             logger.LogInformation("BookingStatusService is stopping.");
             timer?.Change(Timeout.Infinite, 0);
+
             return Task.CompletedTask;
          
         }
