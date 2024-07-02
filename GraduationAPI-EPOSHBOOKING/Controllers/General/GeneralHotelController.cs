@@ -56,7 +56,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpGet("get-by-standar")]
-        public IActionResult getHotelByRating([FromQuery] int hotelStandar)
+        public IActionResult GetByHotelStandar([FromQuery] int hotelStandar)
         {
             var response = repository.GetByHotelStandar(hotelStandar);
             return StatusCode(response.StatusCode, response);
