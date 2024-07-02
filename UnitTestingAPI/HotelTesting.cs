@@ -142,7 +142,7 @@ namespace UnitTestingAPI
             var expected = filterHotelRating.Where(h => (int)h.AvgRating == rating).ToList();
             repository.Setup(repository => repository.GetByHotelStandar(rating))
                 .Returns(new ResponseMessage { Success = true, Data = expected, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK });
-            var result = controller.getHotelByRating(rating) as ObjectResult;
+            var result = controller.GetByHotelStandar(rating) as ObjectResult;
             Assert.AreEqual(200, result.StatusCode);
 
         }
@@ -161,7 +161,7 @@ namespace UnitTestingAPI
             var expected = filterHotelRating.Where(h => (int)h.AvgRating == rating).ToList();
             repository.Setup(repository => repository.GetByHotelStandar(rating))
                 .Returns(new ResponseMessage { Success = true, Data = expected, Message = "Data Not Found", StatusCode = (int)HttpStatusCode.NotFound });
-            var result = controller.getHotelByRating(rating) as ObjectResult;
+            var result = controller.GetByHotelStandar(rating) as ObjectResult;
             Assert.AreEqual(404, result.StatusCode);
 
         }

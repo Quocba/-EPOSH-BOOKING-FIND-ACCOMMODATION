@@ -7,31 +7,53 @@ using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mail;
 using System.Net;
+using System.Threading;
 
 namespace GraduationAPI_EPOSHBOOKING.Repository
 {
     public class ClearDataBookingService : IHostedService, IDisposable
     {
         private Timer timer;
-        private readonly ILogger logger;
+        private readonly ILogger<ClearDataBookingService> logger;
         private readonly IServiceProvider provider;
-        private readonly string exportFilePath = $"D:/Download/Booking Data Of {DateTime.Now:yyyy-MM-dd}.xlsx";
-        private string exportFilePathHotel = $"D:/Download/Booking Data Of {DateTime.Now:yyyy-MM-dd}.xlsx";
-
-        public ClearDataBookingService(ILogger<ClearDataBookingService> logger , IServiceProvider provider)
+        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private string exportFilePath = PathHelper.GetExportFilePath();
+        public ClearDataBookingService(ILogger<ClearDataBookingService> logger, IServiceProvider provider)
         {
             this.logger = logger;
             this.provider = provider;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
-        {
-            DateTime lastDayOfNextDecember = new DateTime(DateTime.Now.Year + 1, 12, DateTime.DaysInMonth(DateTime.Now.Year + 1, 12));
-            TimeSpan delay = lastDayOfNextDecember - DateTime.Now;
+        {     
             logger.LogInformation("Clear data service running");
-            timer = new Timer(Work, null, delay, TimeSpan.FromDays(1));
+            //timer = new Timer(Work, null, TimeSpan.Zero, TimeSpan.FromDays(3));
+            ScheduleNextRun();
             return Task.CompletedTask;
 
+        }
+        private void ScheduleNextRun()
+        {
+            var now = DateTime.Now.AddHours(14);
+            DateTime nextRun;
+
+            if (now.Month != 12 && now.Day != 31)
+            {
+                // Nếu hôm nay là ngày 31 tháng 12, chạy ngay lập tức và lên lịch cho lần chạy tiếp theo vào năm sau.
+                nextRun = now;
+            }
+            else
+            {
+                // Tính toán thời gian cho lần chạy tiếp theo vào ngày 31 tháng 12 năm nay hoặc năm sau nếu đã qua ngày này.
+                nextRun = new DateTime(now.Year, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+                if (now > nextRun)
+                {   
+                    nextRun = nextRun.AddYears(1);
+                }
+            }
+
+            var timeToNextRun = nextRun - now;
+            timer = new Timer(Work, null, timeToNextRun, Timeout.InfiniteTimeSpan);
         }
         private void Work(object state)
         {
@@ -39,13 +61,14 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             SendFile("eposhhotel@gmail.com", exportFilePath);
             ExportBookingsForAllHotels();
             ClearData();
-          
+            ScheduleNextRun();
+
         }
         public void ClearData()
         {
             try
             {
-                using(var scope = provider.CreateScope())
+                using (var scope = provider.CreateScope())
                 {
                     var dbContext = scope.ServiceProvider.GetRequiredService<DBContext>();
                     var currentDate = DateTime.Now.AddHours(14);
@@ -62,7 +85,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     }
                     dbContext.SaveChanges();
                 }
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 logger.LogError(ex, "An error occurred.");
 
@@ -79,6 +103,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         {
 
             timer?.Dispose();
+
         }
         public static String SendFile(string toEmail, string attachmentFilePath)
         {
@@ -134,6 +159,9 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 using (var scope = provider.CreateScope())
                 {
+  
+
+
                     var dbContext = scope.ServiceProvider.GetRequiredService<DBContext>();
                     var hotels = dbContext.hotel
                                           .Include(a => a.Account)
@@ -210,7 +238,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                             ws.Cells.AutoFitColumns();
 
                             // Save the file to disk
-                            var exportFilePath = $"D:/Download/Booking Data Of {hotelName} {DateTime.Now:yyyy-MM-dd}.xlsx";
+                            var exportFilePath = PathHelper.GetExportFilePath();
                             File.WriteAllBytes(exportFilePath, pck.GetAsByteArray());
 
                             // Gửi email với file đính kèm
@@ -233,6 +261,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 using (var scope = provider.CreateScope())
                 {
+
+
                     var dbContext = scope.ServiceProvider.GetRequiredService<DBContext>();
                     var bookings = dbContext.booking
                         .Include(b => b.Room)
@@ -359,6 +389,30 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             catch (Exception ex)
             {
                 logger.LogError(ex, "An error occurred during data export.");
+            }
+        }
+        public static class PathHelper
+        {
+            // Thuộc tính tĩnh để lưu trữ đường dẫn thư mục
+            public static string ExportDirectory { get; }
+
+            static PathHelper()
+            {
+                // Xác định đường dẫn thư mục gốc
+                string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                ExportDirectory = Path.Combine(rootDirectory, "OldBookingData");
+
+                // Tạo thư mục nếu chưa tồn tại
+                if (!Directory.Exists(ExportDirectory))
+                {
+                    Directory.CreateDirectory(ExportDirectory);
+                }
+            }
+
+            // Phương thức để lấy đường dẫn tệp
+            public static string GetExportFilePath()
+            {
+                return Path.Combine(ExportDirectory, $"BookingDataOf{DateTime.Now:yyyy-MM-dd}.xlsx");
             }
         }
     }
