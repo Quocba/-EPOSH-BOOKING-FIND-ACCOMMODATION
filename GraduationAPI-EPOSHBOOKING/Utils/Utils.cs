@@ -158,8 +158,10 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
             // Cấu hình thông tin SMTP
             string smtpServer = "smtp.gmail.com";
             int smtpPort = 587; // Thay đổi nếu cần
-            string smtpUsername = "eposhhotel@gmail.com";
-            string smtpPassword = "yqgorijrzzvpmwqa";
+            //string smtpUsername = "eposhhotel@gmail.com";
+            //string smtpPassword = "yqgorijrzzvpmwqa";
+            String smtpUsername = "hoteleposh@gmail.com";
+            String smtpPassword = "tfymnzpuljryztjn";
 
             // Tạo đối tượng SmtpClient
             using (SmtpClient client = new SmtpClient(smtpServer, smtpPort))
@@ -239,31 +241,35 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
         }
 
 
-        public static String SendMailRegistration([FromHeader] string toEmail,String content)
+        public static String SendMailRegistration([FromHeader] string toEmail, String content)
         {
-            // Cấu hình thông tin SMTP
-            string smtpServer = "smtp.gmail.com";
-            int smtpPort = 587; // Thay đổi nếu cần
-            string smtpUsername = "eposhhotel@gmail.com";
-            string smtpPassword = "yqgorijrzzvpmwqa";
-
-            // Tạo đối tượng SmtpClient
-            using (SmtpClient client = new SmtpClient(smtpServer, smtpPort))
+            try
             {
-                client.UseDefaultCredentials = false;
-                client.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
-                client.EnableSsl = true; // Sử dụng SSL để bảo vệ thông tin đăng nhập
+                // Cấu hình thông tin SMTP
+                string smtpServer = "smtp.gmail.com";
+                int smtpPort = 587; // Thay đổi nếu cần
+                //string smtpUsername = "eposhhotel@gmail.com";
+                //string smtpPassword = "yqgorijrzzvpmwqa";
+                String smtpUsername = "hoteleposh@gmail.com";
+                String smtpPassword = "tfymnzpuljryztjn";
 
-                // Tạo đối tượng MailMessage
-                using (MailMessage mailMessage = new MailMessage())
+                // Tạo đối tượng SmtpClient
+                using (SmtpClient client = new SmtpClient(smtpServer, smtpPort))
                 {
-                    mailMessage.From = new MailAddress(smtpUsername);
-                    mailMessage.To.Add(toEmail);
-                    mailMessage.Subject = "[Eposh Notifycation]";
-                    mailMessage.IsBodyHtml = true;
-                    mailMessage.Body =
-       mailMessage.Body =
-    $@"<!DOCTYPE html>
+                    client.UseDefaultCredentials = false;
+                    client.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
+                    client.EnableSsl = true; // Sử dụng SSL để bảo vệ thông tin đăng nhập
+
+                    // Tạo đối tượng MailMessage
+                    using (MailMessage mailMessage = new MailMessage())
+                    {
+                        mailMessage.From = new MailAddress(smtpUsername);
+                        mailMessage.To.Add(toEmail);
+                        mailMessage.Subject = "[Eposh Notifycation]";
+                        mailMessage.IsBodyHtml = true;
+                        mailMessage.Body =
+           mailMessage.Body =
+        $@"<!DOCTYPE html>
         <html lang='en'>
         <head>
             <meta charset='UTF-8'>
@@ -352,21 +358,29 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
         </body>
         </html>";
 
-                    // Gửi email
-                    client.Send(mailMessage);
+                        // Gửi email
+                        client.Send(mailMessage);
+                    }
                 }
-            }
 
-            return "Ok";
+                return "Ok";
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"General Error: {ex.Message}");
+                return ex.Message;
+            }
         }
+           
 
         public static String SendMailBooking([FromHeader] string toEmail,Booking booking)
         {
             // Cấu hình thông tin SMTP
             string smtpServer = "smtp.gmail.com";
             int smtpPort = 587; // Thay đổi nếu cần
-            string smtpUsername = "eposhhotel@gmail.com";
-            string smtpPassword = "yqgorijrzzvpmwqa";
+            string smtpUsername = "hoteleposh@gmail.com";
+            string smtpPassword = "tfymnzpuljryztjn";
             // URL cơ sở của máy chủ
             string baseUrl = "https://eposhhotel-001-site1.dtempurl.com";
 

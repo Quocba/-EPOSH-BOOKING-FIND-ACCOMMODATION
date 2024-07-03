@@ -84,7 +84,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpGet("search")]
-        public IActionResult SearchHotel([FromQuery] String city, [FromQuery] DateTime? checkInDate, [FromQuery] DateTime? checkOuDate, [FromQuery] int? numberCapacity, int? Quantity)
+        public IActionResult SearchHotel([FromForm] String city, [FromForm] DateTime? checkInDate, [FromForm] DateTime? checkOuDate, [FromForm] int? numberCapacity, [FromForm]int? Quantity)
         {
             var resposne = repository.SearchHotel(city, checkInDate, checkOuDate, numberCapacity, Quantity);
             return StatusCode(resposne.StatusCode, resposne);

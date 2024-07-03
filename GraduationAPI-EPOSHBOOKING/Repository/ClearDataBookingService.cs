@@ -14,7 +14,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
     public class ClearDataBookingService : IHostedService, IDisposable
     {
         private Timer timer;
-        private readonly ILogger<ClearDataBookingService> logger;
+        private readonly ILogger logger;
         private readonly IServiceProvider provider;
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private string exportFilePath = PathHelper.GetExportFilePath();

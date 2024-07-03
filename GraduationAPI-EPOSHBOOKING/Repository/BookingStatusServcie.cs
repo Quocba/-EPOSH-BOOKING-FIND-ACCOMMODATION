@@ -7,7 +7,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
     {
         private  Timer timer;
         private readonly IServiceProvider serviceProvider;
-        private readonly ILogger<BookingStatusServcie> logger;
+        private readonly ILogger logger;
         public BookingStatusServcie(IServiceProvider serviceProvider, ILogger<BookingStatusServcie> logger)
         {
             this.serviceProvider = serviceProvider;
@@ -27,6 +27,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         }
         private void UpdateBookingStatus(object state)
         {
+      
             logger.LogInformation("Checking and updating booking statuses.");
             try
             {
@@ -37,7 +38,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     var bookings = dbContext.booking
                         .Include(b => b.Room)
                         .Include(account => account.Account)
-                        .Where(b => b.Status == "Awaiting Check-in" && currentDate >= b.CheckInDate)
+                        .Where(b => b.Status.Equals("Awaiting Check-in") && currentDate >= b.CheckInDate)
                         .ToList();
 
                     foreach (var booking in bookings)
@@ -48,6 +49,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         dbContext.booking.Update(booking);
                         dbContext.room.Update(booking.Room);
                         Ultils.Utils.SendMailRegistration(booking.Account.Email, booking.ReasonCancle);
+
                     }
                  
                     dbContext.SaveChanges();
