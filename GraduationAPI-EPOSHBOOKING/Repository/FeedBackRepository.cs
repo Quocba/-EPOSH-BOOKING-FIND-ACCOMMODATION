@@ -113,7 +113,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var listFeedback = db.feedback
                                  .Include(account => account.Account)
                                  .ThenInclude(profile => profile.Profile)
-                                 .Where(feedback => feedback.Hotel.HotelID == hotelID && feedback.Status.Equals("Normal"))
+                                 .Where(feedback => feedback.Hotel.HotelID == hotelID && !feedback.Status.Equals("Hidden"))
                                  .ToList();
 
             return new ResponseMessage { Success = true,Data = listFeedback, Message = "Successfully", StatusCode= (int)HttpStatusCode.OK };
