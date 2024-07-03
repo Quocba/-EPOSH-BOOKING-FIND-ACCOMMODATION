@@ -939,7 +939,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     TaxesPrice = newBooking.TaxesPrice,
                     NumberGuest = newBooking.NumberOfGuest,
                     NumberOfRoom = newBooking.NumberOfRoom,
-                    Status = "WaitWait For Check-In"
+                    Status = "Awaiting Check-in"
                 };
                 db.booking.Add(createBooking);
                 voucher.QuantityUse = voucher.QuantityUse - 1;
