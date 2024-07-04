@@ -116,6 +116,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 {
                     booking.Status = "Canceled";
                     booking.ReasonCancle = Reason;
+                    booking.Room.Quantity = booking.Room.Quantity + booking.NumberOfRoom;
+                    db.room.Update(booking.Room);
                     db.booking.Update(booking);
                     db.SaveChanges();
                     var responseData = new
@@ -191,6 +193,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             if (getBooking != null)
             {
                 getBooking.Status = "Completed";
+                getBooking.Room.Quantity = getBooking.Room.Quantity + getBooking.NumberOfRoom;
+                db.room.Update(getBooking.Room);
                 db.booking.Update(getBooking);
                 db.SaveChanges();
                 return new ResponseMessage { Success = true, Data = getBooking, Message = "Successfully", StatusCode=(int)HttpStatusCode.OK};
@@ -673,6 +677,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage AnalysisRevenueBookingSystem()
         {
             var listBookingWithMonth = db.booking
+                                         .Where(x => x.Status.Equals("Completed"))
                                          .GroupBy(booking => new
                                          {
                                              CheckInDate = booking.CheckInDate.Month,
@@ -751,6 +756,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage CountBookingSystem()
         {
             var listBookingWithMonth = db.booking
+                                         .Where(booking => booking.Status.Equals("Completed"))
                                          .GroupBy(booking => new
                                         {
                                            CheckInDate = booking.CheckInDate,
@@ -790,7 +796,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var listBookingWithMonth = db.booking
                                          .Include(room => room.Room)
                                          .ThenInclude(hotel => hotel.Hotel)
-                                         .Where(booking => booking.Room.Hotel.HotelID == hotelID)
+                                         .Where(booking => booking.Room.Hotel.HotelID == hotelID && booking.Status.Equals("Completed"))
                                         .GroupBy(booking => new
                                         {
                                             CheckInDate = booking.CheckInDate,
@@ -833,6 +839,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                 .ThenInclude(profile => profile.Profile)
                                 .Include(room => room.Room)
                                 .ThenInclude(hotel => hotel.Hotel)
+                                .Where(booking => booking.Status.Equals("Completed"))
                                 .ToList();
             var top5Booking = listBooking.GroupBy(account => account.Account.AccountID)
                                          .Select(group => new

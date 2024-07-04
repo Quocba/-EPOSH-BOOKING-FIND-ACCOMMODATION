@@ -9,7 +9,7 @@ using System.Net.Mail;
 using System.Net;
 using System.Threading;
 
-namespace GraduationAPI_EPOSHBOOKING.Repository
+namespace GraduationAPI_EPOSHBOOKING.BackgroundService
 {
     public class ClearDataBookingService : IHostedService, IDisposable
     {
@@ -25,43 +25,50 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
-        {     
+        {
             logger.LogInformation("Clear data service running");
-            //timer = new Timer(Work, null, TimeSpan.Zero, TimeSpan.FromDays(3));
-            ScheduleNextRun();
+            timer = new Timer(Work, null, TimeSpan.FromDays(1), TimeSpan.FromDays(1));
             return Task.CompletedTask;
 
         }
-        private void ScheduleNextRun()
-        {
-            var now = DateTime.Now.AddHours(14);
-            DateTime nextRun;
+        //private void ScheduleNextRun()
+        //{
+        //    var now = DateTime.Now.AddHours(14);
+        //    DateTime nextRun;
 
-            if (now.Month != 12 && now.Day != 31)
+        //    if (now.Month != 12 && now.Day != 31 && now.Hour == 7)
+        //    {
+        //        // Nếu hôm nay là ngày 31 tháng 12, chạy ngay lập tức và lên lịch cho lần chạy tiếp theo vào năm sau.
+        //        nextRun = now;
+        //    }
+        //    else
+        //    {
+        //        // Tính toán thời gian cho lần chạy tiếp theo vào ngày 31 tháng 12 năm nay hoặc năm sau nếu đã qua ngày này.
+        //        nextRun = new DateTime(now.Year, 12, 31, 0, 0, 0, DateTimeKind.Utc);
+        //        if (now > nextRun)
+        //        {   
+        //            nextRun = nextRun.AddYears(1);
+        //        }
+        //    }
+
+        //    var timeToNextRun = nextRun - now;
+        //    timer = new Timer(Work, null, timeToNextRun, Timeout.InfiniteTimeSpan);
+        //}
+        private void Work(object state)
+        {
+            if (DateTime.Now.Month == 12 && DateTime.Now.DayOfYear == 31)
             {
-                // Nếu hôm nay là ngày 31 tháng 12, chạy ngay lập tức và lên lịch cho lần chạy tiếp theo vào năm sau.
-                nextRun = now;
+                logger.LogInformation($"To day is:{DateTime.Now.GetDateTimeFormats()}Runing Clear Data");
+                ExportAllBookings();
+                SendFile("eposhhotel@gmail.com", exportFilePath);
+                ExportBookingsForAllHotels();
+                ClearData();
             }
             else
             {
-                // Tính toán thời gian cho lần chạy tiếp theo vào ngày 31 tháng 12 năm nay hoặc năm sau nếu đã qua ngày này.
-                nextRun = new DateTime(now.Year, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-                if (now > nextRun)
-                {   
-                    nextRun = nextRun.AddYears(1);
-                }
+                logger.LogInformation($"To day is:{DateTime.Now} Don't Runing Clear Data");
             }
-
-            var timeToNextRun = nextRun - now;
-            timer = new Timer(Work, null, timeToNextRun, Timeout.InfiniteTimeSpan);
-        }
-        private void Work(object state)
-        {
-            ExportAllBookings();
-            SendFile("eposhhotel@gmail.com", exportFilePath);
-            ExportBookingsForAllHotels();
-            ClearData();
-            ScheduleNextRun();
+            //ScheduleNextRun();
 
         }
         public void ClearData()
@@ -105,7 +112,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             timer?.Dispose();
 
         }
-        public static String SendFile(string toEmail, string attachmentFilePath)
+        public static string SendFile(string toEmail, string attachmentFilePath)
         {
             // Cấu hình thông tin SMTP
             string smtpServer = "smtp.gmail.com";
@@ -159,7 +166,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 using (var scope = provider.CreateScope())
                 {
-  
+
 
 
                     var dbContext = scope.ServiceProvider.GetRequiredService<DBContext>();
@@ -189,7 +196,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                             continue;
                         }
 
-                        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
                         using (var pck = new ExcelPackage())
                         {
@@ -277,7 +284,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         return;
                     }
 
-                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
                     using (var pck = new ExcelPackage())
                     {

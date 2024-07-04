@@ -1,5 +1,5 @@
 
-﻿using GraduationAPI_EPOSHBOOKING.DataAccess;
+using GraduationAPI_EPOSHBOOKING.DataAccess;
 using Microsoft.Extensions.FileProviders;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using GraduationAPI_EPOSHBOOKING.DataAccess;
@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using static GraduationAPI_EPOSHBOOKING.Ultils.Utils;
 using Microsoft.AspNetCore.Http.Features;
+using GraduationAPI_EPOSHBOOKING.BackgroundService;
 
 var builder = WebApplication.CreateBuilder(args);
 
