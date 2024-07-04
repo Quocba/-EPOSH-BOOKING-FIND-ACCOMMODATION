@@ -158,10 +158,10 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
             // Cấu hình thông tin SMTP
             string smtpServer = "smtp.gmail.com";
             int smtpPort = 587; // Thay đổi nếu cần
-            //string smtpUsername = "eposhhotel@gmail.com";
-            //string smtpPassword = "yqgorijrzzvpmwqa";
-            String smtpUsername = "hoteleposh@gmail.com";
-            String smtpPassword = "tfymnzpuljryztjn";
+            string smtpUsername = "eposhhotel@gmail.com";
+            string smtpPassword = "yqgorijrzzvpmwqa";
+            //String smtpUsername = "hoteleposh@gmail.com";
+            //String smtpPassword = "tfymnzpuljryztjn";
 
             // Tạo đối tượng SmtpClient
             using (SmtpClient client = new SmtpClient(smtpServer, smtpPort))
@@ -382,12 +382,8 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
             string smtpUsername = "hoteleposh@gmail.com";
             string smtpPassword = "tfymnzpuljryztjn";
             // URL cơ sở của máy chủ
-            string baseUrl = "https://eposhhotel-001-site1.dtempurl.com";
-
-            // Đường dẫn tương đối của hình ảnh từ cơ sở dữ liệu
+            string baseUrl = "http://eposhgraduation-001-site1.ftempurl.com";
             string relativeImageUrl = booking.Room.Hotel.MainImage;
-
-            // Tạo đường dẫn đầy đủ của hình ảnh
             string imageUrl = $"{baseUrl}{relativeImageUrl}";
             // Tạo đối tượng SmtpClient
             using (SmtpClient client = new SmtpClient(smtpServer, smtpPort))

@@ -291,7 +291,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                 Include(profile => profile.Profile)
                                 .Include(role => role.Role)
                                 .ToList();
-            var result = listAccount.Where(x => x.Email != "AdminEposh123@gmail.com").Select(account => new
+            var result = listAccount.Where(x => x.Email != "AdminEposh@gmail.com").Select(account => new
             {
                AccountID = account.AccountID,
                Email = account.Email,
