@@ -1,11 +1,11 @@
 ﻿using GraduationAPI_EPOSHBOOKING.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
-namespace GraduationAPI_EPOSHBOOKING.Repository
+namespace GraduationAPI_EPOSHBOOKING.BackgroundService
 {
     public class BookingStatusServcie : IHostedService, IDisposable
     {
-        private  Timer timer;
+        private Timer timer;
         private readonly IServiceProvider serviceProvider;
         private readonly ILogger logger;
         public BookingStatusServcie(IServiceProvider serviceProvider, ILogger<BookingStatusServcie> logger)
@@ -15,19 +15,19 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         }
 
         public void Dispose()
-        {   
+        {
             timer?.Dispose();
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             logger.LogInformation("Booking Status Service Is Running");
-            timer = new Timer(UpdateBookingStatus,null,TimeSpan.Zero,TimeSpan.FromHours(2));
+            timer = new Timer(UpdateBookingStatus, null, TimeSpan.Zero, TimeSpan.FromHours(2));
             return Task.CompletedTask;
         }
         private void UpdateBookingStatus(object state)
         {
-      
+
             logger.LogInformation("Checking and updating booking statuses.");
             try
             {
@@ -51,7 +51,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         Ultils.Utils.SendMailRegistration(booking.Account.Email, booking.ReasonCancle);
 
                     }
-                 
+
                     dbContext.SaveChanges();
                 }
             }
@@ -67,7 +67,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             timer?.Change(Timeout.Infinite, 0);
 
             return Task.CompletedTask;
-         
+
         }
     }
 }

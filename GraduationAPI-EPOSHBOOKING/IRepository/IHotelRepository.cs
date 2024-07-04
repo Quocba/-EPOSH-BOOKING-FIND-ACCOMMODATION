@@ -35,6 +35,7 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage GetBasicInformation(int hotelID);
         public ResponseMessage GetAddressByHotel(int hotelID);
         public ResponseMessage UpdateAddressByHotel(int hotelID, HotelAddress newAddress);
+        public ResponseMessage SearchHotelMobile(String hotelName);
 
     }
 
