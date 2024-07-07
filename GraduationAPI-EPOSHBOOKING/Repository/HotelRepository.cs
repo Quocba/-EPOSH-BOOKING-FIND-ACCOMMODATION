@@ -204,26 +204,27 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 .ThenInclude(specialPrice => specialPrice.SpecialPrice)
                 .FirstOrDefault(x => x.HotelID == id && x.Status == true && x.isRegister.Equals("Approved"));
             
-            var currentDate = DateTime.Now.AddHours(14);
-
-            var roomsWithUpdatedPrice = getHotel.rooms.Select(room =>
-            {
-                var specialPrice = room.SpecialPrice.FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
-                if (specialPrice != null)
-                {
-                    room.Price = specialPrice.Price;
-                }
-                return room;
-            }).ToList();
-            var totalQuantity = getHotel?.rooms.Sum(room => room.Quantity) ?? 0;
-            var responseData = new
-            {
-                Hotel = getHotel,
-                TotalRoom = totalQuantity
-            };
-           
+   
             if (getHotel != null)
             {
+                var currentDate = DateTime.Now.AddHours(14);
+
+                var roomsWithUpdatedPrice = getHotel.rooms.Select(room =>
+                {
+                    var specialPrice = room.SpecialPrice.FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                    if (specialPrice != null)
+                    {
+                        room.Price = specialPrice.Price;
+                    }
+                    return room;
+                }).ToList();
+                var totalQuantity = getHotel?.rooms.Sum(room => room.Quantity) ?? 0;
+                var responseData = new
+                {
+                    Hotel = getHotel,
+                    TotalRoom = totalQuantity
+                };
+
                 return new ResponseMessage { Success = true, Data = responseData, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
             else
@@ -549,218 +550,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
        
 
-        public ResponseMessage SearchHotel(String city, DateTime? checkInDate, DateTime? checkOutDate, int? numberCapacity, int? quantity)
-        {
-            var currentDate = DateTime.Now.AddHours(14);
-      
-            var listHotel = db.hotel.Include(address => address.HotelAddress)
-                .Include(hotelService => hotelService.HotelServices)
-                .ThenInclude(subService => subService.HotelSubServices)
-                .Include(feedback => feedback.feedBacks)
-                .Include(room => room.rooms).ThenInclude(specialPrice => specialPrice.SpecialPrice)
-                .Where(hotel => hotel.Status == true && hotel.isRegister.Equals("Approved")).ToList();
-
-            if (!string.IsNullOrEmpty(city) && checkInDate == null && checkOutDate == null && numberCapacity == null && quantity == null)
-            {
-                var searchCity = listHotel.Where(x => StringComparer.OrdinalIgnoreCase.Equals(x.HotelAddress.City,city)).Select(hotel =>
-                {
-                    var avgRating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(rating => rating.Rating) : 0;
-                    var countReview = hotel.feedBacks.Any() ? hotel.feedBacks.Count() : 0;
-                    return new
-                    {
-                        Hotel = hotel,
-                        Room = hotel.rooms.Select(newRoom =>
-                        {
-                            var specialPrice = newRoom.SpecialPrice.FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
-                            if (specialPrice != null)
-                            {
-                                newRoom.Price = specialPrice.Price;
-                            }
-                            return new
-                            {
-                                RoomID = newRoom.RoomID,
-                                TypeOfRoom = newRoom.TypeOfRoom,
-                                NumberCapacity = newRoom.NumberCapacity,
-                                Price = specialPrice?.Price ?? newRoom.Price,
-                                Quantity = newRoom.Quantity,
-                                SizeOfRoom = newRoom.SizeOfRoom,
-                                TypeOfBed = newRoom.TypeOfBed,
-                                SpecialPrice = newRoom.SpecialPrice.Select(sp => new
-                                {
-                                    sp.SpecialPriceID,
-                                    sp.StartDate,
-                                    sp.EndDate,
-                                    sp.Price
-                                }).ToList()
-                            };
-                        }).ToList(),
-                        AvgRating = avgRating,
-                        CountReview = countReview
-                    };
-                }).ToList();
-
-                return new ResponseMessage { Success = true, Data = searchCity, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
-            }
-
-
-            if (checkInDate != null && checkOutDate != null && city != null && quantity == null && numberCapacity == null)
-            {
-                var searchCity = listHotel.Where(x => StringComparer.OrdinalIgnoreCase.Equals(x.HotelAddress.City, city)).Select(hotel =>
-                {
-                    var avgRating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(rating => rating.Rating) : 0;
-                    var countReview = hotel.feedBacks.Any() ? hotel.feedBacks.Count() : 0;
-                    return new
-                    {
-                        Hotel = hotel,
-                        Room = hotel.rooms.Select(newRoom =>
-                        {
-                            var specialPrice = newRoom.SpecialPrice.FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
-                            if (specialPrice != null)
-                            {
-                                newRoom.Price = specialPrice.Price;
-                            }
-                            return new
-                            {
-                                RoomID = newRoom.RoomID,
-                                TypeOfRoom = newRoom.TypeOfRoom,
-                                NumberCapacity = newRoom.NumberCapacity,
-                                Price = specialPrice?.Price ?? newRoom.Price,
-                                Quantity = newRoom.Quantity,
-                                SizeOfRoom = newRoom.SizeOfRoom,
-                                TypeOfBed = newRoom.TypeOfBed,
-                                SpecialPrice = newRoom.SpecialPrice.Select(sp => new
-                                {
-                                    sp.SpecialPriceID,
-                                    sp.StartDate,
-                                    sp.EndDate,
-                                    sp.Price
-                                }).ToList()
-                            };
-                        }).ToList(),
-                        AvgRating = avgRating,
-                        CountReview = countReview
-                    };
-                }).ToList();
-
-                return new ResponseMessage { Success = true, Data = searchCity, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
-            }
-
-            if (city != null && numberCapacity != null && quantity != null && checkInDate == null && checkOutDate == null)
-            {
-                var filterWithRoom = listHotel.Where(x => StringComparer.OrdinalIgnoreCase.Equals(x.HotelAddress.City, city)).Select(hotel =>
-                {
-                    var rooms = hotel.rooms.Select(room =>
-                    {
-                        var specialPrice = room.SpecialPrice.FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
-                        if (specialPrice != null)
-                        {
-                            room.Price = specialPrice.Price;
-                        }
-                        return room;
-                    }).Where(room => room.Quantity >= quantity && room.NumberCapacity >= numberCapacity).ToList();
-
-                    return new
-                    {
-                        hotel = hotel,
-                        rooms = rooms,
-                        AvgRating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(fb => fb.Rating) : 0,
-                        CountReview = hotel.feedBacks.Count()
-                    };
-                }).Where(hotel => hotel.rooms.Any()).ToList();
-
-                var searchResult = filterWithRoom.Select(hotel => new
-                {
-                    hotel = new
-                    {
-                        HotelID = hotel.hotel.HotelID,
-                        MainImage = hotel.hotel.MainImage,
-                        OpenIn = hotel.hotel.OpenedIn,
-                        Description = hotel.hotel.Description,
-                        HotelStandar = hotel.hotel.HotelStandar,
-                        isRegister = hotel.hotel.isRegister,
-                        Status = hotel.hotel.Status,
-                        Account = hotel.hotel.Account,
-                        Address = hotel.hotel.HotelAddress
-                    },
-                    Room = hotel.rooms.Select(room => new
-                    {
-                        RoomID = room.RoomID,
-                        TypeOfRoom = room.TypeOfRoom,
-                        NumberCapacity = room.NumberCapacity,
-                        Price = room.Price,
-                        Quantity = room.Quantity,
-                        SizeOfRoom = room.SizeOfRoom,
-                        TypeOfBed = room.TypeOfBed,
-                        SpecialPrice = room.SpecialPrice.Select(sp => new
-                        {
-                            sp.SpecialPriceID,
-                            sp.StartDate,
-                            sp.EndDate,
-                            sp.Price
-                        }).ToList()
-                    }).ToList(),
-                    AvgRating = hotel.AvgRating,
-                    CountReview = hotel.CountReview
-                }).ToList();
-                return new ResponseMessage { Success = true, Data = searchResult, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
-            }
-            else
-            {
-                var filterHotelCity = listHotel
-                     .Where(hotel => hotel.HotelAddress.City.Equals(city, StringComparison.OrdinalIgnoreCase))
-                     .ToList();
-
-                var filterWithRoom = filterHotelCity
-                    .Where(hotel => hotel.rooms.Any(room => room.Quantity >= quantity && room.NumberCapacity >= numberCapacity))
-                    .ToList();
-
-                var hotel = filterWithRoom.Select(hotel => new
-                {
-                    Hotel = new
-                    {
-                        hotel.HotelID,
-                        hotel.MainImage,
-                        hotel.Name,
-                        hotel.OpenedIn,
-                        hotel.Description,
-                        hotel.HotelStandar,
-                        hotel.isRegister,
-                        hotel.Status,
-                        HotelAddress = hotel.HotelAddress,
-                        hotel.feedBacks,
-                        Rooms = hotel.rooms.Select(room =>
-                        {
-                            var specialPrice = room.SpecialPrice.FirstOrDefault(x => x.StartDate <= currentDate && x.EndDate >= currentDate);
-                            if (specialPrice != null)
-                            {
-                                room.Price = specialPrice.Price;
-                            }
-                            return new
-                            {
-                                room.RoomID,
-                                room.TypeOfRoom,
-                                room.NumberCapacity,
-                                Price = room.Price,
-                                room.Quantity,
-                                room.SizeOfRoom,
-                                room.TypeOfBed,
-                                SpecialPrices = room.SpecialPrice.Select(sp => new
-                                {
-                                    sp.SpecialPriceID,
-                                    sp.StartDate,
-                                    sp.EndDate,
-                                    sp.Price
-                                }).ToList()
-                            };
-                        }).ToList()
-                    },
-                    AvgRating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(rating => rating.Rating) : 0,
-                    CountReview = hotel.feedBacks.Any() ? hotel.feedBacks.Count() : 0
-                }).ToList();
-
-                return new ResponseMessage { Success = true, Data = hotel, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
-            }
-        }
+  
 
 
         public ResponseMessage HotelRegistration(HotelRegistrationDTO registration, List<ServiceTypeDTO> Services)
@@ -1344,7 +1134,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = false, Message = "Data not found", Data = address, StatusCode = (int)HttpStatusCode.NotFound };
 
         }
-        public ResponseMessage SearchHotelMobile(String name)
+        public ResponseMessage SearchHotel(String name)
         {
             var currentDate = DateTime.Now.AddHours(14);
             var listHotel = db.hotel
@@ -1354,7 +1144,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                               .Include(feedback => feedback.feedBacks)
                               .Include(room => room.rooms)
                               .ThenInclude(specialPrice => specialPrice.SpecialPrice)
-                              .Where(hotel => hotel.Name.Contains(name))
+                              .Where(hotel => hotel.Name.Contains(name) && hotel.isRegister.Equals("Approved") && hotel.Status == true)
                               .ToList();
             var responseData = listHotel.Select(hotel => new
             {
@@ -1407,6 +1197,112 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 CountReview = hotel.feedBacks.Any() ? hotel.feedBacks.Count() : 0
             }).ToList();
            return new ResponseMessage { Success = true, Message = "Successfully", Data = responseData, StatusCode = (int)HttpStatusCode.OK };
+        }
+
+        public ResponseMessage GetAllCity()
+        {
+            var listAddress = db.hotelAddress
+                                .Select(address => address.City.Trim())
+                                .Distinct()
+                                .ToList()
+                                .Select(city => new
+                                {
+                                    City = city
+                                });
+
+            return new ResponseMessage { Success = true, Message = "Successfully", Data = listAddress, StatusCode = (int)HttpStatusCode.OK };
+        }
+
+        public ResponseMessage SearchHotelCity(String city)
+        {
+            var currentDate = DateTime.Now.AddHours(14);
+            var listHotel = db.hotel
+                              .Include(address => address.HotelAddress)
+                              .Include(hotelService => hotelService.HotelServices)
+                              .ThenInclude(subService => subService.HotelSubServices)   
+                              .Include(feedback => feedback.feedBacks)
+                              .Include(room => room.rooms)
+                              .ThenInclude(specialPrice => specialPrice.SpecialPrice)
+                              .Where(hotel => hotel.HotelAddress.City.Equals(city) && hotel.isRegister.Equals("Approved") && hotel.Status == true)
+                              .ToList();
+            if (listHotel.Any())
+            {
+                var listHotelWithAvgRating = listHotel.Select(hotel => new
+                {
+                    HotelID = hotel.HotelID,
+                    Name = hotel.Name,
+                    MainImage = hotel.MainImage,
+                    OpenedIn = hotel.OpenedIn,
+                    Description = hotel.Description,
+                    HotelStandar = hotel.HotelStandar,
+                    IsRegister = hotel.isRegister,
+                    Status = hotel.Status,
+                    HotelAddress = new
+                    {
+                        hotel.HotelAddress.AddressID,
+                        hotel.HotelAddress.Address,
+                        hotel.HotelAddress.City,
+                        hotel.HotelAddress.latitude,
+                        hotel.HotelAddress.longitude
+                    },
+                    HotelService = hotel.HotelServices.Select(service => new
+                    {
+                        ServiceID = service.ServiceID,
+                        ServiceType = service.Type,
+                        HotelSubService = service.HotelSubServices.Select(subService => new
+                        {
+                            SubServiceID = subService.SubServiceID,
+                            Name = subService.SubServiceName
+                        }).ToList()
+                    }).ToList(),
+
+                    Rooms = hotel.rooms
+                                       .Where(room => room != null && room.Quantity > 0) // Lọc giá trị null trong rooms
+                                       .Select(room =>
+                                       {
+                                           var currentDate = DateTime.Now.AddHours(14);
+                                           var specialPrice = room.SpecialPrice
+                                               .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                                           if (specialPrice != null)
+                                           {
+                                               room.Price = specialPrice.Price;
+                                           }
+                                           return new
+                                           {
+                                               RoomID = room.RoomID,
+                                               TypeOfRoom = room.TypeOfRoom,
+                                               NumberCapacity = room.NumberCapacity,
+                                               Price = room.Price,
+                                               Quantity = room.Quantity,
+                                               SizeOfRoom = room.SizeOfRoom,
+                                               TypeOfBed = room.TypeOfBed,
+                                               SpecialPrice = room.SpecialPrice.Select(sp => new
+                                               {
+                                                   SpecialPriceID = sp.SpecialPriceID,
+                                                   StartDate = sp.StartDate,
+                                                   EndDate = sp.EndDate,
+                                                   Price = sp.Price
+                                               }).ToList(),
+                                           };
+                                       }).OrderBy(x => x.Price).ToList(),
+                    FeedBack = hotel.feedBacks.Select(feedback => new
+                    {
+                        FeedBackID = feedback.FeedBackID,
+                        Rating = feedback.Rating,
+                        Image = feedback.Image,
+                        Description = feedback.Description,
+                        isDelete = feedback.Status,
+                        Account = feedback.Account
+                    }).ToList(),
+                    AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0,
+                }).ToList();
+                return new ResponseMessage { Success = true, Message = "Successfully", Data = listHotelWithAvgRating, StatusCode = (int)HttpStatusCode.OK };
+            }
+            else
+            {
+                return new ResponseMessage { Success = false, Message = "Data not found", Data = listHotel, StatusCode = (int)HttpStatusCode.NotFound };
+
+            }
         }
     }
 }

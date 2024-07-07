@@ -209,6 +209,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                  .ThenInclude(r => r.Hotel)
                  .Include(b => b.Account)
                  .ThenInclude(a => a.Profile)
+                 .Include(voucher => voucher.Voucher)
                  .Where(b => b.Room.Hotel.HotelID == hotelID)
                  .ToList();
             if (bookings.Count == 0)
@@ -221,13 +222,15 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     StatusCode = (int)HttpStatusCode.NotFound
                 };
             }
+
+
             ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
             using (var pck = new ExcelPackage())
             {
                 var ws = pck.Workbook.Worksheets.Add("Booking List by Hotel");
                 // Header row data
                 string[] headers = {
-            "Booking ID", "Check-in Date", "Check-out Date", "Total Price", "Unit Price",
+            "Booking ID", "Check-in Date", "Check-out Date", "Total Price", "Discount Price", "Unit Price",
             "Taxes Price", "Number of Rooms", "Number of Guests", "Cancellation Reason",
             "Status", "Hotel Name", "Room Type", "Account Email", "Account Full Name"
         };
@@ -240,26 +243,50 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 ws.Cells[1, 1, 1, headers.Length].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 ws.Cells[1, 1, 1, headers.Length].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 ws.Cells[1, 1, 1, headers.Length].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+
                 // Add data rows
                 int row = 2;
                 foreach (var booking in bookings)
                 {
+                    int bookingDay = 0;
+                    double discountPrice = 0;
+                    double roomPrice = 0;
+                    double totalPrice = 0;
+                    double totalTaxesPrice = 0;
+                    double mainTotalPrice = 0;
+
+                    bookingDay = (booking.CheckOutDate - booking.CheckInDate).Days;
+                    roomPrice = CheckRoomPrice(booking.Room.RoomID, booking.CheckInDate, booking.CheckOutDate);
+                    totalPrice = (roomPrice * booking.NumberOfRoom) * bookingDay;
+                    totalTaxesPrice = totalPrice * 0.05;
+                    mainTotalPrice = totalPrice + totalTaxesPrice;
+
+                    if (booking.Voucher != null && booking.Voucher.Discount > 0)
+                    {
+                        discountPrice = (mainTotalPrice * booking.Voucher.Discount) / 100;
+                    }
+                    else
+                    {
+                        discountPrice = 0;
+                    }
+
+                    // Ensure values are assigned in the correct order
                     ws.Cells[row, 1].Value = booking.BookingID;
                     ws.Cells[row, 2].Value = booking.CheckInDate.ToString("dd-MM-yyyy");
                     ws.Cells[row, 3].Value = booking.CheckOutDate.ToString("dd-MM-yyyy");
-                    ws.Cells[row, 4].Value = booking.TotalPrice + " " + "VND";
-                    ws.Cells[row, 5].Value = booking.UnitPrice + " " + "VND";
-                    ws.Cells[row, 6].Value = booking.TaxesPrice + " " + "VND";
-                    ws.Cells[row, 7].Value = booking.NumberOfRoom;
-                    ws.Cells[row, 8].Value = booking.NumberGuest;
-                    ws.Cells[row, 9].Value = booking.ReasonCancle;
-                    ws.Cells[row, 10].Value = booking.Status;
-                    ws.Cells[row, 11].Value = booking.Room?.Hotel?.Name;
-                    ws.Cells[row, 12].Value = booking.Room?.TypeOfRoom;
-                    ws.Cells[row, 13].Value = booking.Account?.Email;
-                    ws.Cells[row, 14].Value = booking.Account?.Profile?.fullName;
+                    ws.Cells[row, 4].Value = mainTotalPrice + " " + "VND";
+                    ws.Cells[row, 5].Value = discountPrice + " " + "VND"; // Place discount price immediately after total price
+                    ws.Cells[row, 6].Value = booking.UnitPrice + " " + "VND";
+                    ws.Cells[row, 7].Value = booking.TaxesPrice + " " + "VND";
+                    ws.Cells[row, 8].Value = booking.NumberOfRoom;
+                    ws.Cells[row, 9].Value = booking.NumberGuest;
+                    ws.Cells[row, 10].Value = booking.ReasonCancle;
+                    ws.Cells[row, 11].Value = booking.Status;
+                    ws.Cells[row, 12].Value = booking.Room?.Hotel?.Name;
+                    ws.Cells[row, 13].Value = booking.Room?.TypeOfRoom;
+                    ws.Cells[row, 14].Value = booking.Account?.Email;
+                    ws.Cells[row, 15].Value = booking.Account?.Profile?.fullName;
                     row++;
-
                 }
                 // Định dạng dữ liệu
                 ws.Cells[2, 1, ws.Dimension.End.Row, 14].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
@@ -361,50 +388,56 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 using (ExcelPackage pck = new ExcelPackage())
                 {
                     ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Booking List");
-                    // Định dạng tiêu đề cột
-                    ws.Cells[1, 1, 1, 9].Style.Font.Bold = true;
-                    ws.Cells[1, 1, 1, 9].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    ws.Cells[1, 1, 1, 9].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
-                    ws.Cells[1, 1, 1, 9].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    // Define headers
+                    string[] headers = {
+                "BookingID", "CheckInDate", "CheckOutDate", "TotalPrice", "DiscountPrice", "UnitPrice",
+                "TaxesPrice", "NumberOfRoom", "NumberGuest", "ReasonCancel"
+            };
+
                     // Set column headers
-                    ws.Cells[1, 1].Value = "BookingID";
-                    ws.Cells[1, 2].Value = "CheckInDate";
-                    ws.Cells[1, 3].Value = "CheckOutDate";
-                    ws.Cells[1, 4].Value = "TotalPrice";
-                    ws.Cells[1, 5].Value = "UnitPrice";
-                    ws.Cells[1, 6].Value = "TaxesPrice";
-                    ws.Cells[1, 7].Value = "NumberOfRoom";
-                    ws.Cells[1, 8].Value = "NumberGuest";
-                    ws.Cells[1, 9].Value = "ReasonCancel";
-                    //ws.Cells[1, 10].Value = "Status";
-
-                    if (bookings != null && bookings.Any())
+                    for (int i = 0; i < headers.Length; i++)
                     {
-                        int row = 2;
-                        foreach (var booking in bookings)
+                        ws.Cells[1, i + 1].Value = headers[i];
+                    }
+
+                    // Format header row
+                    ws.Cells[1, 1, 1, headers.Length].Style.Font.Bold = true;
+                    ws.Cells[1, 1, 1, headers.Length].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    ws.Cells[1, 1, 1, headers.Length].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
+                    ws.Cells[1, 1, 1, headers.Length].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                    // Populate data rows
+                    int row = 2;
+                    foreach (var booking in bookings)
+                    {
+                        int bookingDay = (booking.CheckOutDate - booking.CheckInDate).Days;
+                        double discountPrice = 0;
+                        double roomPrice = CheckRoomPrice(booking.Room.RoomID, booking.CheckInDate, booking.CheckOutDate);
+                        double totalPrice = (roomPrice * booking.NumberOfRoom) * bookingDay;
+                        double totalTaxesPrice = totalPrice * 0.05;
+                        double mainTotalPrice = totalPrice + totalTaxesPrice;
+
+                        if (booking.Voucher != null && booking.Voucher.Discount > 0)
                         {
-                            ws.Cells[row, 1].Value = booking.BookingID;
-                            ws.Cells[row, 2].Value = booking.CheckInDate.ToString("dd-MM-yyyy");
-                            ws.Cells[row, 3].Value = booking.CheckOutDate.ToString("dd-MM-yyyy");
-                            ws.Cells[row, 4].Value = booking.TotalPrice + " VND";
-                            ws.Cells[row, 5].Value = booking.UnitPrice + " VND";
-                            ws.Cells[row, 6].Value = booking.TaxesPrice;
-                            ws.Cells[row, 7].Value = booking.NumberOfRoom;
-                            ws.Cells[row, 8].Value = booking.NumberGuest;
-                            //ws.Cells[row, 10].Value = booking.Status;
-                            row++;
+                            discountPrice = (mainTotalPrice * booking.Voucher.Discount) / 100;
                         }
-                        // Định dạng dữ liệu
-                        ws.Cells[2, 1, ws.Dimension.End.Row, 9].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    }
-                    else
-                    {
-                        // Ensure the worksheet has at least one row of headers if there are no bookings
-                        ws.Cells[2, 1].Value = string.Empty;
+
+                        ws.Cells[row, 1].Value = booking.BookingID;
+                        ws.Cells[row, 2].Value = booking.CheckInDate.ToString("dd-MM-yyyy");
+                        ws.Cells[row, 3].Value = booking.CheckOutDate.ToString("dd-MM-yyyy");
+                        ws.Cells[row, 4].Value = mainTotalPrice + " VND";
+                        ws.Cells[row, 5].Value = discountPrice + " VND";
+                        ws.Cells[row, 6].Value = booking.UnitPrice + " VND";
+                        ws.Cells[row, 7].Value = booking.TaxesPrice + " VND";
+                        ws.Cells[row, 8].Value = booking.NumberOfRoom;
+                        ws.Cells[row, 9].Value = booking.NumberGuest;
+                        ws.Cells[row, 10].Value = booking.ReasonCancle;
+                        row++;
                     }
 
-                    // Autofit columns
-                    ws.Cells[ws.Dimension.Address].AutoFitColumns();
+                    // Format data rows
+                    ws.Cells[2, 1, ws.Dimension.End.Row, headers.Length].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    ws.Cells.AutoFitColumns();
 
                     MemoryStream stream = new MemoryStream();
                     pck.SaveAs(stream);
@@ -870,6 +903,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                 .Include(service => service.Room.RoomService)
                                 .ThenInclude(subService => subService.RoomSubServices)
                                 .Include(hotel => hotel.Room.Hotel)
+                                .Include(voucher => voucher.Voucher)
                                 .Where(h => h.Room.Hotel.HotelID == hotelID)
                                 .ToList().Select(booking => new
                                 {
@@ -881,6 +915,15 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                     NubmerOfRoom = booking.NumberOfRoom,
                                     NumberOfGuest = booking.NumberGuest,
                                     Status = booking.Status,
+                                    Voucher = new
+                                    {
+                                        VoucherID = booking.Voucher.VoucherID,
+                                        VoucherName = booking.Voucher.VoucherName,
+                                        Code = booking.Voucher.Code,
+                                        QuantityUse = booking.Voucher.QuantityUse,
+                                        Discount = booking.Voucher.Discount,
+                                        Description = booking.Voucher.Description
+                                    },
                                     Room = new
                                     {
                                        RoomID = booking.Room.RoomID,
@@ -932,6 +975,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var room = db.room.Include(hotel => hotel.Hotel)
                               .ThenInclude(hotel => hotel.HotelAddress)
                               .FirstOrDefault(room => room.RoomID == newBooking.RoomID);
+            double unitPrice = CheckRoomPrice(newBooking.RoomID, newBooking.CheckInDate, newBooking.CheckOutDate);
             if (voucher != null && voucher.QuantityUse >0)
             {
                 Booking createBooking = new Booking
@@ -941,7 +985,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Room = room,
                     CheckInDate = newBooking.CheckInDate,
                     CheckOutDate = newBooking.CheckOutDate,
-                    UnitPrice = CheckRoomPrice(newBooking.RoomID,newBooking.CheckInDate,newBooking.CheckOutDate), 
+                    UnitPrice = unitPrice, 
                     TotalPrice = newBooking.TotalPrice,
                     TaxesPrice = newBooking.TaxesPrice,
                     NumberGuest = newBooking.NumberOfGuest,
@@ -1026,7 +1070,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Room = room,
                     CheckInDate = newBooking.CheckInDate,
                     CheckOutDate = newBooking.CheckOutDate,
-                    UnitPrice = CheckRoomPrice(newBooking.RoomID, newBooking.CheckInDate, newBooking.CheckOutDate),
+                    UnitPrice = unitPrice,
                     TotalPrice = newBooking.TotalPrice,
                     TaxesPrice = newBooking.TaxesPrice,
                     NumberGuest = newBooking.NumberOfGuest,
@@ -1105,7 +1149,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return room.Price;
         }
 
-        public async Task<string> GeneratePaymentLink(PaymentRequestDTO request)
+        public async Task<string> GeneratePaymentLink(PaymentRequestDTO request)    
         {
              string clientId = "8e20b398-7a60-4ea7-ae11-c8b1267de435";
              string apiKey = "aa5333b5-b17c-4428-89de-2613fa7847ec";
