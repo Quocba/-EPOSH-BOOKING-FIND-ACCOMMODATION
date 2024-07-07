@@ -65,7 +65,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
         }
 
         [HttpPost("create-booking")]
-        public IActionResult CreateBooking([FromForm] CreateBookingDTO createBookingDTO)
+        public IActionResult CreateBooking([FromForm] CreateBookingDTO? createBookingDTO)
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
@@ -88,7 +88,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Customer
 
         }
 
-        [HttpGet("check-room-price")]
+        [HttpPost("check-room-price")]
         public IActionResult CheckRoomPrice([FromForm] int roomID, [FromForm] DateTime CheckInDate, [FromForm] DateTime CheckOutDate)
         {
             double roomPrice = repository.CheckRoomPrice(roomID, CheckInDate, CheckOutDate);

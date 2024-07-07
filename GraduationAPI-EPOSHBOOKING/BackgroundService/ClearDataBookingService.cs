@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net.Mail;
 using System.Net;
 using System.Threading;
+using GraduationAPI_EPOSHBOOKING.Repository;
 
 namespace GraduationAPI_EPOSHBOOKING.BackgroundService
 {
@@ -16,10 +17,12 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
         private Timer timer;
         private readonly ILogger logger;
         private readonly IServiceProvider provider;
+        private readonly HashSet<string> sentEmails = new HashSet<string>();
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        private string exportFilePath = PathHelper.GetExportFilePath();
+
         public ClearDataBookingService(ILogger<ClearDataBookingService> logger, IServiceProvider provider)
         {
+          
             this.logger = logger;
             this.provider = provider;
         }
@@ -31,36 +34,13 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
             return Task.CompletedTask;
 
         }
-        //private void ScheduleNextRun()
-        //{
-        //    var now = DateTime.Now.AddHours(14);
-        //    DateTime nextRun;
 
-        //    if (now.Month != 12 && now.Day != 31 && now.Hour == 7)
-        //    {
-        //        // Nếu hôm nay là ngày 31 tháng 12, chạy ngay lập tức và lên lịch cho lần chạy tiếp theo vào năm sau.
-        //        nextRun = now;
-        //    }
-        //    else
-        //    {
-        //        // Tính toán thời gian cho lần chạy tiếp theo vào ngày 31 tháng 12 năm nay hoặc năm sau nếu đã qua ngày này.
-        //        nextRun = new DateTime(now.Year, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-        //        if (now > nextRun)
-        //        {   
-        //            nextRun = nextRun.AddYears(1);
-        //        }
-        //    }
-
-        //    var timeToNextRun = nextRun - now;
-        //    timer = new Timer(Work, null, timeToNextRun, Timeout.InfiniteTimeSpan);
-        //}
         private void Work(object state)
         {
             if (DateTime.Now.Month == 12 && DateTime.Now.DayOfYear == 31)
             {
-                logger.LogInformation($"To day is:{DateTime.Now.GetDateTimeFormats()}Runing Clear Data");
+                logger.LogInformation($"To day is:{DateTime.Now.ToString("yyyy-MM-dd")}Runing Clear Data");
                 ExportAllBookings();
-                SendFile("eposhhotel@gmail.com", exportFilePath);
                 ExportBookingsForAllHotels();
                 ClearData();
             }
@@ -68,7 +48,6 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
             {
                 logger.LogInformation($"To day is:{DateTime.Now} Don't Runing Clear Data");
             }
-            //ScheduleNextRun();
 
         }
         public void ClearData()
@@ -160,6 +139,20 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
                 return $"An error occurred while sending email: {ex.Message}";
             }
         }
+        public static double CheckRoomPrice(int roomID, DateTime CheckInDate, DateTime CheckOutDate)
+        {
+            DBContext db = new DBContext();
+            var room = db.room
+                         .Include(specialPrice => specialPrice.SpecialPrice)
+                         .FirstOrDefault(room => room.RoomID == roomID);
+            var specialPrice = room.SpecialPrice
+                                   .FirstOrDefault(sp => CheckInDate >= sp.StartDate && CheckOutDate <= sp.EndDate);
+            if (specialPrice != null)
+            {
+                room.Price = specialPrice.Price;
+            }
+            return room.Price;
+        }
         public void ExportBookingsForAllHotels()
         {
             try
@@ -179,16 +172,17 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
                     {
                         var hotelID = hotel.HotelID;
                         var hotelName = hotel.Name;
-                        var hotelOwnerEmail = hotel.Account.Email; // Giả sử có trường OwnerEmail trong bảng Hotel
+                        var hotelOwnerEmail = hotel.Account.Email;
+                        var hotelOwnerName = hotel.Account.Profile.fullName;
 
                         // Lấy danh sách các bookings cho khách sạn hiện tại
                         var bookings = dbContext.booking
-                            .Include(b => b.Room)
-                            .ThenInclude(r => r.Hotel)
-                            .Include(b => b.Account)
-                            .ThenInclude(a => a.Profile)
-                            .Where(b => b.Room.Hotel.HotelID == hotelID)
-                            .ToList();
+                                                .Include(b => b.Room)
+                                                .ThenInclude(r => r.Hotel)
+                                                .Include(b => b.Account)
+                                                .ThenInclude(a => a.Profile)
+                                                .Where(b => b.Room.Hotel.HotelID == hotelID)
+                                                .ToList();
 
                         if (bookings.Count == 0)
                         {
@@ -196,19 +190,16 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
                             continue;
                         }
 
-                        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
+                        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
                         using (var pck = new ExcelPackage())
                         {
-                            var ws = pck.Workbook.Worksheets.Add("Booking List");
-
+                            var ws = pck.Workbook.Worksheets.Add($"Booking Of {DateTime.Now.AddHours(14)}");
                             // Header row data
                             string[] headers = {
-                        "Booking ID", "Check-in Date", "Check-out Date", "Total Price", "Unit Price",
-                        "Taxes Price", "Number of Rooms", "Number of Guests", "Cancellation Reason",
-                        "Status", "Hotel Name", "Room Type", "Account Email", "Account Full Name"
-                    };
-
+            "Booking ID", "Check-in Date", "Check-out Date", "Total Price", "Discount Price", "Unit Price",
+            "Taxes Price", "Number of Rooms", "Number of Guests", "Cancellation Reason",
+            "Status", "Hotel Name", "Room Type", "Account Email", "Account Full Name"
+        };
                             // Add and format header row
                             for (int i = 0; i < headers.Length; i++)
                             {
@@ -223,20 +214,44 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
                             int row = 2;
                             foreach (var booking in bookings)
                             {
+                                int bookingDay = 0;
+                                double discountPrice = 0;
+                                double roomPrice = 0;
+                                double totalPrice = 0;
+                                double totalTaxesPrice = 0;
+                                double mainTotalPrice = 0;
+
+                                bookingDay = (booking.CheckOutDate - booking.CheckInDate).Days;
+                                roomPrice = CheckRoomPrice(booking.Room.RoomID, booking.CheckInDate, booking.CheckOutDate);
+                                totalPrice = (roomPrice * booking.NumberOfRoom) * bookingDay;
+                                totalTaxesPrice = totalPrice * 0.05;
+                                mainTotalPrice = totalPrice + totalTaxesPrice;
+
+                                if (booking.Voucher != null && booking.Voucher.Discount > 0)
+                                {
+                                    discountPrice = (mainTotalPrice * booking.Voucher.Discount) / 100;
+                                }
+                                else
+                                {
+                                    discountPrice = 0;
+                                }
+
+                                // Ensure values are assigned in the correct order
                                 ws.Cells[row, 1].Value = booking.BookingID;
                                 ws.Cells[row, 2].Value = booking.CheckInDate.ToString("dd-MM-yyyy");
                                 ws.Cells[row, 3].Value = booking.CheckOutDate.ToString("dd-MM-yyyy");
-                                ws.Cells[row, 4].Value = booking.TotalPrice + " " + "VND";
-                                ws.Cells[row, 5].Value = booking.UnitPrice + " " + "VND";
-                                ws.Cells[row, 6].Value = booking.TaxesPrice + " " + "VND";
-                                ws.Cells[row, 7].Value = booking.NumberOfRoom;
-                                ws.Cells[row, 8].Value = booking.NumberGuest;
-                                ws.Cells[row, 9].Value = booking.ReasonCancle;
-                                ws.Cells[row, 10].Value = booking.Status;
-                                ws.Cells[row, 11].Value = booking.Room?.Hotel?.Name;
-                                ws.Cells[row, 12].Value = booking.Room?.TypeOfRoom;
-                                ws.Cells[row, 13].Value = booking.Account?.Email;
-                                ws.Cells[row, 14].Value = booking.Account?.Profile?.fullName;
+                                ws.Cells[row, 4].Value = mainTotalPrice + " " + "VND";
+                                ws.Cells[row, 5].Value = discountPrice + " " + "VND"; // Place discount price immediately after total price
+                                ws.Cells[row, 6].Value = booking.UnitPrice + " " + "VND";
+                                ws.Cells[row, 7].Value = booking.TaxesPrice + " " + "VND";
+                                ws.Cells[row, 8].Value = booking.NumberOfRoom;
+                                ws.Cells[row, 9].Value = booking.NumberGuest;
+                                ws.Cells[row, 10].Value = booking.ReasonCancle;
+                                ws.Cells[row, 11].Value = booking.Status;
+                                ws.Cells[row, 12].Value = booking.Room?.Hotel?.Name;
+                                ws.Cells[row, 13].Value = booking.Room?.TypeOfRoom;
+                                ws.Cells[row, 14].Value = booking.Account?.Email;
+                                ws.Cells[row, 15].Value = booking.Account?.Profile?.fullName;
                                 row++;
                             }
 
@@ -244,13 +259,40 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
                             ws.Cells[2, 1, ws.Dimension.End.Row, headers.Length].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                             ws.Cells.AutoFitColumns();
 
-                            // Save the file to disk
-                            var exportFilePath = PathHelper.GetExportFilePath();
-                            File.WriteAllBytes(exportFilePath, pck.GetAsByteArray());
+                            var exportFilePath = PathHelper.GetExportFileHotel();
+                            bool success = false;
+                            int retryCount = 5;
+                            while (retryCount > 0 && !success)
+                            {
+                                try
+                                {
+                                    File.WriteAllBytes(exportFilePath, pck.GetAsByteArray());
+                                    success = true;
+                                }
+                                catch (IOException)
+                                {
+                                    retryCount--;
+                                    Thread.Sleep(1000);
+                                }
+                            }
 
-                            // Gửi email với file đính kèm
-                            var emailResult = SendFile(hotelOwnerEmail, exportFilePath);
-                            logger.LogInformation($"Email result for hotel {hotelName}: {hotelOwnerEmail}");
+                            if (!success)
+                            {
+                                logger.LogError("Unable to write the Excel file after multiple attempts.");
+                            }
+                            else
+                            {
+                                if (!sentEmails.Contains(hotelOwnerEmail))
+                                {
+                                    var emailResult = SendFile(hotelOwnerEmail, exportFilePath);
+                                    sentEmails.Add(hotelOwnerEmail);
+                                    logger.LogInformation($"Email sent for hotel {hotelOwnerEmail}: {emailResult}");
+                                }
+                                else
+                                {
+                                    logger.LogInformation($"Email already sent for hotel {hotelName}: {hotelOwnerEmail}");
+                                }
+                            }
                         }
                     }
                 }
@@ -261,15 +303,12 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
             }
         }
 
-
-        private void ExportAllBookings()
+        public void ExportAllBookings()
         {
             try
             {
                 using (var scope = provider.CreateScope())
                 {
-
-
                     var dbContext = scope.ServiceProvider.GetRequiredService<DBContext>();
                     var bookings = dbContext.booking
                         .Include(b => b.Room)
@@ -284,20 +323,17 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
                         return;
                     }
 
-                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
+                    ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
                     using (var pck = new ExcelPackage())
                     {
                         var ws = pck.Workbook.Worksheets.Add("Booking List");
 
-                        // Header row data
                         string[] headers = {
-                        "Booking ID", "Check-in Date", "Check-out Date", "Total Price", "Unit Price",
-                        "Taxes Price", "Number of Rooms", "Number of Guests", "Cancellation Reason",
-                        "Status", "Hotel Name", "Room Type", "Account Email", "Account Full Name"
-                    };
+                    "Booking ID", "Check-in Date", "Check-out Date", "Total Price", "Discount Price", "Unit Price",
+                    "Taxes Price", "Number of Rooms", "Number of Guests", "Cancellation Reason",
+                    "Status", "Hotel Name", "Room Type", "Account Email", "Account Full Name"
+                };
 
-                        // Add and format header row
                         for (int i = 0; i < headers.Length; i++)
                         {
                             ws.Cells[1, i + 1].Value = headers[i];
@@ -307,89 +343,54 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
                         ws.Cells[1, 1, 1, headers.Length].Style.Fill.PatternType = ExcelFillStyle.Solid;
                         ws.Cells[1, 1, 1, headers.Length].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
 
-                        // Add data rows
                         int row = 2;
                         foreach (var booking in bookings)
                         {
+                            int bookingDay = (booking.CheckOutDate - booking.CheckInDate).Days;
+                            double roomPrice = CheckRoomPrice(booking.Room.RoomID, booking.CheckInDate, booking.CheckOutDate);
+                            double totalPrice = (roomPrice * booking.NumberOfRoom) * bookingDay;
+                            double totalTaxesPrice = totalPrice * 0.05;
+                            double mainTotalPrice = totalPrice + totalTaxesPrice;
+                            double discountPrice = booking.Voucher != null && booking.Voucher.Discount > 0
+                                ? (mainTotalPrice * booking.Voucher.Discount) / 100
+                                : 0;
+
                             ws.Cells[row, 1].Value = booking.BookingID;
                             ws.Cells[row, 2].Value = booking.CheckInDate.ToString("dd-MM-yyyy");
                             ws.Cells[row, 3].Value = booking.CheckOutDate.ToString("dd-MM-yyyy");
-                            ws.Cells[row, 4].Value = booking.TotalPrice + " " + "VND";
-                            ws.Cells[row, 5].Value = booking.UnitPrice + " " + "VND";
-                            ws.Cells[row, 6].Value = booking.TaxesPrice + " " + "VND";
-                            ws.Cells[row, 7].Value = booking.NumberOfRoom;
-                            ws.Cells[row, 8].Value = booking.NumberGuest;
-                            ws.Cells[row, 9].Value = booking.ReasonCancle;
-                            ws.Cells[row, 10].Value = booking.Status;
-                            ws.Cells[row, 11].Value = booking.Room?.Hotel?.Name;
-                            ws.Cells[row, 12].Value = booking.Room?.TypeOfRoom;
-                            ws.Cells[row, 13].Value = booking.Account?.Email;
-                            ws.Cells[row, 14].Value = booking.Account?.Profile?.fullName;
+                            ws.Cells[row, 4].Value = mainTotalPrice + " " + "VND";
+                            ws.Cells[row, 5].Value = discountPrice + " " + "VND";
+                            ws.Cells[row, 6].Value = booking.UnitPrice + " " + "VND";
+                            ws.Cells[row, 7].Value = booking.TaxesPrice + " " + "VND";
+                            ws.Cells[row, 8].Value = booking.NumberOfRoom;
+                            ws.Cells[row, 9].Value = booking.NumberGuest;
+                            ws.Cells[row, 10].Value = booking.ReasonCancle;
+                            ws.Cells[row, 11].Value = booking.Status;
+                            ws.Cells[row, 12].Value = booking.Room?.Hotel?.Name;
+                            ws.Cells[row, 13].Value = booking.Room?.TypeOfRoom;
+                            ws.Cells[row, 14].Value = booking.Account?.Email;
+                            ws.Cells[row, 15].Value = booking.Account?.Profile?.fullName;
                             row++;
                         }
 
-                        // Định dạng dữ liệu
-                        ws.Cells[2, 1, ws.Dimension.End.Row, 14].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                        ws.Cells[2, 1, ws.Dimension.End.Row, headers.Length].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                         ws.Cells.AutoFitColumns();
 
-                        // Grouping and summarizing booking data by month
-                        var listBookingWithMonth = dbContext.booking
-                            .GroupBy(booking => new
-                            {
-                                CheckInMonth = booking.CheckInDate.Month,
-                                CheckOutMonth = booking.CheckOutDate.Month,
-                                CheckInYear = booking.CheckInDate.Year
-                            }).ToList();
+                        var exportFilePath = PathHelper.GetExportFilePathForExportAllBookings();
 
-                        var totalWithMonth = new Dictionary<string, double>();
-                        foreach (var months in listBookingWithMonth)
+                        try
                         {
-                            var checkInMonth = months.Key.CheckInMonth;
-                            var checkInYear = months.Key.CheckInYear;
-                            var totalRevenueForMonth = 0.0;
-                            foreach (var booking in months)
-                            {
-                                totalRevenueForMonth += booking.TotalPrice;
-                            }
-                            var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(checkInMonth);
-                            var monthYear = $"{monthName}/{checkInYear}";
-                            if (!totalWithMonth.ContainsKey(monthYear))
-                            {
-                                totalWithMonth.Add(monthYear, totalRevenueForMonth);
-                            }
-                            else
-                            {
-                                totalWithMonth[monthYear] += totalRevenueForMonth;
-                            }
+                            File.WriteAllBytes(exportFilePath, pck.GetAsByteArray());
+                            logger.LogInformation($"Excel file generated and saved to {exportFilePath}");
+
+                            // Gửi email với file đính kèm
+                            SendFile("eposhhotel@gmail.com", exportFilePath);
+                            logger.LogInformation("Email sent successfully.");
                         }
-
-                        var result = totalWithMonth.Select(booking => new BookingRevenuesData
+                        catch (IOException ex)
                         {
-                            Name = booking.Key,
-                            Data = booking.Value
-                        });
-
-                        var ws2 = pck.Workbook.Worksheets.Add("Booking Revenues");
-                        ws2.Cells[1, 1].Value = "Month";
-                        ws2.Cells[1, 2].Value = "Total Revenue";
-                        int row2 = 2;
-                        foreach (var booking in result)
-                        {
-                            ws2.Cells[row2, 1].Value = booking.Name;
-                            ws2.Cells[row2, 2].Value = booking.Data + " " + "VND";
-                            row2++;
+                            logger.LogError(ex, "Error saving the Excel file.");
                         }
-
-                        ws2.Cells[1, 1, 1, 2].Style.Font.Bold = true;
-                        ws2.Cells[1, 1, 1, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                        ws2.Cells[1, 1, 1, 2].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
-                        ws2.Cells[1, 1, 1, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                        ws2.Cells[2, 1, ws2.Dimension.End.Row, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                        ws2.Cells.AutoFitColumns();
-
-                        // Save the file to disk    
-                        File.WriteAllBytes(exportFilePath, pck.GetAsByteArray());
-                        logger.LogInformation($"Excel file generated and saved to {exportFilePath}");
                     }
                 }
             }
@@ -398,6 +399,9 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
                 logger.LogError(ex, "An error occurred during data export.");
             }
         }
+
+        private static int exportFileCounter = 0;
+        private static int clearDataFileCounter = 0;
         public static class PathHelper
         {
             // Thuộc tính tĩnh để lưu trữ đường dẫn thư mục
@@ -405,8 +409,9 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
 
             static PathHelper()
             {
-                // Xác định đường dẫn thư mục gốc
-                string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                
+            // Xác định đường dẫn thư mục gốc
+            string rootDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 ExportDirectory = Path.Combine(rootDirectory, "OldBookingData");
 
                 // Tạo thư mục nếu chưa tồn tại
@@ -416,11 +421,19 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
                 }
             }
 
-            // Phương thức để lấy đường dẫn tệp
-            public static string GetExportFilePath()
+            public static string GetExportFilePathForExportAllBookings()
             {
-                return Path.Combine(ExportDirectory, $"BookingDataOf{DateTime.Now:yyyy-MM-dd}.xlsx");
+                exportFileCounter++;
+                return Path.Combine(ExportDirectory, $"Booking System In Year {exportFileCounter}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss-fff}.xlsx");
             }
+
+            // Phương thức để lấy đường dẫn tệp cho ClearDataBookingService
+            public static string GetExportFileHotel()
+            {
+                clearDataFileCounter++;
+                return Path.Combine(ExportDirectory, $"Booking Hotel In Year {clearDataFileCounter}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss-fff}.xlsx");
+            }
+
         }
     }
 }
