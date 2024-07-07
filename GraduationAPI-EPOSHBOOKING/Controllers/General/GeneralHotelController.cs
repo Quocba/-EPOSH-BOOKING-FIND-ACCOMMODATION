@@ -84,15 +84,23 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
         }
 
         [HttpGet("search")]
-        public IActionResult SearchHotel([FromForm] String city, [FromForm] DateTime? checkInDate, [FromForm] DateTime? checkOuDate, [FromForm] int? numberCapacity, [FromForm]int? Quantity)
-        {
-            var resposne = repository.SearchHotel(city, checkInDate, checkOuDate, numberCapacity, Quantity);
-            return StatusCode(resposne.StatusCode, resposne);
-        }
-        [HttpGet("search-mobile")]
         public IActionResult SearchMobile([FromQuery]String name)
         {
-            var response = repository.SearchHotelMobile(name);
+            var response = repository.SearchHotel(name);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("get-city")]
+        public IActionResult GetAllCity()
+        {
+            var response = repository.GetAllCity();
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPost("search-hotel-city")]
+        public IActionResult SearchByCity([FromForm]String city)
+        {
+            var response = repository.SearchHotelCity(city);
             return StatusCode(response.StatusCode, response);
         }
 

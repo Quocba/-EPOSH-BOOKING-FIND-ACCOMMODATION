@@ -14,7 +14,7 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage GetByService(List<String> services);
         public ResponseMessage GetServiceByHotelID(int hotelID);
         public ResponseMessage GetGalleriesByHotelID(int hotelID);
-        public ResponseMessage SearchHotel(String? city,DateTime? checkInDate, DateTime? checkOutDate,int? numberCapacity,int? quantity);
+        public ResponseMessage SearchHotel(String name);
         public ResponseMessage HotelRegistration(HotelRegistrationDTO registration, List<ServiceTypeDTO> Services);
         public ResponseMessage UpdateBasicInformation(int hotelID,string hotelName,
                                                      int openedIn,
@@ -35,7 +35,8 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         public ResponseMessage GetBasicInformation(int hotelID);
         public ResponseMessage GetAddressByHotel(int hotelID);
         public ResponseMessage UpdateAddressByHotel(int hotelID, HotelAddress newAddress);
-        public ResponseMessage SearchHotelMobile(String hotelName);
+        public ResponseMessage GetAllCity();
+        public ResponseMessage SearchHotelCity(String city);
 
     }
 

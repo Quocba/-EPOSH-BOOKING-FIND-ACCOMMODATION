@@ -294,7 +294,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 blog = blog,
                 account = account,
                 Description = description,
-                DateComment = DateTime.Now
+                DateComment = DateTime.Now.AddHours(14)
             };
             db.blogComment.Add(comment);
             db.SaveChanges();
@@ -401,7 +401,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             }
         }
 
-        public ResponseMessage RejectBlog(int blogId,string reasonReject)
+        public ResponseMessage RejectBlog(int blogId,string reasonReject)   
         {
             var existingBlog = db.blog
                                  .Include(account => account.Account)
