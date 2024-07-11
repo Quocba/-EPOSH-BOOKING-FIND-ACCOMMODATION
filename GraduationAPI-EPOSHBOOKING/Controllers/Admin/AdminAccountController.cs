@@ -15,6 +15,12 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Admin
             this.configuration = configuration;
         }
 
+        [HttpGet("get-token")]
+        public IActionResult GetUser([FromForm]String token)
+        {
+            var result = Ultils.Utils.GetUserInfoFromToken(token,configuration);
+            return Ok(result);
+        }
         [HttpGet("get-all")]
         public IActionResult GetAllAccount()
         {

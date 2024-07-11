@@ -13,7 +13,8 @@ namespace GraduationAPI_EPOSHBOOKING.DataAccess
 
             optionsBuilder.UseSqlServer("Data Source=SQL8006.site4now.net;Initial Catalog=db_aaa284_eposhgraduation;User Id=db_aaa284_eposhgraduation_admin;Password=Admin123@;Trust Server Certificate=True");
             //optionsBuilder.UseSqlServer("Data Source=LAPTOP-3P8D5MG5;Initial Catalog=EPOSHGRADUATION;Integrated Security=True;Trust Server Certificate=True");
-
+            //optionsBuilder.UseSqlServer("Data Source=LAPTOP-3P8D5MG5;Initial Catalog=EPOSHGraduation-Main;Integrated Security=True;Trust Server Certificate=True");
+            //optionsBuilder.UseSqlServer("Data Source=SQL8005.site4now.net;Initial Catalog=db_aaac45_eposhgraduation;User Id=db_aaac45_eposhgraduation_admin;Password=Admin123@;Trust Server Certificate=True");
         }
         public DbSet<Account> accounts { get; set; }
         public DbSet<Role> roles { get; set; }

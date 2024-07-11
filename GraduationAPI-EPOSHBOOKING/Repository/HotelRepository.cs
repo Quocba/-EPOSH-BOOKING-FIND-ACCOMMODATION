@@ -106,10 +106,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         Rating = feedback.Rating,
                         Image = feedback.Image,
                         Description = feedback.Description,
-                        isDelete = feedback.Status,
+                        Status = feedback.Status,
                         Account = feedback.Account
-                    }).ToList(),
-                    AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0,
+                    }).Where(x => !x.Status.Equals("Hidden")).ToList(),
+                    AvgRating = hotel.feedBacks.Where(x => !x.Status.Equals("Hidden")).Any() 
+                                ? Math.Round(hotel.feedBacks.Where(x => !x.Status.Equals("Hidden")).Average(feedback => feedback.Rating), 2) : 0,
                 }).ToList();
 
 
@@ -831,6 +832,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage GetAllHotelInfomation()
         {
             var listHotel = db.hotel
+                              .Include(feedbacks => feedbacks.feedBacks)
                               .Include(hotelService => hotelService.HotelServices)
                               .ThenInclude(hotelSubService => hotelSubService.HotelSubServices)
                               .Include(address => address.HotelAddress)
@@ -839,10 +841,54 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                               .ToList()
                               .Select(hotel => new
                               {
-                                  Hotel = hotel,
-                                  Room = hotel.rooms,
+                                  HotelID = hotel.HotelID,
+                                  MainImage = hotel.MainImage,
+                                  Name = hotel.Name,
+                                  OpenedIn = hotel.OpenedIn,
+                                  Description = hotel.Description,
+                                  HotelStandar = hotel.HotelStandar,
+                                  IsRegister = hotel.isRegister,
+                                  Status = hotel.Status,
+                                  Account = new
+                                  {
+                                      AccountID = hotel.Account.AccountID,
+                                      Email = hotel.Account.Email,
+                                      Password = hotel.Account.Password,
+                                      Phone = hotel.Account.Phone,
+                                      IsActive = hotel.Account.IsActive,
+                                      Profile = new
+                                      {
+                                          ProfileID = hotel.Account.Profile.ProfileID,
+                                          FullName = hotel.Account.Profile.fullName,
+                                          BirthDay = hotel.Account.Profile.BirthDay,
+                                          Gender = hotel.Account.Profile.Gender,
+                                          Avatar = hotel.Account.Profile.Avatar
+                                      }
+                                  },
+                                  HotelAddress = hotel.HotelAddress,
+                                  HotelService = hotel.HotelServices.Select(service => new
+                                  {
+                                      ServiceID = service.ServiceID,
+                                      Type = service.Type,
+                                      HotelSubService = service.HotelSubServices.Select(sub => new
+                                      {
+                                          SubServiceID = sub.SubServiceID,
+                                          SubServiceName = sub.SubServiceName
+                                      })
+           
+                                  }),
+                                  FeedBack = hotel.feedBacks.Where(x => !x.Status.Equals("Hidden")).Select(feedbacks => new
+                                  {
+                                      FeedbackID = feedbacks.FeedBackID,
+                                      Rating = feedbacks.Rating,
+                                      Image = feedbacks.Image,
+                                      Description = feedbacks.Description,
+                                      Status = feedbacks.Status
+                                  }),
                                   TotalBooking = db.booking.Count(booking => booking.Room.Hotel.HotelID == hotel.HotelID),
-                                  TotalRevenue = db.booking.Where(booking => booking.Room.Hotel.HotelID == hotel.HotelID).Sum(booking => booking.TotalPrice)
+                                  TotalRevenue = db.booking.Where(booking => booking.Room.Hotel.HotelID == hotel.HotelID).Sum(booking => booking.TotalPrice),
+                                  AvgRating = hotel.feedBacks.Where(x => !x.Status.Equals("Hidden")).Any()
+                                               ? Math.Round(hotel.feedBacks.Where(x => !x.Status.Equals("Hidden")).Average(feedback => feedback.Rating), 2) : 0,
                               });
             return new ResponseMessage { Success = true, Data = listHotel, Message = "Succsessfully", StatusCode = (int)HttpStatusCode.OK };
 
@@ -939,6 +985,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
         public ResponseMessage SearchHotelByName(string hotelName)
         {
             var searchResult = db.hotel
+                              .Include(feedbacks => feedbacks.feedBacks)
                               .Include(hotelService => hotelService.HotelServices)
                               .ThenInclude(hotelSubService => hotelSubService.HotelSubServices)
                               .Include(address => address.HotelAddress)
@@ -948,10 +995,54 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                               .ToList()
                               .Select(hotel => new
                               {
-                                  Hotel = hotel,
-                                  Room = hotel.rooms,
+                                  HotelID = hotel.HotelID,
+                                  MainImage = hotel.MainImage,
+                                  Name = hotel.Name,
+                                  OpenedIn = hotel.OpenedIn,
+                                  Description = hotel.Description,
+                                  HotelStandar = hotel.HotelStandar,
+                                  IsRegister = hotel.isRegister,
+                                  Status = hotel.Status,
+                                  Account = new
+                                  {
+                                      AccountID = hotel.Account.AccountID,
+                                      Email = hotel.Account.Email,
+                                      Password = hotel.Account.Password,
+                                      Phone = hotel.Account.Phone,
+                                      IsActive = hotel.Account.IsActive,
+                                      Profile = new
+                                      {
+                                          ProfileID = hotel.Account.Profile.ProfileID,
+                                          FullName = hotel.Account.Profile.fullName,
+                                          BirthDay = hotel.Account.Profile.BirthDay,
+                                          Gender = hotel.Account.Profile.Gender,
+                                          Avatar = hotel.Account.Profile.Avatar
+                                      }
+                                  },
+                                  HotelAddress = hotel.HotelAddress,
+                                  HotelService = hotel.HotelServices.Select(service => new
+                                  {
+                                      ServiceID = service.ServiceID,
+                                      Type = service.Type,
+                                      HotelSubService = service.HotelSubServices.Select(sub => new
+                                      {
+                                          SubServiceID = sub.SubServiceID,
+                                          SubServiceName = sub.SubServiceName
+                                      })
+
+                                  }),
+                                  FeedBack = hotel.feedBacks.Where(x => !x.Status.Equals("Hidden")).Select(feedbacks => new
+                                  {
+                                      FeedbackID = feedbacks.FeedBackID,
+                                      Rating = feedbacks.Rating,
+                                      Image = feedbacks.Image,
+                                      Description = feedbacks.Description,
+                                      Status = feedbacks.Status
+                                  }),
                                   TotalBooking = db.booking.Count(booking => booking.Room.Hotel.HotelID == hotel.HotelID),
-                                  TotalRevenue = db.booking.Where(booking => booking.Room.Hotel.HotelID == hotel.HotelID).Sum(booking => booking.TotalPrice)
+                                  TotalRevenue = db.booking.Where(booking => booking.Room.Hotel.HotelID == hotel.HotelID).Sum(booking => booking.TotalPrice),
+                                  AvgRating = hotel.feedBacks.Where(x => !x.Status.Equals("Hidden")).Any()
+                                               ? Math.Round(hotel.feedBacks.Where(x => !x.Status.Equals("Hidden")).Average(feedback => feedback.Rating), 2) : 0,
                               });
             return new ResponseMessage { Success = true, Data = searchResult, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
         }
@@ -1134,7 +1225,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             return new ResponseMessage { Success = false, Message = "Data not found", Data = address, StatusCode = (int)HttpStatusCode.NotFound };
 
         }
-        public ResponseMessage SearchHotel(String name)
+        public ResponseMessage SearchHotel(string name)
         {
             var currentDate = DateTime.Now.AddHours(14);
             var listHotel = db.hotel
@@ -1146,6 +1237,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                               .ThenInclude(specialPrice => specialPrice.SpecialPrice)
                               .Where(hotel => hotel.Name.Contains(name) && hotel.isRegister.Equals("Approved") && hotel.Status == true)
                               .ToList();
+
             var responseData = listHotel.Select(hotel => new
             {
                 Hotel = new
@@ -1159,14 +1251,15 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     hotel.isRegister,
                     hotel.Status,
                     HotelAddress = hotel.HotelAddress,
-                    Feedback = hotel.feedBacks.Select(feedback => new
+                    FeedBack = hotel.feedBacks.Where(x => !x.Status.Equals("Hidden")).Select(feedback => new FeedBack
                     {
-                        feedback.FeedBackID,
-                        feedback.Image,
-                        feedback.Rating,
-                        feedback.Description
-
-                    }),
+                        FeedBackID = feedback.FeedBackID,
+                        Rating = feedback.Rating,
+                        Image = feedback.Image,
+                        Description = feedback.Description,
+                        Status = feedback.Status,
+                        Account = feedback.Account
+                    }).ToList(),
                     Rooms = hotel.rooms.Select(room =>
                     {
                         var specialPrice = room.SpecialPrice.FirstOrDefault(x => x.StartDate <= currentDate && x.EndDate >= currentDate);
@@ -1191,13 +1284,17 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                 sp.Price
                             }).ToList()
                         };
-                    }).ToList()
+                    }).ToList() 
                 },
-                AvgRating = hotel.feedBacks.Any() ? hotel.feedBacks.Average(rating => rating.Rating) : 0,
-                CountReview = hotel.feedBacks.Any() ? hotel.feedBacks.Count() : 0
+                AvgRating = hotel.feedBacks.Where(x => !x.Status.Equals("Hidden")).Any()
+                                ? Math.Round(hotel.feedBacks.Where(x => !x.Status.Equals("Hidden")).Average(feedback => feedback.Rating), 2) : 0,
+                CountReview = hotel.feedBacks.Where(x => !x.Status.Equals("Hidden")).Count()
             }).ToList();
-           return new ResponseMessage { Success = true, Message = "Successfully", Data = responseData, StatusCode = (int)HttpStatusCode.OK };
+
+
+            return new ResponseMessage { Success = true, Message = "Successfully", Data = listHotel, StatusCode = (int)HttpStatusCode.OK };
         }
+
 
         public ResponseMessage GetAllCity()
         {
@@ -1285,16 +1382,16 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                                }).ToList(),
                                            };
                                        }).OrderBy(x => x.Price).ToList(),
-                    FeedBack = hotel.feedBacks.Select(feedback => new
+                    FeedBack = hotel.feedBacks.Where(x => !x.Status.Equals("Hidden")).Select(feedback => new
                     {
                         FeedBackID = feedback.FeedBackID,
                         Rating = feedback.Rating,
                         Image = feedback.Image,
                         Description = feedback.Description,
-                        isDelete = feedback.Status,
+                        Status = feedback.Status,
                         Account = feedback.Account
                     }).ToList(),
-                    AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Average(feedback => feedback.Rating), 2) : 0,
+                    AvgRating = hotel.feedBacks.Any() ? Math.Round(hotel.feedBacks.Where(x => !x.Status.Equals("Hidden")).Average(feedback => feedback.Rating), 2) : 0,
                 }).ToList();
                 return new ResponseMessage { Success = true, Message = "Successfully", Data = listHotelWithAvgRating, StatusCode = (int)HttpStatusCode.OK };
             }
