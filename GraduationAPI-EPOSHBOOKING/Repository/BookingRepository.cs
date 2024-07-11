@@ -37,7 +37,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                .Include(x => x.Account)
                                .ThenInclude(x => x.Profile)
                                .Include(room => room.Room)
-                               .ThenInclude(hotel => hotel.Hotel)
+                               .Include(hotel => hotel.Room.Hotel)
+                               .ThenInclude(address => address.HotelAddress)
                                .Where(booking => booking.Account.AccountID == accountID)
                                .ToList();
             var responseData = getBooking.Select(booking => new
@@ -94,6 +95,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                    HotelStandar = booking.Room.Hotel.HotelStandar,
                    IsRegister = booking.Room.Hotel.isRegister,
                    Status = booking.Room.Hotel.Status
+               },
+               HotelAddress = new
+               {
+                   Address = booking.Room.Hotel.HotelAddress.Address,
+                   City = booking.Room.Hotel.HotelAddress.City
                }
             });
             if (getBooking.Any())
@@ -189,7 +195,9 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage ChangeStatusComplete(int bookingID)
         {
-            var getBooking = db.booking.FirstOrDefault(booking => booking.BookingID==bookingID);
+            var getBooking = db.booking
+                               .Include(room => room.Room)
+                               .FirstOrDefault(booking => booking.BookingID==bookingID);
             if (getBooking != null)
             {
                 getBooking.Status = "Completed";
@@ -910,12 +918,14 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                     BookingID = booking.BookingID,
                                     CheckInDate = booking.CheckInDate,
                                     CheckOutDate = booking.CheckOutDate,
+                                    UnitPrice = booking.UnitPrice,
                                     TotalPrice = booking.TotalPrice,
                                     TaxesPrice = booking.TaxesPrice,
                                     NubmerOfRoom = booking.NumberOfRoom,
                                     NumberOfGuest = booking.NumberGuest,
+                                    ReasonCancle = booking.ReasonCancle,
                                     Status = booking.Status,
-                                    Voucher = new
+                                    Voucher = booking.Voucher != null ? new
                                     {
                                         VoucherID = booking.Voucher.VoucherID,
                                         VoucherName = booking.Voucher.VoucherName,
@@ -923,7 +933,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                         QuantityUse = booking.Voucher.QuantityUse,
                                         Discount = booking.Voucher.Discount,
                                         Description = booking.Voucher.Description
-                                    },
+                                    } : null,
                                     Room = new
                                     {
                                        RoomID = booking.Room.RoomID,
@@ -933,6 +943,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                        Quantity = booking.Room.Quantity,
                                        SizeOfRoom = booking.Room.SizeOfRoom,
                                        TypeOfBed = booking.Room.TypeOfBed,
+                                       NumberBed = booking.Room.NumberOfBed,
                                        RoomImage = booking.Room.RoomImages.Select(img => new
                                        {
                                            Image = img.Image
@@ -1075,7 +1086,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     TaxesPrice = newBooking.TaxesPrice,
                     NumberGuest = newBooking.NumberOfGuest,
                     NumberOfRoom = newBooking.NumberOfRoom,
-                    Status = "WaitWait For Check-In"
+                    Status = "Awaiting Check-in"
+
                 };
                 db.booking.Add(createBooking);
                 room.Quantity = room.Quantity - createBooking.NumberOfRoom;
@@ -1199,6 +1211,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     TaxesPrice = booking.TaxesPrice,
                     NumberOfRoom = booking.NumberOfRoom,
                     NumberOfGuest = booking.NumberGuest,
+                    ResaonCacle = booking.ReasonCancle,
                     Status = booking.Status,
                     Feedbacks = booking.feedBacks.Select(feedback => new
                     {

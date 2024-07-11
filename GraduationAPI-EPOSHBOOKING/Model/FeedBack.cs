@@ -19,7 +19,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public Account? Account { get; set; }
 
         [ForeignKey("BookingID")]
-        public Booking? Booking { get; set; }
+        public Booking? Booking { get; set; }   
 
         [ForeignKey("HotelID")]
         public Hotel? Hotel { get; set; }
