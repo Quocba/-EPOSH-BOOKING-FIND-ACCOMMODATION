@@ -232,7 +232,6 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("FeedBackID");
@@ -737,7 +736,7 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                         .HasForeignKey("AccountID");
 
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Booking", "Booking")
-                        .WithMany()
+                        .WithMany("feedBacks")
                         .HasForeignKey("BookingID");
 
                     b.HasOne("GraduationAPI_EPOSHBOOKING.Model.Hotel", "Hotel")
@@ -898,6 +897,11 @@ namespace GraduationAPI_EPOSHBOOKING.Migrations
                     b.Navigation("BlogImage");
 
                     b.Navigation("Comment");
+                });
+
+            modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.Booking", b =>
+                {
+                    b.Navigation("feedBacks");
                 });
 
             modelBuilder.Entity("GraduationAPI_EPOSHBOOKING.Model.Hotel", b =>

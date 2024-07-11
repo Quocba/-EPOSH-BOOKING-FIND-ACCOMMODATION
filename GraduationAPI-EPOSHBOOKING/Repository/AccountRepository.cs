@@ -86,16 +86,25 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage LoginWithNumberPhone(String phone)
         {
-            String phoneRegex = @"^(?:\+84|0)([3|5|7|8|9])+([0-9]{8})$";
+            string phoneRegex = @"^(?:\+84|0)([3|5|7|8|9])+([0-9]{8})$";
             Regex regex = new Regex(phoneRegex);
-            String RoleName = "Customer";
-            var role = db.roles.FirstOrDefault(x => x.Name.Equals(RoleName));   
+            string roleName = "Customer";
+            var role = db.roles.FirstOrDefault(x => x.Name.Equals(roleName));
+
             if (regex.IsMatch(phone))
             {
-                var checkPhone = db.accounts.FirstOrDefault(x => x.Phone.Equals(phone));
+                var checkPhone = db.accounts
+                                   .Include(p => p.Profile)
+                                   .Include(r => r.Role)
+                                   .FirstOrDefault(x => x.Phone.Equals(phone));
                 if (checkPhone != null)
                 {
-                    return new ResponseMessage { Success = true, Data = phone, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                    var token = Ultils.Utils.CreateToken(checkPhone, configuration);
+                    return new ResponseMessage { Success = true, Data = checkPhone, Token = token, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                }
+                if (checkPhone != null && checkPhone.IsActive == false)
+                {
+                    return new ResponseMessage { Success = false, Data = checkPhone, Token = "", Message = "Your account has been permanently blocked", StatusCode = (int)HttpStatusCode.Forbidden };
                 }
                 else
                 {
@@ -108,11 +117,13 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     {
                         Phone = phone,
                         Profile = addProfile,
+                        IsActive = true,
                         Role = role
                     };
                     db.accounts.Add(addAccount);
                     db.SaveChanges();
-                    return new ResponseMessage { Success = true, Data = addAccount, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                    var token = Ultils.Utils.CreateToken(addAccount, configuration);
+                    return new ResponseMessage { Success = true, Data = addAccount, Token = token, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                 }
             }
             return new ResponseMessage { Success = false, Data = phone, Message = "Phone is not in correct format. Please re-enter for example: 0123456789", StatusCode = (int)HttpStatusCode.BadRequest };
@@ -290,8 +301,9 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var listAccount = db.accounts.
                                 Include(profile => profile.Profile)
                                 .Include(role => role.Role)
+                                .Where(x => !x.Role.Name.Equals("Admin"))
                                 .ToList();
-            var result = listAccount.Where(x => x.Email != "AdminEposh@gmail.com").Select(account => new
+            var result = listAccount.Where(x => !x.Role.Name.Equals("Admin")).Select(account => new
             {
                AccountID = account.AccountID,
                Email = account.Email,
@@ -359,9 +371,9 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var searchResult = db.accounts
                                  .Include(profile => profile.Profile)
                                  .Include(Role => Role.Role)
-                                 .Where(account => account.Profile.fullName.Contains(fullName))
+                                 .Where(account => account.Profile.fullName.Contains(fullName) && !account.Role.Name.Equals("Admin"))
                                  .ToList();
-            var result = searchResult.Select(account => new
+            var result = searchResult.Where(x => !x.Role.Name.Equals("Admin")).Select(account => new
             {
                 AccountID = account.AccountID,
                 Email = account.Email,
@@ -375,6 +387,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     BirthDay = account.Profile.BirthDay,
                     fullName = account.Profile.fullName,
                     Gender = account.Profile.Gender,
+                    Avatar = account.Profile.Avatar,
                 }
             });
 
@@ -449,7 +462,19 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage GoogleLogin(string email, string userName, string avatar)
         {
-            var check = db.accounts.Include(role => role.Role).FirstOrDefault(x => x.Email.Equals(email));
+            var check = db.accounts
+                          .Include(role => role.Role)
+                          .Include(hotel => hotel.Hotel)
+                          .FirstOrDefault(x => x.Email.Equals(email));
+            if (check != null && check.IsActive == true && check.Hotel.Any(h => h.Status == false) && check.Role.Name.Equals("Partner") &&
+                check.Hotel.Any(h => h.isRegister.Equals("Awaiting Approval")))
+            {
+                return new ResponseMessage { Success = true, Data = check, Token = "", Message = "Your partner account is awaiting approval.",StatusCode =(int)HttpStatusCode.Accepted };
+            }
+            if (check != null && check.IsActive == false)
+            {
+                return new ResponseMessage { Success = false, Data = check, Token = "", Message = "Your account has been permanently blocked", StatusCode = (int)HttpStatusCode.Forbidden};
+            }
             if (check != null)
             {
                 var token = Ultils.Utils.CreateToken(check, configuration);
@@ -469,6 +494,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 {
                     Email  = email,
                     Profile = createProfile,
+                    IsActive = true,
                     Role = role
                 };
                 db.accounts.Add(createAccount);
