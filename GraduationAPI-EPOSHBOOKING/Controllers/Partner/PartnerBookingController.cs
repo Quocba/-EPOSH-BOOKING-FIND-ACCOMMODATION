@@ -74,11 +74,12 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Partner
                     default:
                         return Unauthorized();
                 }
-            }catch (Exception ex)
-            {
-                return Unauthorized() ;
             }
+            catch (Exception ex)
 
+            {
+                return Unauthorized();
+            }
         }
 
         [HttpGet("count-booking-hotel")]

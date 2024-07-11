@@ -31,7 +31,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         }
 
         [HttpPost("login-phone")]
-        public IActionResult LoginPhone([FromBody]String phone)
+        public IActionResult LoginPhone([FromForm]String phone)
         {
             var response = repository.LoginWithNumberPhone(phone);
             return StatusCode(response.StatusCode,response);
@@ -53,11 +53,11 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         [HttpPut("change-password")]
         public IActionResult ChangePassword([FromBody] ChangePasswordRequest request)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ","");
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
             try
             {
-                if (user.Role.Name.ToLower().Equals("user") || user.Role.Name.ToLower().Equals("partner"))
+                if (user.Role.Name.ToLower().Equals("customer") || user.Role.Name.ToLower().Equals("partner"))
                 {
                     var response = repository.ChangePassword(request.AccountId, request.OldPassword, request.NewPassword);
                     return StatusCode(response.StatusCode, response);
@@ -66,11 +66,12 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
                 {
                     return Unauthorized();
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return Unauthorized();
             }
-          
+
         }
 
         [HttpPost("send-mail")]

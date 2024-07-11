@@ -24,11 +24,11 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
 
         public static IConfiguration configuration;
 
-        public static string CreateToken(Account accounts, IConfiguration configuration)
+        public static string CreateToken(Account? accounts, IConfiguration configuration)
         {
-            if (accounts == null || string.IsNullOrWhiteSpace(accounts.Email))
+            if (accounts == null)
             {
-                throw new ArgumentException("Account or account email is null or empty.");
+                throw new ArgumentException("Account is null or empty.");
             }
 
             var tokenValue = configuration.GetSection("AppSettings:Token").Value;
@@ -45,7 +45,17 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
             }
 
             claims.Add(new Claim(ClaimTypes.Role, accounts.Role.Name.ToLower()));
-            claims.Add(new Claim(ClaimTypes.Email, accounts.Email));
+            //claims.Add(new Claim(ClaimTypes.Email, accounts.Email));
+            //claims.Add(new Claim(ClaimTypes.MobilePhone, accounts.Phone));
+            if (accounts.Email != null)
+            {
+                claims.Add(new Claim(ClaimTypes.Email, accounts.Email));
+            }
+
+            if (accounts.Phone != null)
+            {
+                claims.Add(new Claim(ClaimTypes.MobilePhone, accounts.Phone));
+            }
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(tokenValue));
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
@@ -77,8 +87,13 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
                 var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out _);
                 var roleClaim = claimsPrincipal.FindFirst(ClaimTypes.Role);
                 var emailClaim = claimsPrincipal.FindFirst(ClaimTypes.Email);
+                var phoneClaim = claimsPrincipal.FindFirst(ClaimTypes.MobilePhone);
 
-                if (roleClaim == null || emailClaim == null)
+                Console.WriteLine($"Role Claim: {roleClaim?.Value}");
+                Console.WriteLine($"Email Claim: {emailClaim?.Value}");
+                Console.WriteLine($"Phone Claim: {phoneClaim?.Value}");
+
+                if (roleClaim == null)
                 {
                     return null;
                 }
@@ -86,8 +101,10 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
                 return new Account
                 {
                     Role = new Role { Name = roleClaim.Value },
-                    Email = emailClaim.Value
+                    Email = emailClaim?.Value,  // Email có thể null
+                    Phone = phoneClaim?.Value   // Phone có thể null
                 };
+            
             }
             catch (Exception)
             {
@@ -136,8 +153,12 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
             {
                 Directory.CreateDirectory(uploadsFolder);
             }
-
-            string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(image.FileName);
+            string uniqueFileName = "";
+            if (image.FileName == null)
+            {
+                uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(image.Name);
+            }
+                uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(image.FileName);
             string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
             using (var fileStream = new FileStream(filePath, FileMode.Create))
