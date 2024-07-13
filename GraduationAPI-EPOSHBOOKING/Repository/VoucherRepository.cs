@@ -45,7 +45,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var checkVoucher = db.voucher.FirstOrDefault(voucher => voucher.VoucherID == voucherId);
             if (checkVoucher != null)
             {
-                db.voucher.Remove(checkVoucher);
+                checkVoucher.QuantityUse = 0;
+                db.voucher.Update(checkVoucher);
                 db.SaveChanges();
                 return new ResponseMessage {Success =true, Data = checkVoucher,Message = "Sucessfully", StatusCode= (int)HttpStatusCode.OK};
             }
