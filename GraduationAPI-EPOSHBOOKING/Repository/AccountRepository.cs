@@ -475,11 +475,30 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             {
                 return new ResponseMessage { Success = false, Data = check, Token = "", Message = "Your account has been permanently blocked", StatusCode = (int)HttpStatusCode.Forbidden};
             }
-            if (check != null)
+            if (check != null && check.IsActive == true && check.Role.Name.Equals("Partner")
+                 && !check.Hotel.Any())
+            {
+                return new ResponseMessage
+                {
+                    Success = false,
+                    Data = check,
+                    Message = "Your account does not have any registered hotels.Please registered hotels.",
+                    StatusCode = (int)HttpStatusCode.Created
+                };
+            }
+
+            if (check != null && check.Role.Name.Equals("Customer"))
             {
                 var token = Ultils.Utils.CreateToken(check, configuration);
-                return new ResponseMessage { Success = true, Data = check,Token = token, Message = "Login Successfully", StatusCode = (int)HttpStatusCode.OK };
+                return new ResponseMessage { Success = true, Data = check, Token = token, Message = "Login Successfully", StatusCode = (int)HttpStatusCode.OK };
             }
+            if (check != null && check.Hotel.Any(x => x.isRegister.Equals("Approved") && x.Status == true) && check.Role.Name.Equals("Partner"))
+            {
+                var token = Ultils.Utils.CreateToken(check, configuration);
+                return new ResponseMessage { Success = true, Data = check, Token = token, Message = "Login Successfully", StatusCode = (int)HttpStatusCode.OK };
+            }
+       
+
             else
             {
                 String RoleName = "Customer";
