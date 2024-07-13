@@ -12,6 +12,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.Extensions.Configuration;
+using GraduationAPI_EPOSHBOOKING.DataAccess;
+using Microsoft.EntityFrameworkCore;
 
 namespace GraduationAPI_EPOSHBOOKING.Ultils
 {
@@ -62,7 +64,7 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
 
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.Now.AddDays(30),
                 signingCredentials: cred);
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
@@ -393,10 +395,57 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
                 return ex.Message;
             }
         }
-           
 
+        public static double CheckRoomPrice(int roomID, DateTime CheckInDate, DateTime CheckOutDate)
+        {
+            DBContext db = new DBContext();
+            var room = db.room
+                          .Include(specialPrice => specialPrice.SpecialPrice)
+                          .FirstOrDefault(room => room.RoomID == roomID);
+            var specialPrice = room.SpecialPrice
+                                   .FirstOrDefault(sp => CheckInDate >= sp.StartDate && CheckOutDate <= sp.EndDate
+                                   || CheckInDate <= sp.EndDate);
+
+            if (specialPrice != null)
+            {
+                return specialPrice.Price;
+            }
+            return room.Price;
+        }
         public static String SendMailBooking([FromHeader] string toEmail,Booking booking)
         {
+         
+                int bookingDay = 0;
+                double discountPrice = 0;
+                double roomPrice = 0;
+                double totalPrice = 0;
+                double totalTaxesPrice = 0;
+                double mainTotalPrice = 0;
+                double totalPriceRoom = 0;
+                double serviceFee = 0;
+                bookingDay = (booking.CheckOutDate - booking.CheckInDate).Days;
+                roomPrice = CheckRoomPrice(booking.Room.RoomID, booking.CheckInDate, booking.CheckOutDate);
+                totalPrice = (roomPrice * booking.NumberOfRoom) * bookingDay;
+                totalTaxesPrice = totalPrice * 0.05;
+                mainTotalPrice = totalPrice + totalTaxesPrice;
+                totalPriceRoom = roomPrice * bookingDay;
+                serviceFee = totalPrice * 0.1;
+
+            if (booking.Voucher != null && booking.Voucher.Discount > 0)
+                {
+                    discountPrice = (mainTotalPrice * booking.Voucher.Discount) / 100;
+                }
+                else
+                {
+                    discountPrice = 0;
+                }
+            string formattedRoomPrice = roomPrice.ToString("N0", new System.Globalization.CultureInfo("vi-VN"));
+            string formattedTotalPriceRoom = totalPriceRoom.ToString("N0", new System.Globalization.CultureInfo("vi-VN"));
+            string formattedTotalPrice = totalPrice.ToString("N0", new System.Globalization.CultureInfo("vi-VN"));
+            string formattedTotalTaxesPrice = totalTaxesPrice.ToString("N0", new System.Globalization.CultureInfo("vi-VN"));
+            string formattedDiscountPrice = discountPrice.ToString("N0", new System.Globalization.CultureInfo("vi-VN"));
+            string formattedMainTotalPrice = booking.TotalPrice.ToString("N0", new System.Globalization.CultureInfo("vi-VN"));
+            string formattedServiceFee = serviceFee.ToString("N0", new System.Globalization.CultureInfo("vi-VN"));
             // Cấu hình thông tin SMTP
             string smtpServer = "smtp.gmail.com";
             int smtpPort = 587; // Thay đổi nếu cần
@@ -486,10 +535,7 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
                         font-size: 14px;
                         color: #666;
                     }}
-                    .price-detail span {{
-                        font-weight: bold;
-                        color: #333;
-                    }}
+         
                     @media (max-width: 768px) {{
                         .price-detail {{
                             text-align: left;
@@ -504,7 +550,7 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
                         <h2>{booking.Room.Hotel.Name} - {booking.Room.Hotel.HotelAddress.Address}</h2>
                         <p class=""room-type"">{booking.Room.TypeOfRoom}</p>
                         <p class=""details"">{booking.NumberGuest} people &bull; {booking.Room.TypeOfBed} &bull; {booking.Room.SizeOfRoom} m²</p>
-                        <p class=""cancellation"">Reservations can be <span>canceled</span> before 24 hours from check-in date</p>
+                        <p class=""cancellation"">Reservations can be canceled up to 24 hours before the check-in date</p>
                     </div>
                     <div class=""form-group"">
                         <label for=""checkin"">Check-in</label>
@@ -527,9 +573,14 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
                         <input type=""tel"" id=""phone"" name=""phone"" value=""{booking.Account.Phone}"" disabled readonly required>
                     </div>
                     <div class=""price-detail"">
-                        <p>Room: <span>VND {booking.Room.Price}</span></p>
-                        <p>Taxes: <span>VND {booking.TaxesPrice}</span></p>
-                        <p>Total: <span>VND {booking.TotalPrice}</span></p>
+                        <p>Room Price: <span>{formattedRoomPrice} VND</span></p>
+                        <p>Total Night: <span>{bookingDay}</span></p>
+                        <p>Number Of Room: <span>{booking.NumberOfRoom}</span></p>
+                        <p>Total Price Room: <span>{formattedTotalPriceRoom} VND</span></p>
+                        <p>Service Fee: <span>+{formattedServiceFee} VND</span></p>
+                        <p>Taxes: <span>+{formattedTotalTaxesPrice} VND</span></p>
+                        <p>Discount: <span>-{formattedDiscountPrice} VND</span></p>
+                        <p>Total: <span>{formattedMainTotalPrice} VND</span></p>
                     </div>
                 </div>
             </body>
