@@ -979,14 +979,26 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage CreateBooking(CreateBookingDTO newBooking)
         {
+            double unitPrice = 0;
             var account = db.accounts
                             .Include(profile => profile.Profile)
                             .FirstOrDefault(account => account.AccountID == newBooking.AccountID);
             var voucher = db.voucher.FirstOrDefault(voucher => voucher.VoucherID == newBooking.VoucherID);
-            var room = db.room.Include(hotel => hotel.Hotel)
+            var room = db.room.Include(specialPrice => specialPrice.SpecialPrice)
+                              .Include(hotel => hotel.Hotel)
                               .ThenInclude(hotel => hotel.HotelAddress)
                               .FirstOrDefault(room => room.RoomID == newBooking.RoomID);
-            double unitPrice = CheckRoomPrice(newBooking.RoomID, newBooking.CheckInDate, newBooking.CheckOutDate);
+            var specialPrice = room.SpecialPrice
+                                   .FirstOrDefault(sp => newBooking.CheckInDate >= sp.StartDate && newBooking.CheckOutDate <= sp.EndDate
+                                   || newBooking.CheckInDate <= sp.EndDate);
+            if (specialPrice != null)
+            {
+                unitPrice = specialPrice.Price;
+            }
+            else
+            {
+                unitPrice = room.Price;
+            }
             if (voucher != null && voucher.QuantityUse >0)
             {
                 Booking createBooking = new Booking
@@ -1149,16 +1161,19 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public double CheckRoomPrice(int roomID, DateTime CheckInDate, DateTime CheckOutDate)
         {
+            int bookingDays = (CheckOutDate - CheckInDate).Days;
             var room = db.room
                          .Include(specialPrice => specialPrice.SpecialPrice)
                          .FirstOrDefault(room => room.RoomID == roomID);
             var specialPrice = room.SpecialPrice
-                                   .FirstOrDefault(sp => CheckInDate >= sp.StartDate && CheckOutDate <= sp.EndDate);
+                                   .FirstOrDefault(sp => CheckInDate >= sp.StartDate && CheckOutDate <= sp.EndDate
+                                   || CheckInDate <= sp.EndDate);
+      
             if (specialPrice != null)
             {
                 room.Price = specialPrice.Price;
             }
-            return room.Price;
+            return room.Price;  
         }
 
         public async Task<string> GeneratePaymentLink(PaymentRequestDTO request)    

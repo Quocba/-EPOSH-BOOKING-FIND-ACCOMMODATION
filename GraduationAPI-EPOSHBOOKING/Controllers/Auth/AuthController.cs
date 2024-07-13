@@ -89,7 +89,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         }
 
         [HttpPut("update-profile")]
-        public IActionResult UpdateProfileByAccount([FromForm] int accountID, [FromForm]String? phone, [FromForm] Profile profile, [FromForm] IFormFile? Avatar)
+        public IActionResult UpdateProfileByAccount([FromForm] int accountID, [FromForm]String? phone, [FromForm] Profile? profile, [FromForm] IFormFile? Avatar)
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
