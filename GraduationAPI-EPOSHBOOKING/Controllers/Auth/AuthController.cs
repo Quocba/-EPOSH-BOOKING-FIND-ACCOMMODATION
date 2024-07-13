@@ -120,7 +120,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         [HttpGet("get-time-server")]
         public IActionResult GetTime()
         {
-            var time = DateTime.Now.AddHours(14);
+            var time = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.UtcNow, "SE Asia Standard Time");
             return Ok(time);
         }
             

@@ -77,7 +77,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         {
                             var currentDate = DateTime.Now.AddHours(14);
                             var specialPrice = room.SpecialPrice
-                                .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                                .FirstOrDefault(sp => currentDate.Date >= sp.StartDate && currentDate.Date <= sp.EndDate);
                             if (specialPrice != null)
                             {
                                 room.Price = specialPrice.Price;
@@ -142,7 +142,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     {
                         var currentDate = DateTime.Now.AddHours(14);
                         var specialPrice = room.SpecialPrice
-                                               .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                                               .FirstOrDefault(sp => currentDate.Date >= sp.StartDate && currentDate.Date <= sp.EndDate);
                         if (specialPrice != null)
                         {
                             room.Price = specialPrice.Price;
@@ -212,7 +212,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
                 var roomsWithUpdatedPrice = getHotel.rooms.Select(room =>
                 {
-                    var specialPrice = room.SpecialPrice.FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                    var specialPrice = room.SpecialPrice.FirstOrDefault(sp => currentDate.Date >= sp.StartDate.Date && currentDate <= sp.EndDate);
                     if (specialPrice != null)
                     {
                         room.Price = specialPrice.Price;
@@ -267,7 +267,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 {
                     var finalPrice = room.Price;
                     var specialPrice = room.SpecialPrice
-                        .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                        .FirstOrDefault(sp => currentDate.Date >= sp.StartDate && currentDate.Date <= sp.EndDate);
                     if (specialPrice != null)
                     {
                         finalPrice = specialPrice.Price;
@@ -358,7 +358,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                                       Rooms = hotel.rooms?.Select(room =>
                                                       {
                                                           var specialPrice = room.SpecialPrice
-                                                              .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                                                              .FirstOrDefault(sp => currentDate.Date >= sp.StartDate && currentDate.Date <= sp.EndDate);
                                                           return new
                                                           {
                                                               RoomID = room.RoomID,
@@ -460,7 +460,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     Rooms = hotel.rooms.Select(room =>
                     {
                         var specialPrice = room.SpecialPrice
-                            .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                            .FirstOrDefault(sp => currentDate.Date >= sp.StartDate && currentDate.Date <= sp.EndDate);
                         return new
                         {
                             RoomID = room.RoomID,
@@ -1262,7 +1262,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     }).ToList(),
                     Rooms = hotel.rooms.Select(room =>
                     {
-                        var specialPrice = room.SpecialPrice.FirstOrDefault(x => x.StartDate <= currentDate && x.EndDate >= currentDate);
+                        var specialPrice = room.SpecialPrice.FirstOrDefault(x => x.StartDate <= currentDate.Date && x.EndDate >= currentDate.Date);
                         if (specialPrice != null)
                         {
                             room.Price = specialPrice.Price;
@@ -1359,7 +1359,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                        {
                                            var currentDate = DateTime.Now.AddHours(14);
                                            var specialPrice = room.SpecialPrice
-                                               .FirstOrDefault(sp => currentDate >= sp.StartDate && currentDate <= sp.EndDate);
+                                               .FirstOrDefault(sp => currentDate.Date >= sp.StartDate && currentDate.Date <= sp.EndDate);
                                            if (specialPrice != null)
                                            {
                                                room.Price = specialPrice.Price;
