@@ -38,6 +38,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.Never;
 });
 
 builder.Services.Configure<FormOptions>(options =>
@@ -61,7 +62,7 @@ builder.Services.AddCors(options =>
     });
 builder.Services.AddLogging();
 builder.Services.AddHostedService<BookingStatusServcie>();
-builder.Services.AddHostedService<ClearDataBookingService>();
+//builder.Services.AddHostedService<ClearDataBookingService>();
 var app = builder.Build();
 app.UseDeveloperExceptionPage();
         app.UseSwagger();

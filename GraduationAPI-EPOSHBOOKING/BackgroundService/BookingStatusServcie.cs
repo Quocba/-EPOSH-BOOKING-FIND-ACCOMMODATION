@@ -38,7 +38,7 @@ namespace GraduationAPI_EPOSHBOOKING.BackgroundService
                     var bookings = dbContext.booking
                         .Include(b => b.Room)
                         .Include(account => account.Account)
-                        .Where(b => b.Status.Equals("Awaiting Check-in") && currentDate > b.CheckInDate)
+                        .Where(b => b.Status.Equals("Awaiting Check-in") && currentDate.Date > b.CheckInDate)
                         .ToList();
 
                     foreach (var booking in bookings)
