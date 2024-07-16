@@ -14,6 +14,7 @@ using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.Extensions.Configuration;
 using GraduationAPI_EPOSHBOOKING.DataAccess;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace GraduationAPI_EPOSHBOOKING.Ultils
 {
@@ -22,6 +23,22 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
         public static class AppSettings
         {
             public static string Token { get; } = "my top secret key";
+        }
+        public static string RemoveVietnameseDiacritics(string text)
+        {
+            string normalizedString = text.Normalize(NormalizationForm.FormD);
+            StringBuilder stringBuilder = new StringBuilder();
+
+            foreach (char c in normalizedString)
+            {
+                UnicodeCategory unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
 
         public static IConfiguration configuration;
@@ -236,7 +253,7 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
         }
         public static string GenerateRandomString()
         {
-            int length = 32;
+            int length = 5;
             const string prefix = "EPOSH";
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             Random random = new Random();
@@ -427,9 +444,10 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
                 roomPrice = CheckRoomPrice(booking.Room.RoomID, booking.CheckInDate, booking.CheckOutDate);
                 totalPrice = (roomPrice * booking.NumberOfRoom) * bookingDay;
                 totalTaxesPrice = totalPrice * 0.05;
-                mainTotalPrice = totalPrice + totalTaxesPrice;
-                totalPriceRoom = roomPrice * bookingDay;
+                
+                totalPriceRoom = (roomPrice * booking.NumberOfRoom) * bookingDay;
                 serviceFee = totalPrice * 0.1;
+                mainTotalPrice = totalPrice + totalTaxesPrice + serviceFee;
 
             if (booking.Voucher != null && booking.Voucher.Discount > 0)
                 {
