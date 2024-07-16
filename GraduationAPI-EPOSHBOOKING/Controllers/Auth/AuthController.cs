@@ -89,15 +89,15 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         }
 
         [HttpPut("update-profile")]
-        public IActionResult UpdateProfileByAccount([FromForm] int accountID, [FromForm]String? phone, [FromForm] Profile? profile, [FromForm] IFormFile? Avatar)
+        public IActionResult UpdateProfileByAccount([FromForm] int accountID, [FromForm]String? email, [FromForm]String? phone, [FromForm] Profile? profile, [FromForm] IFormFile? Avatar)
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
             try
-            {
+            {   
                 if (user.Role.Name.ToLower().Equals("customer") || user.Role.Name.ToLower().Equals("partner"))
                 {
-                    var response = repository.UpdateProfileByAccount(accountID,phone, profile, Avatar);
+                    var response = repository.UpdateProfileByAccount(accountID,email,phone, profile, Avatar);
                     return StatusCode(response.StatusCode, response);
                  }       
                 else
@@ -120,7 +120,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         [HttpGet("get-time-server")]
         public IActionResult GetTime()
         {
-            var time = DateTime.Now.AddHours(14);
+            var time = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.UtcNow, "SE Asia Standard Time");
             return Ok(time);
         }
             

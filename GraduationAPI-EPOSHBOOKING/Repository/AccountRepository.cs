@@ -99,8 +99,20 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                    .FirstOrDefault(x => x.Phone.Equals(phone));
                 if (checkPhone != null)
                 {
+                    var responseData = new
+                    {
+                        AccountID = checkPhone.AccountID,
+                        Email = checkPhone.Email ?? null,
+                        Phone = checkPhone.Phone ?? null,
+                        Role = checkPhone.Role?.Name ?? null,
+                        FullName = checkPhone.Profile?.fullName ?? null,
+                        BirthDay = checkPhone.Profile?.BirthDay ?? null,
+                        Gender = checkPhone.Profile?.Gender ?? null,
+                        Address = checkPhone.Profile?.Address ?? null,
+                        Avatar = checkPhone.Profile?.Avatar ?? null
+                    };
                     var token = Ultils.Utils.CreateToken(checkPhone, configuration);
-                    return new ResponseMessage { Success = true, Data = checkPhone, Token = token, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                    return new ResponseMessage { Success = true, Data = responseData, Token = token, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                 }
                 if (checkPhone != null && checkPhone.IsActive == false)
                 {
@@ -122,8 +134,20 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     };
                     db.accounts.Add(addAccount);
                     db.SaveChanges();
+                    var responseData = new
+                    {
+                        AccountID = addAccount.AccountID,
+                        Email = addAccount.Email ?? null,
+                        Phone = addAccount.Phone ?? null,
+                        Role = addAccount.Role?.Name ?? null,
+                        FullName = addAccount.Profile?.fullName ?? null,
+                        BirthDay = addAccount.Profile?.BirthDay ?? null,
+                        Gender = addAccount.Profile?.Gender ?? null,
+                        Address = addAccount.Profile?.Address ?? null,
+                        Avatar = addAccount.Profile?.Avatar ?? null
+                    };
                     var token = Ultils.Utils.CreateToken(addAccount, configuration);
-                    return new ResponseMessage { Success = true, Data = addAccount, Token = token, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                    return new ResponseMessage { Success = true, Data = responseData, Token = token, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                 }
             }
             return new ResponseMessage { Success = false, Data = phone, Message = "Phone is not in correct format. Please re-enter for example: 0123456789", StatusCode = (int)HttpStatusCode.BadRequest };
@@ -220,7 +244,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             };
         }
 
-        public ResponseMessage UpdateProfileByAccount(int accountID,String phone, Profile profile,IFormFile avatar)
+        public ResponseMessage UpdateProfileByAccount(int accountID,String email,String phone, Profile profile,IFormFile avatar)
         {
             try
             {
@@ -229,28 +253,34 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 {
                     return new ResponseMessage { Success = false, Data = null, Message = "Data not found", StatusCode = (int)HttpStatusCode.NotFound };
                 }
-
                 if (avatar == null)
                 {
+                    getAccount.Email = email;
                     getAccount.Phone = phone;
                     getAccount.Profile.fullName = profile.fullName;
                     getAccount.Profile.BirthDay = profile.BirthDay;
                     getAccount.Profile.Gender = profile.Gender;
                     getAccount.Profile.Address = profile.Address;
                     getAccount.Profile.Avatar = profile.Avatar;
+                    db.accounts.Update(getAccount);
+                    db.SaveChanges();
+                    return new ResponseMessage { Success = true, Data = getAccount, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                 }
                 else
                 {
+                    getAccount.Email = email;
                     getAccount.Phone = phone;
                     getAccount.Profile.fullName = profile.fullName;
                     getAccount.Profile.BirthDay = profile.BirthDay;
                     getAccount.Profile.Gender = profile.Gender;
                     getAccount.Profile.Address = profile.Address;
                     getAccount.Profile.Avatar = Utils.SaveImage(avatar, environment);
+                    db.accounts.Update(getAccount);
+                    db.SaveChanges();
+                    return new ResponseMessage { Success = true, Data = getAccount, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+
                 }
-                db.accounts.Update(getAccount);
-                db.SaveChanges();
-                return new ResponseMessage { Success = true, Data = getAccount, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+
             }
             catch (Exception ex)
             {
