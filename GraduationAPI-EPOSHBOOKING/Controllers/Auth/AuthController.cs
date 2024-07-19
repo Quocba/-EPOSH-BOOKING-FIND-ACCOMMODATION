@@ -114,7 +114,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         [HttpPost("login")]
         public IActionResult Login([FromBody]LoginDTO login)
         {
-            var response = repository.Login(login.Email, login.Password);
+            var response = repository.Login(login.text, login.Password);
             return StatusCode(response.StatusCode, response);
         }
         [HttpGet("get-time-server")]
