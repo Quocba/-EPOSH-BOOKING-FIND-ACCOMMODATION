@@ -24,23 +24,24 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         }
 
         [HttpPost("partner-register")]
-        public IActionResult RegisterPartnerAccount([FromForm]Account account, [FromForm]String fullName)
+        public IActionResult RegisterPartnerAccount([FromForm] Account account, [FromForm] String fullName)
         {
             var response = repository.RegisterPartnerAccount(account, fullName);
-            return StatusCode(response.StatusCode,response);    
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpPost("login-phone")]
-        public IActionResult LoginPhone([FromForm]String phone)
+        public IActionResult LoginPhone([FromForm] String phone)
         {
             var response = repository.LoginWithNumberPhone(phone);
-            return StatusCode(response.StatusCode,response);
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpPut("active-account")]
-        public IActionResult ActiveAccount([FromForm]String email) { 
+        public IActionResult ActiveAccount([FromForm] String email)
+        {
             var response = repository.ActiveAccount(email);
-            return StatusCode(response.StatusCode,response);
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpPost("register-customer")]
@@ -89,30 +90,30 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
         }
 
         [HttpPut("update-profile")]
-        public IActionResult UpdateProfileByAccount([FromForm] int accountID, [FromForm]String? email, [FromForm]String? phone, [FromForm] Profile? profile, [FromForm] IFormFile? Avatar)
+        public IActionResult UpdateProfileByAccount([FromForm] int accountID, [FromForm] String? email, [FromForm] String? phone, [FromForm] Profile? profile, [FromForm] IFormFile? Avatar)
         {
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
             try
-            {   
+            {
                 if (user.Role.Name.ToLower().Equals("customer") || user.Role.Name.ToLower().Equals("partner"))
                 {
-                    var response = repository.UpdateProfileByAccount(accountID,email,phone, profile, Avatar);
+                    var response = repository.UpdateProfileByAccount(accountID, email, phone, profile, Avatar);
                     return StatusCode(response.StatusCode, response);
-                 }       
+                }
                 else
                 {
                     return Unauthorized();
-                }       
-             }
+                }
+            }
             catch (Exception ex)
             {
-                 return Unauthorized();
+                return Unauthorized();
             }
 
         }
         [HttpPost("login")]
-        public IActionResult Login([FromBody]LoginDTO login)
+        public IActionResult Login([FromBody] LoginDTO login)
         {
             var response = repository.Login(login.text, login.Password);
             return StatusCode(response.StatusCode, response);
@@ -123,7 +124,7 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
             var time = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.UtcNow, "SE Asia Standard Time");
             return Ok(time);
         }
-            
+
         [HttpGet("get-profile-by-account")]
         public IActionResult GetProfileByAccountId([FromQuery] int accountId)
         {
@@ -140,18 +141,67 @@ namespace GraduationAPI_EPOSHBOOKING.Controllers.Auth
                 {
                     return Unauthorized();
                 }
-            }catch (Exception ex)
-            {   
+            }
+            catch (Exception ex)
+            {
                 return Unauthorized();
             }
 
         }
 
         [HttpPost("google-login")]
-        public IActionResult GoogleLogin([FromForm]String email, [FromForm] String userName, [FromForm] String avartar)
-        { 
-                    var reponse = repository.GoogleLogin(email, userName, avartar);
-                    return StatusCode(reponse.StatusCode, reponse);     
+        public IActionResult GoogleLogin([FromForm] String email, [FromForm] String userName, [FromForm] String avartar)
+        {
+            var reponse = repository.GoogleLogin(email, userName, avartar);
+            return StatusCode(reponse.StatusCode, reponse);
+        }
+
+        [HttpPut("update-email")]
+        public IActionResult UpdateEmail([FromForm] int accountID, [FromForm] String email)
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                if (user.Role.Name.ToLower().Equals("customer") || user.Role.Name.ToLower().Equals("partner"))
+                {
+                    var response = repository.UpdateEmail(accountID, email);
+                    return StatusCode(response.StatusCode, response);
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized();
+            }
+        }
+
+        [HttpPut("update-phone")]
+        public IActionResult UpdatePone([FromForm] int accountID, [FromForm] String phone)
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var user = Ultils.Utils.GetUserInfoFromToken(token, configuration);
+            try
+            {
+                if (user.Role.Name.ToLower().Equals("customer") || user.Role.Name.ToLower().Equals("partner"))
+                {
+                    var response = repository.UpdatePhone(accountID, phone);
+                    return StatusCode(response.StatusCode, response);
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized();
+            }
         }
     }
 }

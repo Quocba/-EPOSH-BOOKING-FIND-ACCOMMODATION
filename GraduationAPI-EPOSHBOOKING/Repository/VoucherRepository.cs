@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Net;
+#pragma warning disable // tắt cảnh báo để code sạch hơn
 
 namespace GraduationAPI_EPOSHBOOKING.Repository
 {

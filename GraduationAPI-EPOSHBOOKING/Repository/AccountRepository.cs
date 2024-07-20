@@ -1,4 +1,5 @@
-﻿using GraduationAPI_EPOSHBOOKING.DataAccess;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using GraduationAPI_EPOSHBOOKING.DataAccess;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using GraduationAPI_EPOSHBOOKING.Ultils;
@@ -561,6 +562,43 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 var token = Ultils.Utils.CreateToken(createAccount, configuration);
                 return new ResponseMessage { Success = true, Data = createAccount, Token = token, Message = "Login Successfully" ,StatusCode = (int)HttpStatusCode.OK};
             }
+        }
+
+        public ResponseMessage UpdateEmail(int accountID, string email)
+        {
+            var checkEmail = db.accounts.FirstOrDefault(x => x.Email.Equals(email));
+            if (checkEmail == null)
+            {
+                var checkAccount = db.accounts
+                             .Include(x => x.Role)
+                             .Include(x => x.Profile)
+                             .FirstOrDefault(x => x.AccountID == accountID);
+                if (checkAccount != null)
+                {
+                    checkAccount.Email = email;
+                    db.accounts.Update(checkAccount);
+                    db.SaveChanges();
+                    return new ResponseMessage { Success = true, Message = "Success", Data = checkAccount, StatusCode = (int)HttpStatusCode.OK };
+                }     
+            }
+             return new ResponseMessage { Success = false, Message = "Email Already Exist", Data = checkEmail, StatusCode = (int)HttpStatusCode.AlreadyReported };
+        }
+
+        public ResponseMessage UpdatePhone(int accountID, string phone)
+        {
+            var checkAccount = db.accounts
+                       .Include(x => x.Role)
+                       .Include(x => x.Profile)
+                       .FirstOrDefault(x => x.AccountID == accountID);
+            if (checkAccount != null)
+            {
+                checkAccount.Phone = phone;
+                db.accounts.Update(checkAccount);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true, Message = "Success", Data = checkAccount, StatusCode = (int)HttpStatusCode.OK };
+            }
+
+            return new ResponseMessage { Success = false, Message = "Data Not Found", Data = checkAccount, StatusCode = (int)HttpStatusCode.NotFound };
         }
     }
 }

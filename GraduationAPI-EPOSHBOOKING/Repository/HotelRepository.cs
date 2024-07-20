@@ -562,8 +562,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
             var addAddress = new HotelAddress
             {
-                Address = registration.HotelAddress,
-                City = registration.City,
+                Address = Ultils.Utils.RemoveVietnameseDiacritics(registration.HotelAddress),
+                City = Ultils.Utils.RemoveVietnameseDiacritics(registration.City),
                 latitude = registration.Latitude,
                 longitude = registration.Longitude
             };
@@ -1214,8 +1214,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                   .FirstOrDefault(x => x.HotelID == hotelID);
             if (address != null)
             {
-                address.HotelAddress.Address =newAddress.Address;
-                address.HotelAddress.City = newAddress.City;
+                address.HotelAddress.Address = Ultils.Utils.RemoveVietnameseDiacritics(newAddress.Address);
+                address.HotelAddress.City = Ultils.Utils.RemoveVietnameseDiacritics(newAddress.City);
                 address.HotelAddress.latitude = newAddress.latitude;
                 address.HotelAddress.longitude = newAddress.longitude;
                 db.hotel.Update(address);
