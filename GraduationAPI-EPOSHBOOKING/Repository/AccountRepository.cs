@@ -1,4 +1,5 @@
-﻿using GraduationAPI_EPOSHBOOKING.DataAccess;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using GraduationAPI_EPOSHBOOKING.DataAccess;
 using GraduationAPI_EPOSHBOOKING.IRepository;
 using GraduationAPI_EPOSHBOOKING.Model;
 using GraduationAPI_EPOSHBOOKING.Ultils;
@@ -30,9 +31,15 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             String role = "Partner";
             var addRole = db.roles.FirstOrDefault(x => x.Name.Equals(role));
             var checkEmailAlready = db.accounts.FirstOrDefault(email => email.Email.Equals(account.Email));
+            var checkPhone = db.accounts.FirstOrDefault(x => x.Phone.Equals(account.Phone));
             if (checkEmailAlready != null)
             {   
-                return new ResponseMessage { Success = false, Data = checkEmailAlready.Email, Message = "Email Already Exist", StatusCode = (int)HttpStatusCode.AlreadyReported };
+                return new ResponseMessage { Success = false, Data = checkEmailAlready.Email, Message = "Email is already exists. Please login!", StatusCode = (int)HttpStatusCode.AlreadyReported };
+            }
+           
+            else if (checkPhone != null)
+            {
+                return new ResponseMessage { Success = false, Data = checkPhone.Phone, Message = "Phone is already exists. Please login!", StatusCode = (int)HttpStatusCode.AlreadyReported };
             }
             else
             {
@@ -159,9 +166,13 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 return new ResponseMessage
                 {
                     Success = false,
-                    Message = "Email is already registered",
+                    Message = "Email is already exists. Please login!",
                     StatusCode = (int)HttpStatusCode.AlreadyReported
                 };
+            }
+            var checkPhone = db.accounts.FirstOrDefault(x => x.Phone.Equals(phone));
+            if (checkPhone != null) { 
+                return new ResponseMessage { Success = false, Data = checkPhone.Email, Message = "Phone is already exists. Please login!", StatusCode = (int)HttpStatusCode.AlreadyReported };
             }
 
             string hashedPassword = Utils.HashPassword(password);
@@ -425,14 +436,14 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             
         }
 
-        public ResponseMessage Login(String email, String password)
+        public ResponseMessage Login(String text, String password)
         {
             var passwordMD5 = Ultils.Utils.HashPassword(password);
             var checkAccount = db.accounts
                                  .Include(profile => profile.Profile)
                                  .Include(Role => Role.Role)
                                  .Include(hotel => hotel.Hotel)
-                                 .FirstOrDefault(x => x.Email.Equals(email) && x.Password.Equals(passwordMD5));
+                                 .FirstOrDefault(x => x.Email.Equals(text) && x.Password.Equals(passwordMD5) || x.Phone.Equals(text) && x.Password.Equals(passwordMD5));
            if(checkAccount != null && checkAccount.IsActive == true && checkAccount.Role.Name.Equals("Customer"))
             {
                 var token = Ultils.Utils.CreateToken(checkAccount,configuration);
@@ -551,6 +562,49 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 var token = Ultils.Utils.CreateToken(createAccount, configuration);
                 return new ResponseMessage { Success = true, Data = createAccount, Token = token, Message = "Login Successfully" ,StatusCode = (int)HttpStatusCode.OK};
             }
+        }
+
+        public ResponseMessage UpdateEmail(int accountID, string email)
+        {
+            var checkEmail = db.accounts.FirstOrDefault(x => x.Email.Equals(email));
+            if (checkEmail == null)
+            {
+                var checkAccount = db.accounts
+                             .Include(x => x.Role)
+                             .Include(x => x.Profile)
+                             .FirstOrDefault(x => x.AccountID == accountID);
+                if (checkAccount != null)
+                {
+                    checkAccount.Email = email;
+                    db.accounts.Update(checkAccount);
+                    db.SaveChanges();
+                    return new ResponseMessage { Success = true, Message = "Success", Data = checkAccount, StatusCode = (int)HttpStatusCode.OK };
+                }     
+            }
+             return new ResponseMessage { Success = false, Message = "Email Already Exist", Data = checkEmail, StatusCode = (int)HttpStatusCode.AlreadyReported };
+        }
+
+        public ResponseMessage UpdatePhone(int accountID, string phone)
+        {
+            var checkPhone = db.accounts.FirstOrDefault(x => x.Phone.Equals(phone));
+            if (checkPhone != null)
+            {
+                return new ResponseMessage { Success = false, Message = "Phone Already Exist", Data = checkPhone, StatusCode = (int)HttpStatusCode.AlreadyReported };
+
+            }
+            var checkAccount = db.accounts
+                       .Include(x => x.Role)
+                       .Include(x => x.Profile)
+                       .FirstOrDefault(x => x.AccountID == accountID);
+            if (checkAccount != null)
+            {
+                checkAccount.Phone = phone;
+                db.accounts.Update(checkAccount);
+                db.SaveChanges();
+                return new ResponseMessage { Success = true, Message = "Success", Data = checkAccount, StatusCode = (int)HttpStatusCode.OK };
+            }
+
+            return new ResponseMessage { Success = false, Message = "Data Not Found", Data = checkAccount, StatusCode = (int)HttpStatusCode.NotFound };
         }
     }
 }

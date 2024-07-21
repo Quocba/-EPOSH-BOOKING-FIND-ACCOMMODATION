@@ -1,5 +1,6 @@
 ﻿using GraduationAPI_EPOSHBOOKING.IRepository;
 using Microsoft.AspNetCore.Mvc;
+#pragma warning disable // tắt cảnh báo để code sạch hơn
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Admin
 {

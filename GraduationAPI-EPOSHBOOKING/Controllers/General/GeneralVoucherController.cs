@@ -4,6 +4,7 @@ using GraduationAPI_EPOSHBOOKING.Ultils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+#pragma warning disable // tắt cảnh báo để code sạch hơn
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
 {

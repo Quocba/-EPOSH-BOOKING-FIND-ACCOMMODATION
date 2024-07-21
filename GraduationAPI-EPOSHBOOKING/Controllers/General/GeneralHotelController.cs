@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using System.Net;
 using GraduationAPI_EPOSHBOOKING.DTO;
+#pragma warning disable // tắt cảnh báo để code sạch hơn
 
 namespace GraduationAPI_EPOSHBOOKING.Controllers.Guest
 {
