@@ -586,6 +586,12 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
 
         public ResponseMessage UpdatePhone(int accountID, string phone)
         {
+            var checkPhone = db.accounts.FirstOrDefault(x => x.Phone.Equals(phone));
+            if (checkPhone != null)
+            {
+                return new ResponseMessage { Success = false, Message = "Phone Already Exist", Data = checkPhone, StatusCode = (int)HttpStatusCode.AlreadyReported };
+
+            }
             var checkAccount = db.accounts
                        .Include(x => x.Role)
                        .Include(x => x.Profile)
