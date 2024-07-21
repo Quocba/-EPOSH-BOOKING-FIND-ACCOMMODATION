@@ -1166,7 +1166,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                          .FirstOrDefault(room => room.RoomID == roomID);
             var specialPrice = room.SpecialPrice
                                    .FirstOrDefault(sp => CheckInDate >= sp.StartDate && CheckOutDate <= sp.EndDate
-                                   || CheckInDate <= sp.EndDate);
+                                   || CheckInDate <= sp.EndDate && CheckInDate >= sp.StartDate);
       
             if (specialPrice != null)
             {

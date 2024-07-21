@@ -16,9 +16,10 @@ namespace GraduationAPI_EPOSHBOOKING.IRepository
         ResponseMessage BlockedAccount(int accountID,String reasonBlock);
         ResponseMessage FilterAccountByStatus(bool isActive);
         ResponseMessage SearchAccountByName(string fullName);
-        ResponseMessage Login(String email, String password);
-
+        ResponseMessage Login(String text, String password);
         ResponseMessage GoogleLogin(String email, String userName, String avatar);
+        ResponseMessage UpdateEmail(int accountID, String email);
+        ResponseMessage UpdatePhone(int accountID, String phone);
         
     }
 }

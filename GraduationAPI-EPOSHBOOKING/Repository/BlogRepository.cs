@@ -37,7 +37,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     BlogID = blog.BlogID,
                     Title = blog.Title,
                     Description = blog.Description,
-                    Location = blog.Location,
+                    Location = Ultils.Utils.RemoveVietnameseDiacritics(blog.Location),
                     PublishDate = blog.PublishDate,
                     ReasonReject = blog.ReasonReject,
                     Status = blog.Status,
