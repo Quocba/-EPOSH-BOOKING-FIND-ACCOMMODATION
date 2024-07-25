@@ -360,9 +360,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         db.hotel.Update(getHotel);
                         db.SaveChanges();
                     }
-
-
-
                     return new ResponseMessage { Success = true, Data = getRoom, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                 }
  
