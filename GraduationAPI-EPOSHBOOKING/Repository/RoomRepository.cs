@@ -142,35 +142,45 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             db.SaveChanges();
             var totalQuantity = db.room.Where(hotel => hotel.Hotel.HotelID == getHotel.HotelID)
                    .Sum(room => room.Quantity);
-            if (totalQuantity > 0 && totalQuantity <= 10)
+            var checkRoom = db.room.Include(hotel => hotel.Hotel)
+                                   .Where(hotel => hotel.Hotel.HotelID == hotelID).ToList();
+            if (checkRoom.Any())
             {
-                getHotel.HotelStandar = 1;
-                db.hotel.Update(getHotel);
-                db.SaveChanges();
+                return new ResponseMessage { Success = true, Data = createRoom, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+
             }
-            if (totalQuantity >= 20 && totalQuantity <= 49)    
+            else
             {
-                getHotel.HotelStandar = 2;
-                db.hotel.Update(getHotel);
-                db.SaveChanges();
-            }
-            if (totalQuantity >= 50 && totalQuantity <= 79)
-            {
-                getHotel.HotelStandar = 3;
-                db.hotel.Update(getHotel);
-                db.SaveChanges();
-            }
-            if (totalQuantity >= 80 && totalQuantity <= 99)
-            {
-                getHotel.HotelStandar = 4;
-                db.hotel.Update(getHotel);
-                db.SaveChanges();
-            }
-            if (totalQuantity >= 100)
-            {
-                getHotel.HotelStandar = 5;
-                db.hotel.Update(getHotel);
-                db.SaveChanges();
+                if (totalQuantity > 0 && totalQuantity <= 10)
+                {
+                    getHotel.HotelStandar = 1;
+                    db.hotel.Update(getHotel);
+                    db.SaveChanges();
+                }
+                if (totalQuantity >= 20 && totalQuantity <= 49)
+                {
+                    getHotel.HotelStandar = 2;
+                    db.hotel.Update(getHotel);
+                    db.SaveChanges();
+                }
+                if (totalQuantity >= 50 && totalQuantity <= 79)
+                {
+                    getHotel.HotelStandar = 3;
+                    db.hotel.Update(getHotel);
+                    db.SaveChanges();
+                }
+                if (totalQuantity >= 80 && totalQuantity <= 99)
+                {
+                    getHotel.HotelStandar = 4;
+                    db.hotel.Update(getHotel);
+                    db.SaveChanges();
+                }
+                if (totalQuantity >= 100)
+                {
+                    getHotel.HotelStandar = 5;
+                    db.hotel.Update(getHotel);
+                    db.SaveChanges();
+                }
             }
 
             
