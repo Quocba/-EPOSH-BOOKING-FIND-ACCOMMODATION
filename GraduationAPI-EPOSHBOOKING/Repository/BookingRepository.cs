@@ -380,11 +380,11 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             try
             {
                 var bookings = db.booking
-                    .Where(booking => booking.Account.AccountID == accountID)
                     .Include(booking => booking.Room)
                     .ThenInclude(room => room.Hotel)
                     .Include(booking => booking.Voucher)
                     .Include(booking => booking.Account)
+                    .Where(booking => booking.Account.AccountID == accountID)
                     .ToList();
 
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
@@ -393,9 +393,10 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Booking List");
                     // Define headers
                     string[] headers = {
-    "BookingID", "CheckInDate", "CheckOutDate", "RoomPrice", "NumberOfRoom","Nights", "Taxes", "Service Fee",
-    "Discount", "Total Price","Status", "ReasonCancel"
-};
+                "BookingID", "CheckInDate", "CheckOutDate", "RoomPrice", "NumberOfRoom", "Nights", "Taxes", "Service Fee",
+                "Discount", "Total Price", "Status", "ReasonCancel"
+            };
+
 
                     // Set column headers
                     for (int i = 0; i < headers.Length; i++)
@@ -421,26 +422,29 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         double Taxes = totalPrice1 * 0.05;
                         double serviceFee = totalPrice1 * 0.1;
                         double sumPrice = totalPrice1 + Taxes + serviceFee;
-                        double TotalPrice = 0;
+                        double TotalPrice = sumPrice;
+
                         if (booking.Voucher != null && booking.Voucher.Discount > 0)
                         {
                             discountPrice = (TotalPrice * booking.Voucher.Discount) / 100;
+                            TotalPrice = sumPrice - discountPrice;
                         }
-                        TotalPrice = sumPrice - discountPrice;
+
                         ws.Cells[row, 1].Value = booking.BookingID;
                         ws.Cells[row, 2].Value = booking.CheckInDate.ToString("dd-MM-yyyy");
                         ws.Cells[row, 3].Value = booking.CheckOutDate.ToString("dd-MM-yyyy");
                         ws.Cells[row, 4].Value = roomPrice + " VND";
                         ws.Cells[row, 5].Value = booking.NumberOfRoom;
-                        ws.Cells[row, 6].Value = bookingDay;  // Number of Nights
+                        ws.Cells[row, 6].Value = bookingDay;  // Số đêm
                         ws.Cells[row, 7].Value = Taxes + " VND";
                         ws.Cells[row, 8].Value = serviceFee + " VND";
                         ws.Cells[row, 9].Value = discountPrice + " VND";
                         ws.Cells[row, 10].Value = TotalPrice + " VND";
                         ws.Cells[row, 11].Value = booking.Status;
-                        ws.Cells[row, 12].Value = booking.ReasonCancle; 
+                        ws.Cells[row, 12].Value = booking.ReasonCancle ?? "N/A"; // Kiểm tra null cho ReasonCancel
                         row++;
                     }
+
 
                     // Format data rows
                     ws.Cells[2, 1, ws.Dimension.End.Row, headers.Length].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
