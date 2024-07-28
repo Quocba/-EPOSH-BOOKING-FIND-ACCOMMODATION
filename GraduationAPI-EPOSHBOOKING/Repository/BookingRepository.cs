@@ -644,6 +644,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 {
 
                     var listBookingWithMonth = db.booking
+                        .Where(x => x.Status.Equals("Completed"))
                         .GroupBy(booking => new
                         {
                             CheckInMonth = booking.CheckInDate.Month,
