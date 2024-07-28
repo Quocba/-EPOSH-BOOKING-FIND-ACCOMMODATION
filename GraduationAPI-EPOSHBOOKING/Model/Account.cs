@@ -14,7 +14,7 @@ namespace GraduationAPI_EPOSHBOOKING.Model
         public String? Email { get; set; }
        
         public String? Password { get; set; }
-        [MaxLength(10)]
+        [MaxLength(10)] 
         public String? Phone {  get; set; }
         public bool IsActive { get; set; }
 
