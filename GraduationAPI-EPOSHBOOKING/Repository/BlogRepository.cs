@@ -110,7 +110,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                                    Avatar = c.account.Profile.Avatar
                                 }
                             }
-                        }).ToList(),
+                        }).OrderByDescending(x => x.DateComment).ToList(),
                         BlogImages = blog.BlogImage.Select(img => new
                         {
                             img.ImageID,
