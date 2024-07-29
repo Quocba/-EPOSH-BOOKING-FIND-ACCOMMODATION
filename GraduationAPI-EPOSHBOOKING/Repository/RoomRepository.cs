@@ -211,9 +211,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 }
             }
             db.SaveChanges();
-      
-
-         
                 return new ResponseMessage { Success = true, Data = createRoom, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };     
         }
 
