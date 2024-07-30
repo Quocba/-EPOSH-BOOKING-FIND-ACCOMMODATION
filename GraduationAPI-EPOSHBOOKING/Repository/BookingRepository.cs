@@ -1272,7 +1272,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         Price = booking.Room.Price,
                         Quantity = booking.Room.Quantity,
                         SizeOfRoom = booking.Room.SizeOfRoom,
-                        TypeOfBed = booking.Room.TypeOfRoom,
+                        TypeOfBed = booking.Room.TypeOfBed,
                         NumberOfBed = booking.Room.NumberOfBed,
                         Hotel = new
                         {

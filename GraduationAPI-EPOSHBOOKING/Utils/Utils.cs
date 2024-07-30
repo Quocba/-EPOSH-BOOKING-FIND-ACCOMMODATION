@@ -24,21 +24,34 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
         {
             public static string Token { get; } = "my top secret key";
         }
+        private static readonly string[] VietnameseSigns = new string[]
+{
+        "aAeEoOuUiIdDyY",
+        "áàạảãâấầậẩẫăắằặẳẵ",
+        "ÁÀẠẢÃÂẤẦẬẨẪĂẮẰẶẲẴ",
+        "éèẹẻẽêếềệểễ",
+        "ÉÈẸẺẼÊẾỀỆỂỄ",
+        "óòọỏõôốồộổỗơớờợởỡ",
+        "ÓÒỌỎÕÔỐỒỘỔỖƠỚỜỢỞỠ",
+        "úùụủũưứừựửữ",
+        "ÚÙỤỦŨƯỨỪỰỬỮ",
+        "íìịỉĩ",
+        "ÍÌỊỈĨ",
+        "đ",
+        "Đ",
+        "ýỳỵỷỹ",
+        "ÝỲỴỶỸ"
+};
         public static string RemoveVietnameseDiacritics(string text)
         {
-            string normalizedString = text.Normalize(NormalizationForm.FormD);
-            StringBuilder stringBuilder = new StringBuilder();
-
-            foreach (char c in normalizedString)
+            for (int i = 1; i < VietnameseSigns.Length; i++)
             {
-                UnicodeCategory unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
-                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                for (int j = 0; j < VietnameseSigns[i].Length; j++)
                 {
-                    stringBuilder.Append(c);
+                    text = text.Replace(VietnameseSigns[i][j], VietnameseSigns[0][i - 1]);
                 }
             }
-
-            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
+            return text;
         }
 
         public static IConfiguration configuration;

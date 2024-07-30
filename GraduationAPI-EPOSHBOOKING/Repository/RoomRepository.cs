@@ -173,12 +173,13 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     getHotel.HotelStandar = 5;
                     db.hotel.Update(getHotel);
                     db.SaveChanges();
-                }
+                }   
             }
-            else
+
+            if (checkRoom.Any())
             {
                 var totalQuantity = db.room.Where(hotel => hotel.Hotel.HotelID == getHotel.HotelID)
-                .Sum(room => room.Quantity);
+               .Sum(room => room.Quantity);
                 if (totalQuantity > 0 && totalQuantity <= 10)
                 {
                     getHotel.HotelStandar = 1;
@@ -210,7 +211,8 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                     db.SaveChanges();
                 }
             }
-            db.SaveChanges();
+            
+                db.SaveChanges();
                 return new ResponseMessage { Success = true, Data = createRoom, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };     
         }
 
@@ -358,13 +360,7 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                 var checkRoom = db.room
                                   .Include(x => x.Hotel)
                                   .FirstOrDefault(x => x.Hotel.HotelID == HotelID);
-                if (checkRoom != null)
-                {
-
-                    return new ResponseMessage { Success = true, Data = getRoom, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
-                }
-
-                else
+                if(checkRoom == null)
                 {
                     if (totalQuantity > 0 && totalQuantity <= 10)
                     {
@@ -396,6 +392,10 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
                         db.hotel.Update(getHotel);
                         db.SaveChanges();
                     }
+                    return new ResponseMessage { Success = true, Data = getRoom, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
+                }
+                else
+                {
                     return new ResponseMessage { Success = true, Data = getRoom, Message = "Successfully", StatusCode = (int)HttpStatusCode.OK };
                 }
  
