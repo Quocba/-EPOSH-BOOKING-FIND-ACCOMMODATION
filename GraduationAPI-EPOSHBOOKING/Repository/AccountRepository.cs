@@ -342,7 +342,6 @@ namespace GraduationAPI_EPOSHBOOKING.Repository
             var listAccount = db.accounts.
                                 Include(profile => profile.Profile)
                                 .Include(role => role.Role)
-                                .Where(x => !x.Role.Name.Equals("Admin"))
                                 .ToList();
             var result = listAccount.Where(x => !x.Role.Name.Equals("Admin")).Select(account => new
             {

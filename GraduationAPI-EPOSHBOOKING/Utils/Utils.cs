@@ -454,7 +454,7 @@ namespace GraduationAPI_EPOSHBOOKING.Ultils
                 double totalPriceRoom = 0;
                 double serviceFee = 0;
                 bookingDay = (booking.CheckOutDate - booking.CheckInDate).Days;
-                roomPrice = CheckRoomPrice(booking.Room.RoomID, booking.CheckInDate, booking.CheckOutDate);
+                roomPrice = booking.UnitPrice;
                 totalPrice = (roomPrice * booking.NumberOfRoom) * bookingDay;
                 totalTaxesPrice = totalPrice * 0.05;
                 
